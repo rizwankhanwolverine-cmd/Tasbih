@@ -8,220 +8,197 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050508">
     
-    <link rel="manifest" href="manifest.json?v=3">
-    <link rel="apple-touch-icon" href="icon.png?v=3">
-    <link rel="icon" type="image/png" href="icon.png?v=3">
+    <link rel="manifest" href="manifest.json?v=4">
+    <link rel="apple-touch-icon" href="icon.png?v=4">
+    <link rel="icon" type="image/png" href="icon.png?v=4">
 
-    <title>Tasbih & Salah</title>
+    <title>Infinity Sanctuary</title>
     <style>
-        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #1a1a1a; }
-        
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; }
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
 
         body { 
-            background-color: var(--vanta); 
-            color: var(--gold); 
+            background-color: var(--vanta); color: var(--gold); 
             font-family: -apple-system, system-ui, sans-serif; 
-            margin: 0; padding: 0;
-            overflow: hidden; 
-            height: 100vh;
+            margin: 0; padding: 0; overflow: hidden; height: 100vh;
             display: flex; flex-direction: column;
         }
 
-        /* Page Management */
-        .page {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: calc(100vh - 70px);
-            width: 100%;
-            padding: 20px;
-        }
+        .page { display: none; flex-direction: column; justify-content: center; align-items: center; height: calc(100vh - 70px); width: 100%; padding: 20px; }
         .active-page { display: flex; }
 
-        /* TAB 1: TASBIH STYLES */
-        .header { text-align: center; margin-bottom: 30px; }
-        .stats { font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; color: var(--gold); opacity: 0.8; }
-        .stats span { color: var(--white); font-size: 1rem; }
-        
-        .tasbih-wrapper { position: relative; width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; }
+        /* TASBIH STYLES */
+        .stats { font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; color: var(--gold); opacity: 0.7; }
+        .tasbih-wrapper { position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center; margin: 20px 0; }
         .progress-ring { position: absolute; transform: rotate(-90deg); }
         .progress-ring__circle { transition: stroke-dashoffset 0.3s; stroke: var(--gold); stroke-linecap: round; }
-        .circle { width: 220px; height: 220px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 5rem; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: inset 0 0 30px #000; }
+        .circle { width: 210px; height: 210px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 5rem; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: inset 0 0 30px #000; }
 
-        /* TAB 2: SALAH LOG STYLES */
-        .salah-list { width: 100%; max-width: 300px; }
-        .salah-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--dark-grey);
-            margin: 12px 0; padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(194, 178, 128, 0.1);
-            transition: 0.3s;
-        }
-        .salah-item.checked { border-color: var(--gold); background: rgba(194, 178, 128, 0.05); }
-        .salah-name { font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 300; }
-        
-        /* Custom Checkbox */
-        .checkbox {
-            width: 28px; height: 28px;
-            border: 2px solid var(--gold);
-            border-radius: 6px;
+        /* SALAH ILLUMINATION STYLES */
+        .salah-list { width: 100%; max-width: 320px; }
+        .salah-card {
+            position: relative; overflow: hidden;
+            background: var(--dark-grey); margin: 10px 0; padding: 22px;
+            border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05);
             display: flex; justify-content: center; align-items: center;
-            transition: 0.2s;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        .checkbox-inner { width: 14px; height: 14px; background: var(--gold); display: none; border-radius: 2px; }
-        .checked .checkbox-inner { display: block; }
-        .checked .salah-name { color: var(--white); text-shadow: 0 0 10px rgba(194,178,128,0.5); }
+        .salah-name { font-size: 1.1rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 300; color: rgba(194,178,128,0.4); transition: 0.6s; }
+        
+        /* The "Light" Effect */
+        .salah-card.lit { 
+            background: rgba(194, 178, 128, 0.1);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 20px rgba(194, 178, 128, 0.2);
+        }
+        .salah-card.lit .salah-name { color: var(--white); text-shadow: 0 0 15px var(--gold); }
 
-        /* BOTTOM NAVIGATION */
-        .nav-bar {
-            height: 70px; background: #0a0a0d;
-            border-top: 1px solid rgba(194, 178, 128, 0.2);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 1000;
+        /* Celebration Badge */
+        #celebration-badge { 
+            font-size: 0.7rem; letter-spacing: 3px; padding: 5px 15px; border-radius: 20px;
+            border: 1px solid var(--gold); display: none; margin-bottom: 10px;
+            animation: pulse 2s infinite;
         }
-        .nav-item { color: var(--gold); opacity: 0.4; text-align: center; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; padding: 10px; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; box-shadow: 0 0 15px var(--gold); } 100% { opacity: 0.5; } }
+
+        /* BOTTOM NAV */
+        .nav-bar { height: 70px; background: #0a0a0d; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; }
+        .nav-item { color: var(--gold); opacity: 0.3; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px; transition: 0.3s; }
         .nav-item.active { opacity: 1; border-bottom: 2px solid var(--gold); }
 
-        .reset-container { margin-top: 20px; display: flex; gap: 10px; }
-        .btn-small { background: none; border: 1px solid rgba(194, 178, 128, 0.3); color: var(--gold); padding: 8px 12px; border-radius: 20px; font-size: 0.6rem; }
+        .btn-reset { background: none; border: 1px solid rgba(194, 178, 128, 0.2); color: var(--gold); padding: 8px 15px; border-radius: 20px; font-size: 0.6rem; opacity: 0.5; margin-top: 10px; }
     </style>
 </head>
-<body>
+<body id="main-body">
 
     <div id="page-tasbih" class="page active-page" onclick="handleTasbihTap(event)">
-        <div class="header">
-            <div class="stats">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
-            <h1 id="title" style="letter-spacing: 5px; font-weight: 300;">TASBIH</h1>
-        </div>
+        <div class="stats">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
+        <h1 id="title" style="letter-spacing: 8px; font-weight: 200; margin: 10px 0;">TASBIH</h1>
         <div class="tasbih-wrapper">
-            <svg width="300" height="300" class="progress-ring">
-                <circle stroke="rgba(194, 178, 128, 0.05)" stroke-width="6" fill="transparent" r="135" cx="150" cy="150"/>
-                <circle id="ring" class="progress-ring__circle" stroke-width="8" fill="transparent" r="135" cx="150" cy="150"/>
+            <svg width="280" height="280" class="progress-ring">
+                <circle stroke="rgba(194, 178, 128, 0.05)" stroke-width="4" fill="transparent" r="125" cx="140" cy="140"/>
+                <circle id="ring" class="progress-ring__circle" stroke-width="6" fill="transparent" r="125" cx="140" cy="140"/>
             </svg>
             <div class="circle"><span id="num">0</span></div>
         </div>
-        <div class="reset-container">
-            <button class="btn-small" onclick="resetSession(event)">Reset Session</button>
-        </div>
+        <button class="btn-reset" onclick="resetSession(event)">Reset Session</button>
     </div>
 
     <div id="page-salah" class="page">
-        <h2 style="font-weight: 300; letter-spacing: 4px; margin-bottom: 20px;">DAILY SALAH</h2>
+        <div id="celebration-badge">FULL LIGHT ACHIEVED</div>
+        <h2 style="font-weight: 200; letter-spacing: 5px; margin-bottom: 15px;">SALAH LOG</h2>
         <div class="salah-list">
-            <div class="salah-item" onclick="toggleSalah('fajr')">
-                <span class="salah-name">Fajr</span>
-                <div class="checkbox" id="check-fajr"><div class="checkbox-inner"></div></div>
-            </div>
-            <div class="salah-item" onclick="toggleSalah('dhuhr')">
-                <span class="salah-name">Dhuhr</span>
-                <div class="checkbox" id="check-dhuhr"><div class="checkbox-inner"></div></div>
-            </div>
-            <div class="salah-item" onclick="toggleSalah('asr')">
-                <span class="salah-name">Asr</span>
-                <div class="checkbox" id="check-asr"><div class="checkbox-inner"></div></div>
-            </div>
-            <div class="salah-item" onclick="toggleSalah('maghrib')">
-                <span class="salah-name">Maghrib</span>
-                <div class="checkbox" id="check-maghrib"><div class="checkbox-inner"></div></div>
-            </div>
-            <div class="salah-item" onclick="toggleSalah('isha')">
-                <span class="salah-name">Isha</span>
-                <div class="checkbox" id="check-isha"><div class="checkbox-inner"></div></div>
-            </div>
+            <div class="salah-card" onclick="toggleSalah('fajr')"><span class="salah-name">Fajr</span></div>
+            <div class="salah-card" onclick="toggleSalah('dhuhr')"><span class="salah-name">Dhuhr</span></div>
+            <div class="salah-card" onclick="toggleSalah('asr')"><span class="salah-name">Asr</span></div>
+            <div class="salah-card" onclick="toggleSalah('maghrib')"><span class="salah-name">Maghrib</span></div>
+            <div class="salah-card" onclick="toggleSalah('isha')"><span class="salah-name">Isha</span></div>
         </div>
-        <button class="btn-small" style="margin-top: 20px;" onclick="resetSalah()">Reset All Salah</button>
+        <button class="btn-reset" onclick="manualSalahReset()">Clear Lights</button>
     </div>
 
     <div class="nav-bar">
         <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')">Tasbih</div>
-        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">Salah Log</div>
+        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">Salah</div>
     </div>
 
     <script>
-        // --- CORE AUDIO/HAPTIC ENGINE ---
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         const audioContext = new AudioCtx();
-        function playSound(f, d) {
+        function playSnd(f, d) {
             if (audioContext.state === 'suspended') audioContext.resume();
             const o = audioContext.createOscillator(); const g = audioContext.createGain();
             o.frequency.setValueAtTime(f, audioContext.currentTime);
-            g.gain.setValueAtTime(0.08, audioContext.currentTime);
+            g.gain.setValueAtTime(0.06, audioContext.currentTime);
             g.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + d);
             o.connect(g); g.connect(audioContext.destination); o.start(); o.stop(audioContext.currentTime + d);
         }
 
-        // --- DATA PERSISTENCE ---
         let sessionCount = parseInt(localStorage.getItem('tasbihSession')) || 0;
         let todayCount = parseInt(localStorage.getItem('tasbihToday')) || 0;
         let salahState = JSON.parse(localStorage.getItem('salahState')) || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
-
-        // --- PAGE SWITCHING ---
-        function switchPage(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('page-' + page).classList.add('active-page');
-            document.getElementById('nav-' + page).classList.add('active');
-            playSound(300, 0.05); // Subtle click sound for navigation
+        
+        // --- MIDNIGHT AUTO-RESET LOGIC ---
+        function checkDateReset() {
+            const lastDate = localStorage.getItem('lastAccessDate');
+            const currentDate = new Date().toDateString();
+            if (lastDate && lastDate !== currentDate) {
+                // It's a new day! Clear Salah and Daily Tasbih
+                salahState = { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
+                todayCount = 0;
+                localStorage.setItem('salahState', JSON.stringify(salahState));
+                localStorage.setItem('tasbihToday', 0);
+            }
+            localStorage.setItem('lastAccessDate', currentDate);
         }
 
-        // --- TASBIH LOGIC ---
+        function switchPage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
+            document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active-page');
+            document.getElementById('nav-' + p).classList.add('active');
+            playSnd(200, 0.05);
+        }
+
         const ring = document.getElementById('ring');
-        const circ = 135 * 2 * Math.PI;
+        const circ = 125 * 2 * Math.PI;
         ring.style.strokeDasharray = `${circ} ${circ}`;
 
-        function updateTasbihUI() {
+        function updateUI() {
             document.getElementById('num').textContent = sessionCount;
             document.getElementById('todayNum').textContent = todayCount;
             document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
-            let progress = sessionCount % 100; if (progress === 0 && sessionCount > 0) progress = 100;
-            ring.style.strokeDashoffset = circ - (progress / 100 * circ);
-            document.getElementById('title').textContent = (sessionCount >= 100) ? "MA SHA ALLAH" : "TASBIH";
+            let p = sessionCount % 100; if (p === 0 && sessionCount > 0) p = 100;
+            ring.style.strokeDashoffset = circ - (p / 100 * circ);
+            
+            // Salah UI Update
+            let countLit = 0;
+            const cards = document.querySelectorAll('.salah-card');
+            const keys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            keys.forEach((k, i) => {
+                if (salahState[k]) { cards[i].classList.add('lit'); countLit++; }
+                else { cards[i].classList.remove('lit'); }
+            });
+
+            // Celebration Logic
+            const badge = document.getElementById('celebration-badge');
+            if (countLit === 5) {
+                badge.style.display = 'block';
+                if (!localStorage.getItem('celebratedToday')) {
+                    if (navigator.vibrate) navigator.vibrate([100, 100, 300]);
+                    playSnd(880, 0.5);
+                    localStorage.setItem('celebratedToday', 'true');
+                }
+            } else {
+                badge.style.display = 'none';
+                localStorage.removeItem('celebratedToday');
+            }
+
             localStorage.setItem('tasbihSession', sessionCount);
             localStorage.setItem('tasbihToday', todayCount);
+            localStorage.setItem('salahState', JSON.stringify(salahState));
         }
 
         function handleTasbihTap(e) {
             if (e.target.tagName === 'BUTTON') return;
             sessionCount++; todayCount++;
-            playSound(sessionCount % 100 === 0 ? 880 : 400, 0.1);
-            if (navigator.vibrate) navigator.vibrate(sessionCount % 100 === 0 ? [100, 50, 100] : 30);
-            updateTasbihUI();
-        }
-
-        function resetSession(e) { e.stopPropagation(); if(confirm("Reset session?")) { sessionCount = 0; updateTasbihUI(); } }
-
-        // --- SALAH LOGIC ---
-        function updateSalahUI() {
-            for (let key in salahState) {
-                const item = document.getElementById('check-' + key).parentElement;
-                if (salahState[key]) item.classList.add('checked');
-                else item.classList.remove('checked');
-            }
-            localStorage.setItem('salahState', JSON.stringify(salahState));
+            playSnd(sessionCount % 100 === 0 ? 880 : 400, 0.1);
+            if (navigator.vibrate) navigator.vibrate(30);
+            updateUI();
         }
 
         function toggleSalah(name) {
             salahState[name] = !salahState[name];
-            if (salahState[name]) {
-                playSound(600, 0.2); // Uplifting sound for completion
-                if (navigator.vibrate) navigator.vibrate(60);
-            }
-            updateSalahUI();
+            playSnd(salahState[name] ? 600 : 200, 0.2);
+            if (navigator.vibrate) navigator.vibrate(50);
+            updateUI();
         }
 
-        function resetSalah() {
-            if(confirm("Reset all salah for today?")) {
-                salahState = { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
-                updateSalahUI();
-            }
-        }
+        function resetSession(e) { e.stopPropagation(); if(confirm("Reset session?")) { sessionCount = 0; updateUI(); } }
+        function manualSalahReset() { if(confirm("Extinguish all lights?")) { salahState = { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false }; updateUI(); } }
 
-        // Initialize
-        updateTasbihUI();
-        updateSalahUI();
+        checkDateReset();
+        updateUI();
     </script>
 </body>
 </html>
