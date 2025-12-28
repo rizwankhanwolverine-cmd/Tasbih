@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050508">
@@ -15,7 +16,8 @@
     <style>
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; }
         
-        * { -webkit-tap-highlight-color: transparent; } /* Removes blue flash on tap */
+        /* Removes the blue highlight box when tapping on Android/Chrome */
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
 
         body { 
             background-color: var(--vanta); 
@@ -25,9 +27,11 @@
             justify-content: center; align-items: center; 
             height: 100vh; margin: 0; 
             overflow: hidden; 
-            touch-action: none; 
-            overscroll-behavior-y: contain; /* Stops Chrome pull-to-refresh */
+            touch-action: none; /* Disables all browser gestures like zoom/scroll */
+            overscroll-behavior-y: contain; /* Stops Chrome "Pull-to-refresh" */
             user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
         }
 
         .header { position: absolute; top: 60px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
@@ -39,7 +43,7 @@
             position: relative;
             width: 320px; height: 320px;
             display: flex; justify-content: center; align-items: center;
-            pointer-events: none; /* Touches go through to the body */
+            pointer-events: none; /* Let clicks pass through to the body */
         }
 
         .progress-ring { position: absolute; transform: rotate(-90deg); }
@@ -54,12 +58,13 @@
             box-shadow: inset 0 0 40px rgba(0,0,0,1);
         }
 
-        .footer { position: absolute; bottom: 60px; display: flex; gap: 12px; z-index: 20; }
+        .footer { position: absolute; bottom: 60px; display: flex; gap: 12px; z-index: 100; }
         .reset-btn {
             background: rgba(194, 178, 128, 0.1); border: 1px solid rgba(194, 178, 128, 0.3);
             color: var(--gold); padding: 14px 20px; cursor: pointer;
             border-radius: 40px; font-size: 0.7rem; font-weight: bold;
             text-transform: uppercase;
+            z-index: 101;
         }
     </style>
 </head>
@@ -91,14 +96,16 @@
         const audioContext = new AudioCtx();
 
         function playSound(freq, dur) {
-            if (audioContext.state === 'suspended') audioContext.resume();
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.frequency.setValueAtTime(freq, audioContext.currentTime);
-            gain.gain.setValueAtTime(0.08, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + dur);
-            osc.connect(gain); gain.connect(audioContext.destination);
-            osc.start(); osc.stop(audioContext.currentTime + dur);
+            try {
+                if (audioContext.state === 'suspended') audioContext.resume();
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + dur);
+                osc.connect(gain); gain.connect(audioContext.destination);
+                osc.start(); osc.stop(audioContext.currentTime + dur);
+            } catch(e) { console.log("Audio blocked"); }
         }
 
         let sessionCount = parseInt(localStorage.getItem('tasbihSession')) || 0;
@@ -124,29 +131,36 @@
         function triggerCount() {
             sessionCount++;
             todayCount++;
+            
+            // Pavlovian Feedback
             playSound(sessionCount % 100 === 0 ? 880 : 400, 0.1);
             if (navigator.vibrate) navigator.vibrate(sessionCount % 100 === 0 ? [200, 100, 200] : 40);
+            
             updateUI();
         }
 
-        // UNIVERSAL EVENT LISTENER
         const body = document.getElementById('main-body');
 
-        // Handles Mobile Touch
-        body.addEventListener('touchstart', function(e) {
+        // DEEP-TOUCH LOGIC: Captures the tap before Chrome can block it
+        body.addEventListener('pointerdown', function(e) {
+            // If user taps the buttons, don't count
             if (e.target.tagName === 'BUTTON') return;
+            
+            // Prevent Chrome from treating this as a browser gesture
             e.preventDefault();
+            
             triggerCount();
         }, { passive: false });
 
-        // Handles Desktop Click
-        body.addEventListener('mousedown', function(e) {
-            if (e.target.tagName === 'BUTTON' || 'ontouchstart' in window) return;
-            triggerCount();
-        });
+        function resetSession(e) { 
+            e.stopPropagation(); 
+            if (confirm("Reset current session to 0?")) { sessionCount = 0; updateUI(); } 
+        }
 
-        function resetSession(e) { e.stopPropagation(); if (confirm("Reset session?")) { sessionCount = 0; updateUI(); } }
-        function resetDaily(e) { e.stopPropagation(); if (confirm("Clear daily?")) { todayCount = 0; updateUI(); } }
+        function resetDaily(e) { 
+            e.stopPropagation(); 
+            if (confirm("Clear your total daily history?")) { todayCount = 0; updateUI(); } 
+        }
 
         updateUI();
     </script>
