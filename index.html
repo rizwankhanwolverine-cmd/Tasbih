@@ -23,15 +23,14 @@
             justify-content: center; align-items: center; 
             height: 100vh; margin: 0; 
             overflow: hidden; 
-            touch-action: none; 
+            touch-action: none; /* Critical: Stops phone from scrolling/zooming */
             user-select: none;
         }
 
-        /* The Tappable Area */
         #touch-surface {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1; /* Sits behind buttons but covers everything else */
+            z-index: 1;
         }
 
         .header { position: absolute; top: 60px; text-align: center; pointer-events: none; width: 100%; z-index: 2; }
@@ -43,7 +42,7 @@
             position: relative;
             width: 320px; height: 320px;
             display: flex; justify-content: center; align-items: center;
-            z-index: 2; pointer-events: none; /* Let clicks pass through to surface */
+            z-index: 2; pointer-events: none;
         }
 
         .progress-ring { position: absolute; transform: rotate(-90deg); }
@@ -69,7 +68,7 @@
 </head>
 <body>
 
-    <div id="touch-surface" onpointerdown="handleTap(event)"></div>
+    <div id="touch-surface"></div>
 
     <div class="header">
         <div class="stats">DAILY TOTAL: <span id="todayNum">0</span></div>
@@ -120,11 +119,9 @@
             document.getElementById('num').textContent = sessionCount;
             document.getElementById('todayNum').textContent = todayCount;
             document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
-
             let progress = sessionCount % 100;
             if (progress === 0 && sessionCount > 0) progress = 100;
             ring.style.strokeDashoffset = circumference - (progress / 100 * circumference);
-
             if (sessionCount >= 100) {
                 document.getElementById('title').textContent = "MA SHA ALLAH";
                 ring.style.stroke = "#FFD700";
@@ -132,12 +129,14 @@
                 document.getElementById('title').textContent = "TASBIH";
                 ring.style.stroke = "var(--gold)";
             }
-
             localStorage.setItem('tasbihSession', sessionCount);
             localStorage.setItem('tasbihToday', todayCount);
         }
 
-        function handleTap(e) {
+        // MOBILE-FIRST TAP LOGIC
+        const surface = document.getElementById('touch-surface');
+        surface.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Stops double-tap zoom
             sessionCount++;
             todayCount++;
 
@@ -149,22 +148,24 @@
                 else navigator.vibrate(40);
             }
             updateUI();
-        }
+        }, { passive: false });
+
+        // Backup for Desktop
+        surface.addEventListener('mousedown', function(e) {
+            if ('ontouchstart' in window) return; // Ignore if it's a touch device
+            sessionCount++;
+            todayCount++;
+            updateUI();
+        });
 
         function resetSession(e) {
-            e.stopPropagation(); // Stops the tap from reaching the background surface
-            if (confirm("Reset session count to 0?")) {
-                sessionCount = 0;
-                updateUI();
-            }
+            e.stopPropagation();
+            if (confirm("Reset session count?")) { sessionCount = 0; updateUI(); }
         }
 
         function resetDaily(e) {
-            e.stopPropagation(); // Stops the tap from reaching the background surface
-            if (confirm("Clear your daily total?")) {
-                todayCount = 0;
-                updateUI();
-            }
+            e.stopPropagation();
+            if (confirm("Clear daily total?")) { todayCount = 0; updateUI(); }
         }
 
         updateUI();
