@@ -1,234 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#050508">
+    
+    <link rel="manifest" href="manifest.json?v=2">
+    <link rel="apple-touch-icon" href="icon.png?v=2">
+    <link rel="icon" type="image/png" href="icon.png?v=2">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#050508">
+    <title>Tasbih Infinity</title>
+    <style>
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; }
+        
+        /* Removes the blue highlight box when tapping on Android/Chrome */
+        * { -webkit-tap-highlight-color: transparent; outline: none; }
 
-<link rel="manifest" href="manifest.json?v=2">
-<link rel="apple-touch-icon" href="icon.png?v=2">
-<link rel="icon" type="image/png" href="icon.png?v=2">
+        body { 
+            background-color: var(--vanta); 
+            color: var(--gold); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; 
+            overflow: hidden; 
+            touch-action: none; /* Disables all browser gestures like zoom/scroll */
+            overscroll-behavior-y: contain; /* Stops Chrome "Pull-to-refresh" */
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
+        }
 
-<title>Tasbih Infinity</title>
+        .header { position: absolute; top: 60px; text-align: center; pointer-events: none; width: 100%; z-index: 10; }
+        .stats { font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; margin: 2px; color: var(--gold); opacity: 0.8; }
+        .stats span { color: var(--white); font-size: 1.1rem; }
+        #title { font-weight: 300; letter-spacing: 6px; text-transform: uppercase; margin: 10px 0; font-size: 1.5rem; }
 
-<style>
-:root { --gold:#C2B280; --vanta:#050508; --white:#FFFFFF; }
+        .tasbih-wrapper {
+            position: relative;
+            width: 320px; height: 320px;
+            display: flex; justify-content: center; align-items: center;
+            pointer-events: none; /* Let clicks pass through to the body */
+        }
 
-* { -webkit-tap-highlight-color: transparent; outline: none; }
+        .progress-ring { position: absolute; transform: rotate(-90deg); }
+        .progress-ring__circle { transition: stroke-dashoffset 0.2s ease-out; stroke: var(--gold); stroke-linecap: round; }
 
-body {
-    background-color: var(--vanta);
-    color: var(--gold);
-    font-family: -apple-system, system-ui, sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
+        .circle {
+            width: 240px; height: 240px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 6.5rem;
+            background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%);
+            box-shadow: inset 0 0 40px rgba(0,0,0,1);
+        }
 
-    touch-action: manipulation;   /* 🔥 FIX */
-    overscroll-behavior-y: contain;
-    user-select: none;
-    -webkit-user-select: none;
-    cursor: pointer;
-}
-
-.header {
-    position: absolute;
-    top: 60px;
-    width: 100%;
-    text-align: center;
-    pointer-events: none;
-    z-index: 10;
-}
-
-.stats {
-    font-size: 0.9rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    margin: 2px;
-    opacity: 0.8;
-}
-
-.stats span { color: var(--white); font-size: 1.1rem; }
-
-#title {
-    font-weight: 300;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    margin: 10px 0;
-    font-size: 1.5rem;
-}
-
-.tasbih-wrapper {
-    position: relative;
-    width: 320px;
-    height: 320px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-}
-
-.progress-ring {
-    position: absolute;
-    transform: rotate(-90deg);
-}
-
-.progress-ring__circle {
-    transition: stroke-dashoffset 0.2s ease-out;
-    stroke: var(--gold);
-    stroke-linecap: round;
-}
-
-.circle {
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 6.5rem;
-    background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%);
-    box-shadow: inset 0 0 40px rgba(0,0,0,1);
-}
-
-.footer {
-    position: absolute;
-    bottom: 60px;
-    display: flex;
-    gap: 12px;
-    z-index: 100;
-}
-
-.reset-btn {
-    background: rgba(194,178,128,0.1);
-    border: 1px solid rgba(194,178,128,0.3);
-    color: var(--gold);
-    padding: 14px 20px;
-    border-radius: 40px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-}
-</style>
+        .footer { position: absolute; bottom: 60px; display: flex; gap: 12px; z-index: 100; }
+        .reset-btn {
+            background: rgba(194, 178, 128, 0.1); border: 1px solid rgba(194, 178, 128, 0.3);
+            color: var(--gold); padding: 14px 20px; cursor: pointer;
+            border-radius: 40px; font-size: 0.7rem; font-weight: bold;
+            text-transform: uppercase;
+            z-index: 101;
+        }
+    </style>
 </head>
+<body id="main-body">
 
-<body>
+    <div class="header">
+        <div class="stats">DAILY TOTAL: <span id="todayNum">0</span></div>
+        <div class="stats">COMPLETED SETS: <span id="setNum">0</span></div>
+        <h1 id="title">TASBIH</h1>
+    </div>
 
-<div class="header">
-    <div class="stats">DAILY TOTAL: <span id="todayNum">0</span></div>
-    <div class="stats">COMPLETED SETS: <span id="setNum">0</span></div>
-    <h1 id="title">TASBIH</h1>
-</div>
+    <div class="tasbih-wrapper">
+        <svg width="320" height="320" class="progress-ring">
+            <circle stroke="rgba(194, 178, 128, 0.05)" stroke-width="6" fill="transparent" r="145" cx="160" cy="160"/>
+            <circle id="ring" class="progress-ring__circle" stroke-width="8" fill="transparent" r="145" cx="160" cy="160"/>
+        </svg>
+        <div class="circle">
+            <span id="num">0</span>
+        </div>
+    </div>
 
-<div class="tasbih-wrapper">
-    <svg width="320" height="320" class="progress-ring">
-        <circle stroke="rgba(194,178,128,0.05)" stroke-width="6"
-                fill="transparent" r="145" cx="160" cy="160"/>
-        <circle id="ring" class="progress-ring__circle"
-                stroke-width="8" fill="transparent"
-                r="145" cx="160" cy="160"/>
-    </svg>
-    <div class="circle"><span id="num">0</span></div>
-</div>
+    <div class="footer">
+        <button class="reset-btn" onclick="resetSession(event)">RESET SESSION</button>
+        <button class="reset-btn" onclick="resetDaily(event)">CLEAR DAILY</button>
+    </div>
 
-<div class="footer">
-    <button class="reset-btn" onclick="resetSession(event)">RESET SESSION</button>
-    <button class="reset-btn" onclick="resetDaily(event)">CLEAR DAILY</button>
-</div>
+    <script>
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioCtx();
 
-<script>
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-const audioContext = new AudioCtx();
+        function playSound(freq, dur) {
+            try {
+                if (audioContext.state === 'suspended') audioContext.resume();
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + dur);
+                osc.connect(gain); gain.connect(audioContext.destination);
+                osc.start(); osc.stop(audioContext.currentTime + dur);
+            } catch(e) { console.log("Audio blocked"); }
+        }
 
-function playSound(freq, dur) {
-    try {
-        if (audioContext.state === 'suspended') audioContext.resume();
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.08, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + dur);
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-        osc.start();
-        osc.stop(audioContext.currentTime + dur);
-    } catch {}
-}
+        let sessionCount = parseInt(localStorage.getItem('tasbihSession')) || 0;
+        let todayCount = parseInt(localStorage.getItem('tasbihToday')) || 0;
+        const ring = document.getElementById('ring');
+        const circumference = 145 * 2 * Math.PI;
+        ring.style.strokeDasharray = `${circumference} ${circumference}`;
 
-let sessionCount = parseInt(localStorage.getItem('tasbihSession')) || 0;
-let todayCount = parseInt(localStorage.getItem('tasbihToday')) || 0;
+        function updateUI() {
+            document.getElementById('num').textContent = sessionCount;
+            document.getElementById('todayNum').textContent = todayCount;
+            document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
+            let progress = sessionCount % 100;
+            if (progress === 0 && sessionCount > 0) progress = 100;
+            ring.style.strokeDashoffset = circumference - (progress / 100 * circumference);
+            document.getElementById('title').textContent = (sessionCount >= 100) ? "MA SHA ALLAH" : "TASBIH";
+            localStorage.setItem('tasbihSession', sessionCount);
+            localStorage.setItem('tasbihToday', todayCount);
+        }
 
-const ring = document.getElementById('ring');
-const circumference = 145 * 2 * Math.PI;
-ring.style.strokeDasharray = `${circumference} ${circumference}`;
+        // THE "NUCLEAR" CLICK HANDLER
+        // We attach it directly to the HTML tag to ensure nothing can block it
+        document.documentElement.onclick = function(e) {
+            // 1. If we clicked a button, stop everything and just run the button's function
+            if (e.target.tagName === 'BUTTON') return;
 
-function updateUI() {
-    document.getElementById('num').textContent = sessionCount;
-    document.getElementById('todayNum').textContent = todayCount;
-    document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
+            // 2. Otherwise, count!
+            sessionCount++;
+            todayCount++;
+            
+            playSound(sessionCount % 100 === 0 ? 880 : 400, 0.1);
+            if (navigator.vibrate) navigator.vibrate(sessionCount % 100 === 0 ? [200, 100, 200] : 40);
+            
+            updateUI();
+        };
 
-    let progress = sessionCount % 100;
-    if (progress === 0 && sessionCount > 0) progress = 100;
+        function resetSession(e) { 
+            e.stopPropagation(); 
+            if (confirm("Reset current session to 0?")) { sessionCount = 0; updateUI(); } 
+        }
 
-    ring.style.strokeDashoffset =
-        circumference - (progress / 100 * circumference);
+        function resetDaily(e) { 
+            e.stopPropagation(); 
+            if (confirm("Clear your total daily history?")) { todayCount = 0; updateUI(); } 
+        }
 
-    document.getElementById('title').textContent =
-        sessionCount >= 100 ? "MA SHA ALLAH" : "TASBIH";
-
-    localStorage.setItem('tasbihSession', sessionCount);
-    localStorage.setItem('tasbihToday', todayCount);
-}
-
-/* 🔥 Unified Tap Handler */
-let lastTap = 0;
-function handleTap(e) {
-    if (e.target.tagName === 'BUTTON') return;
-
-    const now = Date.now();
-    if (now - lastTap < 250) return; // prevent double fire
-    lastTap = now;
-
-    sessionCount++;
-    todayCount++;
-
-    playSound(sessionCount % 100 === 0 ? 880 : 400, 0.1);
-    if (navigator.vibrate)
-        navigator.vibrate(sessionCount % 100 === 0 ? [200,100,200] : 40);
-
-    updateUI();
-}
-
-document.documentElement.addEventListener('click', handleTap);
-document.documentElement.addEventListener('touchstart', handleTap, { passive: true });
-
-function resetSession(e) {
-    e.stopPropagation();
-    if (confirm("Reset current session to 0?")) {
-        sessionCount = 0;
         updateUI();
-    }
-}
-
-function resetDaily(e) {
-    e.stopPropagation();
-    if (confirm("Clear your total daily history?")) {
-        todayCount = 0;
-        updateUI();
-    }
-}
-
-updateUI();
-</script>
-
+    </script>
 </body>
 </html>
