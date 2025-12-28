@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050508">
     
-    <link rel="manifest" href="manifest.json?v=8">
-    <link rel="apple-touch-icon" href="icon.png?v=8">
-    <link rel="icon" type="image/png" href="icon.png?v=8">
+    <link rel="manifest" href="manifest.json?v=9">
+    <link rel="apple-touch-icon" href="icon.png?v=9">
+    <link rel="icon" type="image/png" href="icon.png?v=9">
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -28,51 +28,47 @@
         .page { display: none; flex-direction: column; justify-content: center; align-items: center; height: calc(100vh - 70px); width: 100%; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
 
-        /* REUSABLE UI ELEMENTS */
-        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 20px; text-align: center; }
-        .btn-gold { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 10px 20px; border-radius: 25px; font-size: 0.7rem; letter-spacing: 1px; margin: 5px; }
+        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-size: 1.2rem; }
+        .btn-gold { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px 24px; border-radius: 30px; font-size: 0.7rem; letter-spacing: 2px; margin: 10px; cursor: pointer; }
 
-        /* TAB 1: TASBIH */
-        .circle { width: 190px; height: 190px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 4.5rem; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: inset 0 0 30px #000; }
+        /* CIRCLE UI */
+        .circle { width: 200px; height: 200px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 5rem; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: inset 0 0 40px #000; }
 
-        /* TAB 2: SALAH */
-        .salah-card { background: var(--dark-grey); margin: 6px 0; padding: 15px; border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05); display: flex; justify-content: center; align-items: center; transition: 0.4s; width: 100%; max-width: 300px; }
-        .salah-card.lit { background: rgba(194, 178, 128, 0.12); border: 1px solid var(--gold); }
-        .salah-name { font-size: 0.9rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(194,178,128,0.3); }
+        /* SALAH CARD */
+        .salah-card { background: var(--dark-grey); margin: 8px 0; padding: 18px; border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05); display: flex; justify-content: center; align-items: center; transition: 0.4s; width: 100%; max-width: 320px; }
+        .salah-card.lit { background: rgba(194, 178, 128, 0.15); border: 1px solid var(--gold); box-shadow: 0 0 20px rgba(194, 178, 128, 0.1); }
+        .salah-name { font-size: 1rem; letter-spacing: 4px; text-transform: uppercase; color: rgba(194,178,128,0.3); }
         .lit .salah-name { color: var(--white); text-shadow: 0 0 10px var(--gold); }
 
-        /* TAB 3: QURAN (Zen Mode) */
-        .quran-view { width: 100%; max-width: 350px; background: #0a0a0c; padding: 30px; border-radius: 20px; text-align: right; font-size: 1.5rem; line-height: 2.5; color: var(--white); border: 1px solid rgba(194, 178, 128, 0.1); }
-
-        /* TAB 4: DASHBOARD */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 320px; }
-        .stat-box { background: var(--dark-grey); padding: 20px; border-radius: 15px; text-align: center; border: 1px solid rgba(194, 178, 128, 0.1); }
-        .stat-val { font-size: 1.5rem; color: var(--white); display: block; }
-        .stat-label { font-size: 0.6rem; letter-spacing: 1px; opacity: 0.5; }
-
         /* NAV BAR */
-        .nav-bar { height: 70px; background: #0a0a0d; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { color: var(--gold); opacity: 0.3; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px; transition: 0.3s; }
-        .nav-item.active { opacity: 1; border-bottom: 2px solid var(--gold); }
+        .nav-bar { height: 80px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 25%; height: 100%; opacity: 0.25; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .nav-item.active { opacity: 1; }
+        .nav-icon { width: 24px; height: 24px; fill: var(--gold); margin-bottom: 4px; }
+        .nav-label { font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 340px; }
+        .stat-box { background: var(--dark-grey); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(194, 178, 128, 0.1); }
     </style>
 </head>
 <body>
 
     <div id="page-tasbih" class="page active-page" onclick="handleTasbihTap(event)">
-        <div style="font-size:0.7rem; letter-spacing:2px; opacity:0.7;">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
-        <h1 class="header-title">TASBIH</h1>
-        <div style="position:relative; width:260px; height:260px; display:flex; justify-content:center; align-items:center;">
-            <svg width="260" height="260" style="position:absolute; transform:rotate(-90deg);">
-                <circle stroke="rgba(194,178,128,0.05)" stroke-width="4" fill="transparent" r="115" cx="130" cy="130"/>
-                <circle id="ring" stroke-width="6" fill="transparent" r="115" cx="130" cy="130" style="transition:0.3s; stroke:var(--gold); stroke-linecap:round;"/>
+        <div style="font-size:0.75rem; letter-spacing:3px; opacity:0.6; margin-bottom: 5px;">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
+        <h1 class="header-title">Tasbih</h1>
+        <div style="position:relative; width:280px; height:280px; display:flex; justify-content:center; align-items:center;">
+            <svg width="280" height="280" style="position:absolute; transform:rotate(-90deg);">
+                <circle stroke="rgba(194,178,128,0.05)" stroke-width="4" fill="transparent" r="125" cx="140" cy="140"/>
+                <circle id="ring" stroke-width="6" fill="transparent" r="125" cx="140" cy="140" style="transition:0.3s; stroke:var(--gold); stroke-linecap:round;"/>
             </svg>
             <div class="circle"><span id="num">0</span></div>
         </div>
-        <button onclick="resetSession(event)" class="btn-gold" style="border:none; opacity:0.5;">Reset</button>
+        <button onclick="resetSession(event)" class="btn-gold" style="border:none; opacity:0.3;">Reset Session</button>
     </div>
 
     <div id="page-salah" class="page">
-        <h1 class="header-title">SALAH LOG</h1>
+        <h1 class="header-title">Salah Log</h1>
         <div id="salah-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">
             <div class="salah-card" onclick="toggleSalah('fajr')"><span class="salah-name">Fajr</span></div>
             <div class="salah-card" onclick="toggleSalah('dhuhr')"><span class="salah-name">Dhuhr</span></div>
@@ -83,31 +79,43 @@
     </div>
 
     <div id="page-quran" class="page">
-        <h1 class="header-title">QURAN</h1>
-        <div class="quran-view">
+        <h1 class="header-title">Quran</h1>
+        <div style="width: 100%; max-width: 350px; background: #0a0a0c; padding: 40px; border-radius: 25px; text-align: right; font-size: 1.8rem; line-height: 2.2; color: var(--white); border: 1px solid rgba(194, 178, 128, 0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </div>
-        <p style="font-size:0.7rem; opacity:0.4; margin-top:20px; letter-spacing:1px;">ZEN READING MODE</p>
+        <p style="font-size:0.7rem; opacity:0.4; margin-top:30px; letter-spacing:2px;">ZEN READING MODE</p>
     </div>
 
     <div id="page-dash" class="page">
-        <h1 class="header-title">DASHBOARD</h1>
+        <h1 class="header-title">Dashboard</h1>
         <div class="dashboard-grid">
-            <div class="stat-box"><span class="stat-val" id="dash-tasbih">0</span><span class="stat-label">TOTAL BEADS</span></div>
-            <div class="stat-box"><span class="stat-val" id="dash-salah">0</span><span class="stat-label">DAYS FULL LIGHT</span></div>
+            <div class="stat-box"><span style="font-size:1.8rem; color:var(--white);" id="dash-tasbih">0</span><br><span style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">TOTAL BEADS</span></div>
+            <div class="stat-box"><span style="font-size:1.8rem; color:var(--white);" id="dash-salah">0</span><br><span style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">PRAYER STREAK</span></div>
         </div>
-        <div style="margin-top:40px; display:flex; flex-direction:column; gap:10px;">
-            <button onclick="exportData()" class="btn-gold">SAVE JOURNEY (BACKUP)</button>
-            <button onclick="document.getElementById('file-input').click()" class="btn-gold">RESTORE JOURNEY</button>
+        <div style="margin-top:40px; display:flex; flex-direction:column; gap:12px; width: 100%; max-width: 300px;">
+            <button onclick="exportData()" class="btn-gold">SAVE JOURNEY</button>
+            <button onclick="document.getElementById('file-input').click()" class="btn-gold" style="opacity:0.6; border-style: dashed;">RESTORE BACKUP</button>
             <input type="file" id="file-input" style="display:none" onchange="importData(event)">
         </div>
     </div>
 
     <div class="nav-bar">
-        <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')">Tasbih</div>
-        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">Salah</div>
-        <div id="nav-quran" class="nav-item" onclick="switchPage('quran')">Quran</div>
-        <div id="nav-dash" class="nav-item" onclick="switchPage('dash')">Dashboard</div>
+        <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6Z"/></svg>
+            <span class="nav-label">Beads</span>
+        </div>
+        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M11,4A2,2 0 0,1 13,2A2,2 0 0,1 15,4A2,2 0 0,1 13,6A2,2 0 0,1 11,4M4,22L7,15L10,12L12,15L10,22H8L9,17L7,15V22H4M16,22V17L14,14L16,11L19,13V22H16Z"/></svg>
+            <span class="nav-label">Salah</span>
+        </div>
+        <div id="nav-quran" class="nav-item" onclick="switchPage('quran')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19,2L14,6.5V17.5L19,13V2M6.5,5C4.55,5 2.45,5.4 1,6.5V21.16C1,21.41 1.25,21.66 1.5,21.66C1.6,21.66 1.65,21.59 1.75,21.59C3.1,20.94 5.05,20.5 6.5,20.5C8.45,20.5 10.55,20.9 12,22C13.45,20.9 15.55,20.5 17.5,20.5C19.45,20.5 21.55,20.9 23,22C23.1,22 23.15,22 23.25,22C23.5,22 23.75,21.75 23.75,21.5V6.5C22.3,5.4 20.2,5 18.25,5C16.3,5 14.2,5.4 12.75,6.5C11.3,5.4 9.2,5 7.25,5H6.5Z"/></svg>
+            <span class="nav-label">Quran</span>
+        </div>
+        <div id="nav-dash" class="nav-item" onclick="switchPage('dash')">
+            <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"/></svg>
+            <span class="nav-label">Journey</span>
+        </div>
     </div>
 
     <script>
@@ -130,7 +138,7 @@
             document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active-page');
             document.getElementById('nav-' + p).classList.add('active');
-            playSnd(200, 0.05);
+            playSnd(150, 0.05);
             updateUI();
         }
 
@@ -139,14 +147,12 @@
             document.getElementById('todayNum').textContent = todayCount;
             document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
             
-            // Tasbih Ring
-            const circ = 115 * 2 * Math.PI;
+            const circ = 125 * 2 * Math.PI;
             const ring = document.getElementById('ring');
             ring.style.strokeDasharray = `${circ} ${circ}`;
             let p = sessionCount % 100; if (p === 0 && sessionCount > 0) p = 100;
             ring.style.strokeDashoffset = circ - (p / 100 * circ);
 
-            // Salah
             const todayKey = "salah_" + new Date().toDateString();
             const state = JSON.parse(localStorage.getItem(todayKey)) || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
             const cards = document.querySelectorAll('.salah-card');
@@ -156,9 +162,7 @@
                 else cards[i].classList.remove('lit');
             });
 
-            // Dashboard Stats
             document.getElementById('dash-tasbih').textContent = todayCount;
-
             localStorage.setItem('tasbihSession', sessionCount);
             localStorage.setItem('tasbihToday', todayCount);
         }
@@ -167,12 +171,12 @@
             if (e.target.tagName === 'BUTTON') return;
             sessionCount++; todayCount++;
             if (sessionCount % 100 === 0) {
-                confetti({ particleCount: 40, spread: 50, origin: { y: 0.5 }, colors: ['#C2B280'] });
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 }, colors: ['#C2B280'] });
                 playSnd(880, 0.4);
             } else {
                 playSnd(400, 0.1);
             }
-            if (navigator.vibrate) navigator.vibrate(30);
+            if (navigator.vibrate) navigator.vibrate(35);
             updateUI();
         }
 
@@ -192,14 +196,13 @@
             updateUI();
         }
 
-        // --- BACKUP & RESTORE LOGIC ---
         function exportData() {
             const data = JSON.stringify(localStorage);
             const blob = new Blob([data], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `sanctuary_journey_${new Date().toLocaleDateString()}.json`;
+            a.download = `sanctuary_backup_${new Date().toLocaleDateString()}.json`;
             a.click();
         }
 
@@ -209,7 +212,6 @@
             reader.onload = function(e) {
                 const data = JSON.parse(e.target.result);
                 Object.keys(data).forEach(key => localStorage.setItem(key, data[key]));
-                alert("Journey Restored!");
                 location.reload();
             };
             reader.readAsText(file);
