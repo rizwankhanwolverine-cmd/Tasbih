@@ -121,36 +121,26 @@
             let progress = sessionCount % 100;
             if (progress === 0 && sessionCount > 0) progress = 100;
             ring.style.strokeDashoffset = circumference - (progress / 100 * circumference);
-            
             document.getElementById('title').textContent = (sessionCount >= 100) ? "MA SHA ALLAH" : "TASBIH";
-            
             localStorage.setItem('tasbihSession', sessionCount);
             localStorage.setItem('tasbihToday', todayCount);
         }
 
-        function triggerCount() {
+        // THE "NUCLEAR" CLICK HANDLER
+        // We attach it directly to the HTML tag to ensure nothing can block it
+        document.documentElement.onclick = function(e) {
+            // 1. If we clicked a button, stop everything and just run the button's function
+            if (e.target.tagName === 'BUTTON') return;
+
+            // 2. Otherwise, count!
             sessionCount++;
             todayCount++;
             
-            // Pavlovian Feedback
             playSound(sessionCount % 100 === 0 ? 880 : 400, 0.1);
             if (navigator.vibrate) navigator.vibrate(sessionCount % 100 === 0 ? [200, 100, 200] : 40);
             
             updateUI();
-        }
-
-        const body = document.getElementById('main-body');
-
-        // DEEP-TOUCH LOGIC: Captures the tap before Chrome can block it
-        body.addEventListener('pointerdown', function(e) {
-            // If user taps the buttons, don't count
-            if (e.target.tagName === 'BUTTON') return;
-            
-            // Prevent Chrome from treating this as a browser gesture
-            e.preventDefault();
-            
-            triggerCount();
-        }, { passive: false });
+        };
 
         function resetSession(e) { 
             e.stopPropagation(); 
