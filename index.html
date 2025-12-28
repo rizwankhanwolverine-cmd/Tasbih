@@ -7,13 +7,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050508">
     
-    <link rel="manifest" href="manifest.json?v=6">
-    <link rel="apple-touch-icon" href="icon.png?v=6">
-    <link rel="icon" type="image/png" href="icon.png?v=6">
+    <link rel="manifest" href="manifest.json?v=7">
+    <link rel="apple-touch-icon" href="icon.png?v=7">
+    <link rel="icon" type="image/png" href="icon.png?v=7">
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <title>Sanctuary Infinity</title>
+    <title>Infinity Sanctuary</title>
     <style>
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; }
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
@@ -29,65 +29,53 @@
         .active-page { display: flex; }
 
         /* TASBIH STYLES */
-        .stats { font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; color: var(--gold); opacity: 0.7; }
-        .tasbih-wrapper { position: relative; width: 260px; height: 260px; display: flex; justify-content: center; align-items: center; margin: 15px 0; }
-        .progress-ring { position: absolute; transform: rotate(-90deg); }
-        .progress-ring__circle { transition: stroke-dashoffset 0.3s; stroke: var(--gold); stroke-linecap: round; }
         .circle { width: 190px; height: 190px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 4.5rem; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: inset 0 0 30px #000; }
+        .progress-ring__circle { transition: stroke-dashoffset 0.3s; stroke: var(--gold); stroke-linecap: round; }
 
         /* SALAH STYLES */
-        .salah-list { width: 100%; max-width: 320px; }
-        .salah-card {
-            background: var(--dark-grey); margin: 8px 0; padding: 18px;
-            border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05);
-            display: flex; justify-content: center; align-items: center;
-            transition: all 0.5s ease;
-        }
-        .salah-name { font-size: 1rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 300; color: rgba(194,178,128,0.3); }
+        .salah-header { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+        .nav-arrow { font-size: 1.5rem; cursor: pointer; opacity: 0.5; padding: 10px; }
+        .salah-card { background: var(--dark-grey); margin: 8px 0; padding: 18px; border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05); display: flex; justify-content: center; align-items: center; transition: 0.4s; width: 300px; }
+        .salah-name { font-size: 1rem; letter-spacing: 4px; text-transform: uppercase; color: rgba(194,178,128,0.3); }
         .salah-card.lit { background: rgba(194, 178, 128, 0.12); border: 1px solid var(--gold); box-shadow: 0 0 15px rgba(194, 178, 128, 0.2); }
         .salah-card.lit .salah-name { color: var(--white); text-shadow: 0 0 10px var(--gold); }
 
-        /* HISTORY BAR */
-        .history-container { margin-top: 25px; text-align: center; }
-        .history-label { font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 8px; }
-        .history-dots { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(194, 178, 128, 0.2); }
-        .dot.complete { background: var(--gold); box-shadow: 0 0 8px var(--gold); border: none; }
-
-        /* NAV */
+        /* NAV BAR */
         .nav-bar { height: 70px; background: #0a0a0d; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; }
-        .nav-item { color: var(--gold); opacity: 0.3; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px; transition: 0.3s; }
+        .nav-item { color: var(--gold); opacity: 0.3; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px; }
         .nav-item.active { opacity: 1; border-bottom: 2px solid var(--gold); }
     </style>
 </head>
 <body id="main-body">
 
     <div id="page-tasbih" class="page active-page" onclick="handleTasbihTap(event)">
-        <div class="stats">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
-        <h1 style="letter-spacing: 8px; font-weight: 200; margin: 10px 0;">TASBIH</h1>
-        <div class="tasbih-wrapper">
-            <svg width="260" height="260" class="progress-ring">
-                <circle stroke="rgba(194, 178, 128, 0.05)" stroke-width="4" fill="transparent" r="115" cx="130" cy="130"/>
-                <circle id="ring" class="progress-ring__circle" stroke-width="6" fill="transparent" r="115" cx="130" cy="130"/>
+        <div style="font-size:0.8rem; letter-spacing:2px; opacity:0.7;">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
+        <h1 style="letter-spacing: 8px; font-weight: 200;">TASBIH</h1>
+        <div id="tasbih-center" style="position:relative; width:260px; height:260px; display:flex; justify-content:center; align-items:center;">
+            <svg width="260" height="260" style="position:absolute; transform:rotate(-90deg);">
+                <circle stroke="rgba(194,178,128,0.05)" stroke-width="4" fill="transparent" r="115" cx="130" cy="130"/>
+                <circle id="ring" stroke-width="6" fill="transparent" r="115" cx="130" cy="130" class="progress-ring__circle"/>
             </svg>
             <div class="circle"><span id="num">0</span></div>
         </div>
-        <button style="background:none; border:1px solid rgba(194,178,128,0.2); color:var(--gold); padding:5px 15px; border-radius:20px; font-size:0.6rem;" onclick="resetSession(event)">Reset Session</button>
+        <button onclick="resetSession(event)" style="background:none; border:1px solid rgba(194,178,128,0.2); color:var(--gold); padding:5px 15px; border-radius:20px; font-size:0.6rem;">Reset Session</button>
     </div>
 
     <div id="page-salah" class="page">
-        <h2 style="font-weight: 200; letter-spacing: 5px; margin-bottom: 10px;">SALAH LOG</h2>
+        <div class="salah-header">
+            <div class="nav-arrow" onclick="changeDay(-1)">←</div>
+            <div style="text-align:center">
+                <h2 id="day-label" style="font-weight:200; letter-spacing:4px; margin:0; font-size:1rem;">TODAY</h2>
+                <div id="date-display" style="font-size:0.6rem; opacity:0.5;"></div>
+            </div>
+            <div class="nav-arrow" onclick="changeDay(1)">→</div>
+        </div>
         <div class="salah-list">
             <div class="salah-card" onclick="toggleSalah('fajr')"><span class="salah-name">Fajr</span></div>
             <div class="salah-card" onclick="toggleSalah('dhuhr')"><span class="salah-name">Dhuhr</span></div>
             <div class="salah-card" onclick="toggleSalah('asr')"><span class="salah-name">Asr</span></div>
             <div class="salah-card" onclick="toggleSalah('maghrib')"><span class="salah-name">Maghrib</span></div>
             <div class="salah-card" onclick="toggleSalah('isha')"><span class="salah-name">Isha</span></div>
-        </div>
-        
-        <div class="history-container">
-            <div class="history-label">LAST 7 DAYS</div>
-            <div class="history-dots" id="history-dots"></div>
         </div>
     </div>
 
@@ -108,53 +96,34 @@
             o.connect(g); g.connect(audioContext.destination); o.start(); o.stop(audioContext.currentTime + d);
         }
 
+        // --- DATA MGT ---
         let sessionCount = parseInt(localStorage.getItem('tasbihSession')) || 0;
         let todayCount = parseInt(localStorage.getItem('tasbihToday')) || 0;
-        let salahState = JSON.parse(localStorage.getItem('salahState')) || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
-        let history = JSON.parse(localStorage.getItem('salahHistory')) || [];
+        let viewOffset = 0; // 0 = Today, -1 = Yesterday, etc.
 
-        function checkDateReset() {
-            const lastDate = localStorage.getItem('lastAccessDate');
-            const currentDate = new Date().toDateString();
-            if (lastDate && lastDate !== currentDate) {
-                const allDone = Object.values(salahState).every(v => v === true);
-                history.push(allDone);
-                if (history.length > 7) history.shift();
-                localStorage.setItem('salahHistory', JSON.stringify(history));
-                salahState = { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
-                todayCount = 0;
-                localStorage.setItem('salahState', JSON.stringify(salahState));
-                localStorage.setItem('tasbihToday', 0);
-                localStorage.removeItem('celebratedToday');
-            }
-            localStorage.setItem('lastAccessDate', currentDate);
+        function getDayKey(offset = 0) {
+            const d = new Date();
+            d.setDate(d.getDate() + offset);
+            return d.toDateString();
         }
 
-        // --- FIRECRACKER FUNCTION ---
-        function fireCelebrate() {
-            var duration = 3 * 1000;
-            var end = Date.now() + duration;
+        function getSalahState(offset) {
+            const key = "salah_" + getDayKey(offset);
+            return JSON.parse(localStorage.getItem(key)) || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
+        }
 
-            (function frame() {
-                confetti({
-                    particleCount: 3,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0, y: 0.8 },
-                    colors: ['#C2B280', '#FFFFFF']
-                });
-                confetti({
-                    particleCount: 3,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1, y: 0.8 },
-                    colors: ['#C2B280', '#FFFFFF']
-                });
+        function saveSalahState(offset, state) {
+            const key = "salah_" + getDayKey(offset);
+            localStorage.setItem(key, JSON.stringify(state));
+        }
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            }());
+        // --- CELEBRATIONS ---
+        function fireFull() {
+            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280', '#FFFFFF'] });
+        }
+
+        function fireMini() {
+            confetti({ particleCount: 40, spread: 50, origin: { y: 0.5 }, colors: ['#C2B280'] });
         }
 
         function switchPage(p) {
@@ -166,6 +135,7 @@
         }
 
         function updateUI() {
+            // Tasbih UI
             document.getElementById('num').textContent = sessionCount;
             document.getElementById('todayNum').textContent = todayCount;
             document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
@@ -173,53 +143,59 @@
             document.getElementById('ring').style.strokeDasharray = `${circ} ${circ}`;
             let p = sessionCount % 100; if (p === 0 && sessionCount > 0) p = 100;
             document.getElementById('ring').style.strokeDashoffset = circ - (p / 100 * circ);
-            
+
+            // Salah UI
+            const state = getSalahState(viewOffset);
             const cards = document.querySelectorAll('.salah-card');
             const keys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-            let countLit = 0;
             keys.forEach((k, i) => {
-                if (salahState[k]) { cards[i].classList.add('lit'); countLit++; }
+                if (state[k]) cards[i].classList.add('lit');
                 else cards[i].classList.remove('lit');
             });
 
-            // Trigger Firecrackers if 5 are lit
-            if (countLit === 5 && !localStorage.getItem('celebratedToday')) {
-                fireCelebrate();
-                playSnd(880, 0.4);
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
-                localStorage.setItem('celebratedToday', 'true');
-            }
-
-            const histDiv = document.getElementById('history-dots');
-            histDiv.innerHTML = '';
-            for(let i=0; i<7; i++) {
-                const d = document.createElement('div');
-                d.className = 'dot' + (history[i] ? ' complete' : '');
-                histDiv.appendChild(d);
-            }
-
+            document.getElementById('day-label').textContent = viewOffset === 0 ? "TODAY" : (viewOffset === -1 ? "YESTERDAY" : getDayKey(viewOffset));
+            document.getElementById('date-display').textContent = getDayKey(viewOffset);
+            
             localStorage.setItem('tasbihSession', sessionCount);
             localStorage.setItem('tasbihToday', todayCount);
-            localStorage.setItem('salahState', JSON.stringify(salahState));
         }
 
         function handleTasbihTap(e) {
             if (e.target.tagName === 'BUTTON') return;
             sessionCount++; todayCount++;
-            playSnd(sessionCount % 100 === 0 ? 880 : 400, 0.1);
-            if (navigator.vibrate) navigator.vibrate(30);
+            if (sessionCount % 100 === 0) {
+                playSnd(880, 0.4);
+                fireMini();
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            } else {
+                playSnd(400, 0.1);
+                if (navigator.vibrate) navigator.vibrate(30);
+            }
             updateUI();
         }
 
         function toggleSalah(name) {
-            salahState[name] = !salahState[name];
-            playSnd(salahState[name] ? 600 : 200, 0.2);
+            let state = getSalahState(viewOffset);
+            state[name] = !state[name];
+            saveSalahState(viewOffset, state);
+            playSnd(state[name] ? 600 : 200, 0.2);
+            
+            // DELAYED CELEBRATION (As per Kahneman/Skinner)
+            if (Object.values(state).every(v => v === true)) {
+                setTimeout(() => { fireFull(); playSnd(880, 0.5); }, 500);
+            }
+            updateUI();
+        }
+
+        function changeDay(dir) {
+            viewOffset += dir;
+            if (viewOffset > 0) viewOffset = 0; // Prevent future dates
+            playSnd(300, 0.1);
             updateUI();
         }
 
         function resetSession(e) { e.stopPropagation(); if(confirm("Reset session?")) { sessionCount = 0; updateUI(); } }
 
-        checkDateReset();
         updateUI();
     </script>
 </body>
