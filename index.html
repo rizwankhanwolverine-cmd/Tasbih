@@ -7,9 +7,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050508">
     
-    <link rel="manifest" href="manifest.json?v=10">
-    <link rel="apple-touch-icon" href="icon.png?v=10">
-    <link rel="icon" type="image/png" href="icon.png?v=10">
+    <link rel="manifest" href="manifest.json?v=11">
+    <link rel="apple-touch-icon" href="icon.png?v=11">
+    <link rel="icon" type="image/png" href="icon.png?v=11">
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -25,7 +25,7 @@
             display: flex; flex-direction: column;
         }
 
-        .page { display: none; flex-direction: column; justify-content: center; align-items: center; height: calc(100vh - 80px); width: 100%; padding: 20px; overflow-y: auto; }
+        .page { display: none; flex-direction: column; justify-content: center; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
 
         .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-size: 1.2rem; }
@@ -41,10 +41,10 @@
         .lit .salah-name { color: var(--white); text-shadow: 0 0 10px var(--gold); }
 
         /* NAV BAR */
-        .nav-bar { height: 80px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 25%; height: 100%; opacity: 0.25; transition: 0.4s; }
         .nav-item.active { opacity: 1; }
-        .nav-icon { width: 26px; height: 26px; fill: none; stroke: var(--gold); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 4px; }
+        .nav-icon-svg { width: 28px; height: 28px; fill: var(--gold); margin-bottom: 6px; }
         .nav-label { font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
 
         /* DASHBOARD GRID */
@@ -101,26 +101,26 @@
 
     <div class="nav-bar">
         <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-                <path d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm0 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm4-12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M12,2A3,3 0 0,1 15,5A3,3 0 0,1 12,8A3,3 0 0,1 9,5A3,3 0 0,1 12,2M12,16A3,3 0 0,1 15,19A3,3 0 0,1 12,22A3,3 0 0,1 9,19A3,3 0 0,1 12,16M18,8A3,3 0 0,1 21,11A3,3 0 0,1 18,14A3,3 0 0,1 15,11A3,3 0 0,1 18,8M6,8A3,3 0 0,1 9,11A3,3 0 0,1 6,14A3,3 0 0,1 3,11A3,3 0 0,1 6,8Z"/>
             </svg>
             <span class="nav-label">Beads</span>
         </div>
         <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-                <path d="M18 20h2m-13 0h6m-9-4c2-1 3-3 5-3h4c2 0 3 2 4 4l1 3H2l1-3zM15 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M13,3A2,2 0 0,1 15,5A2,2 0 0,1 13,7A2,2 0 0,1 11,5A2,2 0 0,1 13,3M18.5,18.5L20,20H4L5,17L8.5,14L10,15L8,19H16L14,15L15,14L18.5,17.5V18.5Z"/>
             </svg>
             <span class="nav-label">Salah</span>
         </div>
         <div id="nav-quran" class="nav-item" onclick="switchPage('quran')">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V5A2.5 2.5 0 0 1 6.5 2.5H20v14.5H6.5A2.5 2.5 0 0 0 4 19.5z"/>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M12,11.5L19,7V18L12,22.5L5,18V7L12,11.5M12,2L19,6L12,10L5,6L12,2Z"/>
             </svg>
             <span class="nav-label">Quran</span>
         </div>
         <div id="nav-dash" class="nav-item" onclick="switchPage('dash')">
-            <svg class="nav-icon" viewBox="0 0 24 24">
-                <path d="M3 20h18M12 4l-4 4h3v8h2V8h3l-4-4zM5 16h2v2H5v-2zm12 0h2v2h-2v-2z"/>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M12,2L14.5,8.5L21,9.25L16.25,13.75L17.5,20.25L12,17.25L6.5,20.25L7.75,13.75L3,9.25L9.5,8.5L12,2M12,19V22H2V20H22V22H12V19Z"/>
             </svg>
             <span class="nav-label">Journey</span>
         </div>
