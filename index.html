@@ -174,15 +174,19 @@
             updateUI();
         }
 
-        function toggleSalah(name) {
+       function toggleSalah(name) {
             let state = getSalahState(viewOffset);
             state[name] = !state[name];
             saveSalahState(viewOffset, state);
             playSnd(state[name] ? 600 : 200, 0.2);
             
-            // DELAYED CELEBRATION (As per Kahneman/Skinner)
-            if (Object.values(state).every(v => v === true)) {
-                setTimeout(() => { fireFull(); playSnd(880, 0.5); }, 500);
+            // LOGIC CHECK: Only celebrate if it's TODAY (viewOffset === 0)
+            const allDone = Object.values(state).every(v => v === true);
+            if (allDone && viewOffset === 0) {
+                setTimeout(() => { 
+                    fireFull(); 
+                    playSnd(880, 0.5); 
+                }, 500);
             }
             updateUI();
         }
@@ -200,3 +204,4 @@
     </script>
 </body>
 </html>
+
