@@ -6,74 +6,81 @@
     <title>Sanctuary Infinity</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; }
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; --glass: rgba(194, 178, 128, 0.08); }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* HEADER */
-        .header-title { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin-bottom: 40px; text-align: center; font-size: 1.8rem; color: var(--gold); padding-top: 40px; }
-
         /* VIEW SYSTEM */
-        .view-container { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; }
+        .view-container { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
         .view-active { display: flex; }
+        .header-title { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin-bottom: 30px; text-align: center; font-size: 1.8rem; color: var(--gold); padding-top: 20px; }
 
-        /* TASBIH UI */
+        /* --- SALAH MODULE --- */
+        .salah-list { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 15px; }
+        .salah-card { 
+            background: var(--dark-grey); padding: 22px; border-radius: 18px; 
+            display: flex; justify-content: space-between; align-items: center;
+            border: 1px solid rgba(194, 178, 128, 0.1); cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .salah-card.completed { 
+            border-color: var(--gold); 
+            background: var(--glass);
+            transform: scale(0.98);
+        }
+        .salah-label { display: flex; flex-direction: column; }
+        .salah-name { font-size: 1.1rem; color: var(--white); letter-spacing: 1px; }
+        .salah-time { font-size: 0.65rem; color: var(--gold); opacity: 0.6; margin-top: 4px; text-transform: uppercase; }
+        .check-circle { 
+            width: 28px; height: 28px; border: 1px solid rgba(194, 178, 128, 0.3); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            transition: 0.3s;
+        }
+        .completed .check-circle { background: var(--gold); border-color: var(--gold); }
+        .check-circle svg { display: none; width: 16px; fill: var(--vanta); }
+        .completed .check-circle svg { display: block; }
+
+        /* --- TASBIH UI (From Previous Step) --- */
         .tasbih-wrapper { position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
         .tasbih-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; }
         .circle-bg { fill: none; stroke: rgba(194,178,128,0.1); stroke-width: 4; }
-        .circle-prog { 
-            fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round;
-            stroke-dasharray: 816; stroke-dashoffset: 816; 
-            transition: stroke-dashoffset 0.2s ease; 
-        }
+        .circle-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.2s ease; }
         .tasbih-num { font-size: 6rem; color: var(--white); font-weight: 100; font-family: 'Helvetica Neue', sans-serif; margin: 0; }
-        
-        /* CELEBRATION */
-        @keyframes goldGlow {
-            0% { filter: drop-shadow(0 0 0px var(--gold)); transform: scale(1); opacity: 1; }
-            50% { filter: drop-shadow(0 0 30px var(--gold)); transform: scale(1.1); opacity: 0.8; }
-            100% { filter: drop-shadow(0 0 0px var(--gold)); transform: scale(1); opacity: 1; }
-        }
+        @keyframes goldGlow { 0% { filter: drop-shadow(0 0 0px var(--gold)); transform: scale(1); } 50% { filter: drop-shadow(0 0 30px var(--gold)); transform: scale(1.1); } 100% { filter: drop-shadow(0 0 0px var(--gold)); transform: scale(1); } }
         .celebrate-glow { animation: goldGlow 0.8s ease-out; }
 
-        /* RESET BUTTON */
-        .btn-reset { margin-top: 50px; background: none; border: 1px solid rgba(194,178,128,0.4); color: var(--gold); padding: 12px 40px; border-radius: 30px; font-size: 0.8rem; letter-spacing: 2px; cursor: pointer; }
-
         /* NAV BAR */
-        .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; }
+        .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; transition: 0.3s; }
         .nav-item.active { opacity: 1; }
         .nav-label { font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="view-tasbih" class="view-container view-active">
-        <h1 class="header-title">Tasbih</h1>
-        
-        <div class="tasbih-wrapper" id="tasbih-area" onclick="Tasbih.tap()">
-            <svg class="tasbih-svg">
-                <circle class="circle-bg" cx="140" cy="140" r="130"></circle>
-                <circle id="prog-ring" class="circle-prog" cx="140" cy="140" r="130"></circle>
-            </svg>
-            <div style="text-align:center; z-index:10;">
-                <p id="display-num" class="tasbih-num">0</p>
-                <p style="font-size:0.7rem; opacity:0.5; letter-spacing:3px;">/ 100</p>
+    <div id="view-salah" class="view-container">
+        <h1 class="header-title">Salah</h1>
+        <div class="salah-list" id="salah-app">
             </div>
-        </div>
-
-        <button class="btn-reset" onclick="Tasbih.reset()">RESET</button>
     </div>
 
-    <div id="view-journey" class="view-container"></div>
-    <div id="view-salah" class="view-container"></div>
-    <div id="view-quran" class="view-container"></div>
+    <div id="view-tasbih" class="view-container view-active">
+        <h1 class="header-title">Tasbih</h1>
+        <div class="tasbih-wrapper" id="tasbih-area" onclick="Tasbih.tap()">
+            <svg class="tasbih-svg"><circle class="circle-bg" cx="140" cy="140" r="130"></circle><circle id="prog-ring" class="circle-prog" cx="140" cy="140" r="130"></circle></svg>
+            <div style="text-align:center; z-index:10;"><p id="display-num" class="tasbih-num">0</p><p style="font-size:0.7rem; opacity:0.5; letter-spacing:3px;">/ 100</p></div>
+        </div>
+        <button style="margin-top:40px; background:none; border:1px solid rgba(194,178,128,0.3); color:var(--gold); padding:10px 30px; border-radius:30px; cursor:pointer;" onclick="Tasbih.reset()">RESET</button>
+    </div>
+
+    <div id="view-journey" class="view-container"> <h1 class="header-title">The Journey</h1> </div>
+    <div id="view-quran" class="view-container"> <h1 class="header-title">Listen</h1> </div>
 
     <div class="nav-bar">
-        <div class="nav-item" onclick="Navigation.go('journey')"><span class="nav-label">Journey</span></div>
-        <div class="nav-item active" onclick="Navigation.go('tasbih')"><span class="nav-label">Tasbih</span></div>
-        <div class="nav-item" onclick="Navigation.go('salah')"><span class="nav-label">Salah</span></div>
-        <div class="nav-item" onclick="Navigation.go('quran')"><span class="nav-label">Listen</span></div>
+        <div id="n-journey" class="nav-item" onclick="Navigation.go('journey')"><span class="nav-label">Journey</span></div>
+        <div id="n-tasbih" class="nav-item active" onclick="Navigation.go('tasbih')"><span class="nav-label">Tasbih</span></div>
+        <div id="n-salah" class="nav-item" onclick="Navigation.go('salah')"><span class="nav-label">Salah</span></div>
+        <div id="n-quran" class="nav-item" onclick="Navigation.go('quran')"><span class="nav-label">Listen</span></div>
     </div>
 
     <script>
@@ -82,70 +89,100 @@
                 document.querySelectorAll('.view-container').forEach(v => v.classList.remove('view-active'));
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 document.getElementById('view-' + id).classList.add('view-active');
-                // Note: Logic to handle active nav styling would go here
+                document.getElementById('n-' + id).classList.add('active');
+            }
+        };
+
+        const Salah = {
+            prayers: [
+                { id: 'fajr', name: 'Fajr', time: 'Dawn' },
+                { id: 'dhuhr', name: 'Dhuhr', time: 'Noon' },
+                { id: 'asr', name: 'Asr', time: 'Afternoon' },
+                { id: 'maghrib', name: 'Maghrib', time: 'Sunset' },
+                { id: 'isha', name: 'Isha', time: 'Night' }
+            ],
+            data: {},
+
+            init() {
+                const saved = localStorage.getItem('salah_data');
+                const today = new Date().toDateString();
+                const lastDate = localStorage.getItem('salah_date');
+
+                // If it's a new day, reset the data
+                if (lastDate !== today) {
+                    this.data = { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
+                    localStorage.setItem('salah_date', today);
+                    this.save();
+                } else {
+                    this.data = JSON.parse(saved);
+                }
+                this.render();
+            },
+
+            toggle(id) {
+                this.data[id] = !this.data[id];
+                if (navigator.vibrate) navigator.vibrate(30);
+                this.save();
+                this.render();
+            },
+
+            save() { localStorage.setItem('salah_data', JSON.stringify(this.data)); },
+
+            render() {
+                const container = document.getElementById('salah-app');
+                container.innerHTML = '';
+                this.prayers.forEach(p => {
+                    const isDone = this.data[p.id];
+                    const card = document.createElement('div');
+                    card.className = `salah-card ${isDone ? 'completed' : ''}`;
+                    card.onclick = () => this.toggle(p.id);
+                    card.innerHTML = `
+                        <div class="salah-label">
+                            <span class="salah-name">${p.name}</span>
+                            <span class="salah-time">${p.time}</span>
+                        </div>
+                        <div class="check-circle">
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
             }
         };
 
         const Tasbih = {
-            count: 0,
-            target: 100,
-            // Audio files
-            tapSound: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'), // Water drop
-            finishSound: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'), // Chime/Bell
-
+            count: 0, target: 100,
+            tapSound: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
+            finishSound: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
             tap() {
-                // Unlock audio context (fix for browser silence)
-                if (this.count === 0) {
-                    this.tapSound.play().then(() => this.tapSound.pause());
-                    this.finishSound.play().then(() => this.finishSound.pause());
-                }
-
+                if (this.count === 0) { this.tapSound.play().then(() => this.tapSound.pause()); this.finishSound.play().then(() => this.finishSound.pause()); }
                 this.count++;
-
                 if (this.count < this.target) {
-                    // Regular Tap
-                    this.tapSound.currentTime = 0;
-                    this.tapSound.play().catch(e => console.log("Audio play blocked"));
+                    this.tapSound.currentTime = 0; this.tapSound.play();
                     this.updateUI();
-                } 
-                else if (this.count === this.target) {
-                    // 100th Tap
-                    this.finishSound.currentTime = 0;
-                    this.finishSound.play().catch(e => console.log("Audio play blocked"));
+                } else {
+                    this.finishSound.currentTime = 0; this.finishSound.play();
                     this.updateUI();
-
-                    // Delay celebration and vibration by 500ms
-                    setTimeout(() => {
-                        this.celebrate();
-                        this.count = 0; // Reset after celebration
-                        setTimeout(() => this.updateUI(), 300); 
-                    }, 500);
+                    setTimeout(() => { this.celebrate(); this.count = 0; setTimeout(() => this.updateUI(), 300); }, 500);
                 }
             },
-
             celebrate() {
                 const area = document.getElementById('tasbih-area');
                 area.classList.add('celebrate-glow');
-                if (navigator.vibrate) navigator.vibrate(500); // Vibrate ONLY at 100
-                
-                setTimeout(() => {
-                    area.classList.remove('celebrate-glow');
-                }, 800);
+                if (navigator.vibrate) navigator.vibrate(500);
+                setTimeout(() => area.classList.remove('celebrate-glow'), 800);
             },
-
-            reset() {
-                this.count = 0;
-                this.updateUI();
-            },
-
+            reset() { this.count = 0; this.updateUI(); },
             updateUI() {
                 document.getElementById('display-num').textContent = this.count;
                 const ring = document.getElementById('prog-ring');
-                // Circumference is 816
                 const offset = 816 - (this.count / this.target * 816);
                 ring.style.strokeDashoffset = offset;
             }
         };
+
+        // Initialize modules
+        Salah.init();
     </script>
 </body>
 </html>
