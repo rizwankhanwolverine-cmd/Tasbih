@@ -10,208 +10,243 @@
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* GLOBAL PAGE SYSTEM */
-        .page { display: none; flex-direction: column; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
-        .active-page { display: flex; }
-        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.1rem; }
+        /* --- GLOBAL NAVIGATION SYSTEM --- */
+        .view-container { flex: 1; overflow-y: auto; display: none; flex-direction: column; align-items: center; padding: 20px; }
+        .view-active { display: flex; }
+        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1rem; color: var(--gold); }
 
-        /* --- MODULE: TASBIH --- */
-        #tasbih-module .circle { width: 250px; height: 250px; border-radius: 50%; border: 1px solid rgba(194,178,128,0.3); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background: radial-gradient(circle, #101012 0%, #050508 100%); }
-        #tasbih-module .count { font-size: 5rem; color: var(--white); font-weight: 100; margin: 0; }
+        /* --- MODULE 1: JOURNEY (LANDING) --- */
+        #journey-view { justify-content: center; }
+        .stat-card { background: var(--glass); border: 1px solid rgba(194,178,128,0.1); border-radius: 20px; padding: 30px; width: 100%; max-width: 350px; text-align: center; }
+        .welcome-msg { font-size: 1.5rem; font-weight: 200; color: var(--white); margin-bottom: 10px; }
 
-        /* --- MODULE: REVELATION --- */
-        #quran-module .reader-frame { background: #0a0a0c; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid rgba(194,178,128,0.1); width: 100%; max-width: 400px; }
-        #quran-module .arabic { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 1.8; color: var(--white); direction: rtl; min-height: 100px; }
-        .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 10px; font-size: 0.8rem; }
-        
-        /* HIFZ UI */
-        .hifz-panel { background: var(--glass); padding: 15px; border-radius: 15px; width: 100%; border: 1px solid rgba(194,178,128,0.1); margin-bottom: 15px; }
-        .hifz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .hifz-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
-        .hifz-btn.active { background: var(--gold); color: var(--vanta); font-weight: bold; }
-        .range-inputs { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; opacity: 0.4; transition: 0.3s; pointer-events: none; }
-        .range-inputs.active { opacity: 1; pointer-events: all; }
-        .num-input { background: #000; border: 1px solid var(--gold); color: #fff; width: 50px; padding: 5px; border-radius: 5px; text-align: center; }
-        .apply-btn { width: 100%; margin-top: 10px; background: var(--gold); color: #000; border: none; padding: 8px; border-radius: 8px; font-weight: bold; font-size: 0.7rem; display: none; }
+        /* --- MODULE 2: TASBIH (RE-REFINED) --- */
+        .tasbih-circle { width: 260px; height: 260px; border-radius: 50%; border: 1px solid rgba(194,178,128,0.2); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background: radial-gradient(circle, #101012 0%, #050508 100%); position: relative; }
+        .tasbih-circle:active { transform: scale(0.97); }
+        .progress-ring { position: absolute; width: 270px; height: 270px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--gold); transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tasbih-count { font-size: 5.5rem; color: var(--white); font-weight: 100; font-family: 'Helvetica Neue', sans-serif; }
 
-        /* --- MODULE: SALAH --- */
-        #salah-module .list { width: 100%; max-width: 350px; }
-        .salah-card { background: var(--dark-grey); padding: 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(194,178,128,0.1); margin-bottom: 10px; }
-        .salah-card.done { border-color: var(--gold); background: rgba(194,178,128,0.05); }
-        .check { width: 20px; height: 20px; border: 1px solid var(--gold); border-radius: 4px; }
-        .done .check::after { content: '✓'; display: block; text-align: center; color: var(--gold); }
+        /* --- MODULE 3: SALAH (STABLE PERSISTENCE) --- */
+        .salah-list { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 12px; }
+        .salah-item { background: var(--dark-grey); padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(194,178,128,0.1); transition: 0.3s; }
+        .salah-item.active { border-color: var(--gold); background: rgba(194,178,128,0.05); }
+        .salah-check { width: 24px; height: 24px; border: 1px solid var(--gold); border-radius: 6px; }
+        .salah-item.active .salah-check::after { content: '✓'; display: block; text-align: center; color: var(--gold); }
 
-        /* NAV BAR */
-        .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; transition: 0.3s; flex: 1; cursor: pointer; }
+        /* --- MODULE 4: QURAN RECITATION --- */
+        .quran-panel { width: 100%; max-width: 400px; }
+        .reader-frame { background: #0a0a0c; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid rgba(194,178,128,0.1); margin-top: 15px; }
+        .arabic-display { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 2; color: var(--white); direction: rtl; min-height: 120px; }
+        .hifz-overlay { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid rgba(194,178,128,0.1); margin-bottom: 10px; }
+        .hifz-input { background: #000; border: 1px solid var(--gold); color: #fff; width: 55px; text-align: center; border-radius: 5px; margin: 0 5px; }
+        .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 10px; }
+
+        /* --- NAV BAR --- */
+        .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; }
         .nav-item.active { opacity: 1; }
-        .nav-label { font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+        .nav-label { font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="page-tasbih" class="page active-page">
-        <h1 class="header-title">Tasbih</h1>
-        <div id="tasbih-module">
-            <div class="circle" onclick="TasbihModule.tap()">
-                <p id="tCount" class="count">0</p>
-                <p style="font-size:0.6rem; opacity:0.5; letter-spacing:2px;">TAP</p>
+    <div id="view-journey" class="view-container view-active">
+        <h1 class="header-title">The Journey</h1>
+        <div class="stat-card">
+            <div class="welcome-msg">Assalamu Alaikum</div>
+            <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">YOUR SPIRITUAL PROGRESS</div>
+            <hr style="border: 0; border-top: 1px solid rgba(194,178,128,0.1); margin: 20px 0;">
+            <div id="journey-stats" style="font-size: 0.8rem; line-height: 2;">
+                Tasbih: <span id="stat-tasbih" style="color:var(--white)">0</span><br>
+                Prayers: <span id="stat-salah" style="color:var(--white)">0</span>/5
             </div>
-            <center><button onclick="TasbihModule.reset()" style="margin-top:30px; background:none; border:1px solid var(--gold); color:var(--gold); padding:8px 25px; border-radius:20px;">RESET</button></center>
         </div>
     </div>
 
-    <div id="page-quran" class="page">
-        <h1 class="header-title">Revelation</h1>
-        <div id="quran-module" style="width:100%; max-width:400px;">
-            <select id="surahSelect" class="selector" onchange="QuranModule.init()">
+    <div id="view-tasbih" class="view-container">
+        <h1 class="header-title">Tasbih</h1>
+        <div class="tasbih-circle" onclick="TasbihComp.count()">
+            <div id="tasbih-ring" class="progress-ring"></div>
+            <div id="tasbih-num" class="tasbih-count">0</div>
+            <div id="tasbih-target-label" style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 2px;">TARGET: 33</div>
+        </div>
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <button onclick="TasbihComp.setTarget(33)" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:8px 15px; border-radius:20px; font-size:0.6rem;">33</button>
+            <button onclick="TasbihComp.setTarget(100)" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:8px 15px; border-radius:20px; font-size:0.6rem;">100</button>
+            <button onclick="TasbihComp.reset()" style="background:none; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:8px 15px; border-radius:20px; font-size:0.6rem;">RESET</button>
+        </div>
+    </div>
+
+    <div id="view-salah" class="view-container">
+        <h1 class="header-title">Salah Log</h1>
+        <div class="salah-list">
+            <div id="s-fajr" class="salah-item" onclick="SalahComp.toggle('fajr')"><span>Fajr</span><div class="salah-check"></div></div>
+            <div id="s-dhuhr" class="salah-item" onclick="SalahComp.toggle('dhuhr')"><span>Dhuhr</span><div class="salah-check"></div></div>
+            <div id="s-asr" class="salah-item" onclick="SalahComp.toggle('asr')"><span>Asr</span><div class="salah-check"></div></div>
+            <div id="s-maghrib" class="salah-item" onclick="SalahComp.toggle('maghrib')"><span>Maghrib</span><div class="salah-check"></div></div>
+            <div id="s-isha" class="salah-item" onclick="SalahComp.toggle('isha')"><span>Isha</span><div class="salah-check"></div></div>
+        </div>
+    </div>
+
+    <div id="view-quran" class="view-container">
+        <h1 class="header-title">Recitation</h1>
+        <div class="quran-panel">
+            <select id="q-surah" class="selector" onchange="QuranComp.loadSurah()">
                 <option value="1">1. Al-Fatiha</option>
                 <option value="112">112. Al-Ikhlas</option>
                 <option value="113">113. Al-Falaq</option>
                 <option value="114">114. Al-Nas</option>
             </select>
-
-            <div class="hifz-panel">
-                <div class="hifz-header">
-                    <span style="font-size:0.7rem; font-weight:bold; letter-spacing:1px;">HIFZ MODE</span>
-                    <button id="hifzToggle" class="hifz-btn" onclick="QuranModule.toggleHifz()">OFF</button>
+            <div class="hifz-overlay">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="font-size:0.7rem;">HIFZ MODE</span>
+                    <button id="hifz-toggle" onclick="QuranComp.toggleHifz()" style="background:none; border:1px solid var(--gold); color:var(--gold); border-radius:10px; font-size:0.6rem; padding:2px 10px;">OFF</button>
                 </div>
-                <div id="hifzInputs" class="range-inputs">
-                    FROM <input type="number" id="loopFrom" class="num-input" value="1">
-                    TO <input type="number" id="loopTo" class="num-input" value="7">
+                <div id="hifz-controls" style="display:none; align-items:center; justify-content:center;">
+                    <input type="number" id="hifz-from" class="hifz-input" value="1"> TO <input type="number" id="hifz-to" class="hifz-input" value="7">
+                    <button onclick="QuranComp.applyHifz()" style="background:var(--gold); border:none; padding:5px 10px; border-radius:5px; font-weight:bold; font-size:0.6rem; margin-left:10px;">APPLY</button>
                 </div>
-                <button id="applyHifz" class="apply-btn" onclick="QuranModule.applyHifz()">APPLY RANGE</button>
             </div>
-
             <div class="reader-frame">
-                <div id="v-num" style="font-size:0.6rem; opacity:0.4; margin-bottom:10px;">AYAH 1</div>
-                <div id="q-arabic" class="arabic">Loading...</div>
-                <div id="q-trans" style="font-size:0.85rem; opacity:0.7; margin-top:15px; min-height:40px;">...</div>
+                <div id="q-info" style="font-size:0.6rem; opacity:0.4; margin-bottom:10px;">LOADING...</div>
+                <div id="q-arabic" class="arabic-display">...</div>
+                <div id="q-trans" style="font-size:0.8rem; opacity:0.7; margin-top:15px;">...</div>
                 <div style="display:flex; justify-content:space-around; align-items:center; margin-top:30px;">
-                    <button onclick="QuranModule.prev()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">←</button>
-                    <button id="playBtn" onclick="QuranModule.toggleAudio()" style="width:55px; height:55px; border-radius:50%; background:var(--gold); border:none; font-size:1.2rem;">▶</button>
-                    <button onclick="QuranModule.next()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">→</button>
+                    <button onclick="QuranComp.prev()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">←</button>
+                    <button id="q-play" onclick="QuranComp.playToggle()" style="width:55px; height:55px; border-radius:50%; background:var(--gold); border:none; font-size:1.2rem;">▶</button>
+                    <button onclick="QuranComp.next()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">→</button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div id="page-salah" class="page">
-        <h1 class="header-title">Salah Log</h1>
-        <div id="salah-module" class="list">
-            <div class="salah-card" onclick="SalahModule.toggle(this)"><span>Fajr</span><div class="check"></div></div>
-            <div class="salah-card" onclick="SalahModule.toggle(this)"><span>Dhuhr</span><div class="check"></div></div>
-            <div class="salah-card" onclick="SalahModule.toggle(this)"><span>Asr</span><div class="check"></div></div>
-            <div class="salah-card" onclick="SalahModule.toggle(this)"><span>Maghrib</span><div class="check"></div></div>
-            <div class="salah-card" onclick="SalahModule.toggle(this)"><span>Isha</span><div class="check"></div></div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <div id="nav-tasbih" class="nav-item active" onclick="Router.go('tasbih')"><span class="nav-label">Tasbih</span></div>
-        <div id="nav-quran" class="nav-item" onclick="Router.go('quran')"><span class="nav-label">Listen</span></div>
-        <div id="nav-salah" class="nav-item" onclick="Router.go('salah')"><span class="nav-label">Salah</span></div>
+        <div id="n-journey" class="nav-item active" onclick="Navigation.switch('journey')"><span class="nav-label">Journey</span></div>
+        <div id="n-tasbih" class="nav-item" onclick="Navigation.switch('tasbih')"><span class="nav-label">Tasbih</span></div>
+        <div id="n-salah" class="nav-item" onclick="Navigation.switch('salah')"><span class="nav-label">Salah</span></div>
+        <div id="n-quran" class="nav-item" onclick="Navigation.switch('quran')"><span class="nav-label">Listen</span></div>
     </div>
 
-    <audio id="mainAudio"></audio>
+    <audio id="globalAudio"></audio>
 
     <script>
-        const Router = {
-            go(pageId) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+        /* --- CORE NAVIGATION --- */
+        const Navigation = {
+            switch(id) {
+                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('view-active'));
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.getElementById('page-' + pageId).classList.add('active-page');
-                document.getElementById('nav-' + pageId).classList.add('active');
-                if(pageId !== 'quran') QuranModule.pause();
+                document.getElementById('view-' + id).classList.add('view-active');
+                document.getElementById('n-' + id).classList.add('active');
+                if(id !== 'quran') QuranComp.stop();
+                if(id === 'journey') JourneyComp.refresh();
             }
         };
 
-        const TasbihModule = {
-            count: 0,
-            sound: new Audio('https://www.soundjay.com/buttons/button-16.mp3'),
-            tap() {
-                this.count++;
-                this.sound.play().catch(()=>{});
-                if(navigator.vibrate) navigator.vibrate(40);
-                document.getElementById('tCount').textContent = this.count;
+        /* --- TASBIH COMPONENT --- */
+        const TasbihComp = {
+            val: 0, target: 33,
+            clickSfx: new Audio('https://www.soundjay.com/buttons/button-16.mp3'),
+            count() {
+                this.val++;
+                this.clickSfx.play().catch(()=>{});
+                if(navigator.vibrate) navigator.vibrate(50);
+                if(this.val >= this.target) {
+                    if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    this.val = 0;
+                }
+                this.render();
             },
-            reset() { this.count = 0; document.getElementById('tCount').textContent = 0; }
+            setTarget(t) { this.target = t; this.val = 0; this.render(); },
+            reset() { this.val = 0; this.render(); },
+            render() {
+                document.getElementById('tasbih-num').textContent = this.val;
+                document.getElementById('tasbih-target-label').textContent = `TARGET: ${this.target}`;
+                const rot = (this.val / this.target) * 360;
+                document.getElementById('tasbih-ring').style.transform = `rotate(${rot}deg)`;
+                localStorage.setItem('tCount_Total', parseInt(localStorage.getItem('tCount_Total') || 0) + 1);
+            }
         };
 
-        const QuranModule = {
-            verseIndex: 1,
-            data: [],
-            isHifz: false,
-            audio: document.getElementById('mainAudio'),
-
-            async init() {
-                const id = document.getElementById('surahSelect').value;
-                const resAr = await fetch(`https://api.alquran.cloud/v1/surah/${id}`);
-                const resEn = await fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`);
-                const dAr = await resAr.json(); const dEn = await resEn.json();
-                this.data = dAr.data.ayahs.map((a, i) => ({
-                    ar: a.text, en: dEn.data.ayahs[i].text,
-                    url: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3`
-                }));
-                this.verseIndex = 1;
-                document.getElementById('loopTo').value = this.data.length;
+        /* --- SALAH COMPONENT --- */
+        const SalahComp = {
+            state: JSON.parse(localStorage.getItem('salah_v1')) || {fajr:0, dhuhr:0, asr:0, maghrib:0, isha:0},
+            toggle(p) {
+                this.state[p] = this.state[p] ? 0 : 1;
+                localStorage.setItem('salah_v1', JSON.stringify(this.state));
                 this.render();
             },
-
-            toggleHifz() {
-                this.isHifz = !this.isHifz;
-                const btn = document.getElementById('hifzToggle');
-                const inputs = document.getElementById('hifzInputs');
-                const apply = document.getElementById('applyHifz');
-                
-                btn.textContent = this.isHifz ? "ON" : "OFF";
-                btn.className = this.isHifz ? "hifz-btn active" : "hifz-btn";
-                inputs.className = this.isHifz ? "range-inputs active" : "range-inputs";
-                apply.style.display = this.isHifz ? "block" : "none";
-            },
-
-            applyHifz() {
-                this.verseIndex = parseInt(document.getElementById('loopFrom').value);
-                this.render();
-                this.audio.play();
-                document.getElementById('playBtn').textContent = '||';
-            },
-
             render() {
-                const v = this.data[this.verseIndex - 1];
+                let completed = 0;
+                for(let k in this.state) {
+                    const el = document.getElementById('s-' + k);
+                    if(this.state[k]) { el.classList.add('active'); completed++; }
+                    else el.classList.remove('active');
+                }
+                localStorage.setItem('salah_today_count', completed);
+            }
+        };
+
+        /* --- QURAN COMPONENT --- */
+        const QuranComp = {
+            idx: 1, data: [], isHifz: false,
+            player: document.getElementById('globalAudio'),
+            async loadSurah() {
+                const sId = document.getElementById('q-surah').value;
+                const r1 = await fetch(`https://api.alquran.cloud/v1/surah/${sId}`);
+                const r2 = await fetch(`https://api.alquran.cloud/v1/surah/${sId}/en.sahih`);
+                const d1 = await r1.json(); const d2 = await r2.json();
+                this.data = d1.data.ayahs.map((a, i) => ({
+                    ar: a.text, en: d2.data.ayahs[i].text,
+                    aud: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3`
+                }));
+                this.idx = 1; this.render();
+            },
+            render() {
+                const v = this.data[this.idx-1];
                 if(!v) return;
                 document.getElementById('q-arabic').textContent = v.ar;
                 document.getElementById('q-trans').textContent = v.en;
-                document.getElementById('v-num').textContent = `AYAH ${this.verseIndex} / ${this.data.length}`;
-                this.audio.src = v.url;
+                document.getElementById('q-info').textContent = `AYAH ${this.idx} / ${this.data.length}`;
+                this.player.src = v.aud;
             },
-
-            toggleAudio() {
-                if(this.audio.paused) { this.audio.play(); document.getElementById('playBtn').textContent = '||'; }
-                else { this.pause(); }
+            playToggle() {
+                if(this.player.paused) { this.player.play(); document.getElementById('q-play').textContent = '||'; }
+                else this.stop();
             },
-            pause() { this.audio.pause(); document.getElementById('playBtn').textContent = '▶'; },
-            
+            stop() { this.player.pause(); document.getElementById('q-play').textContent = '▶'; },
             next() {
                 if(this.isHifz) {
-                    const to = parseInt(document.getElementById('loopTo').value);
-                    const from = parseInt(document.getElementById('loopFrom').value);
-                    this.verseIndex = (this.verseIndex >= to) ? from : this.verseIndex + 1;
+                    const from = parseInt(document.getElementById('hifz-from').value);
+                    const to = parseInt(document.getElementById('hifz-to').value);
+                    this.idx = (this.idx >= to) ? from : this.idx + 1;
                 } else {
-                    if(this.verseIndex < this.data.length) this.verseIndex++;
+                    if(this.idx < this.data.length) this.idx++;
+                    else return; // Stop at end of surah
                 }
-                this.render();
-                this.audio.play();
+                this.render(); this.player.play();
             },
-
-            prev() { if(this.verseIndex > 1) { this.verseIndex--; this.render(); this.audio.play(); } }
+            prev() { if(this.idx > 1) { this.idx--; this.render(); this.player.play(); } },
+            toggleHifz() {
+                this.isHifz = !this.isHifz;
+                document.getElementById('hifz-toggle').textContent = this.isHifz ? "ON" : "OFF";
+                document.getElementById('hifz-controls').style.display = this.isHifz ? "flex" : "none";
+            },
+            applyHifz() { this.idx = parseInt(document.getElementById('hifz-from').value); this.render(); this.player.play(); }
         };
 
-        const SalahModule = { toggle(el) { el.classList.toggle('done'); if(navigator.vibrate) navigator.vibrate(20); } };
+        /* --- JOURNEY COMPONENT --- */
+        const JourneyComp = {
+            refresh() {
+                document.getElementById('stat-tasbih').textContent = localStorage.getItem('tCount_Total') || 0;
+                document.getElementById('stat-salah').textContent = localStorage.getItem('salah_today_count') || 0;
+            }
+        };
 
-        // Bind audio event to the module
-        QuranModule.audio.onended = () => QuranModule.next();
-        QuranModule.init();
+        /* INITIALIZE */
+        QuranComp.player.onended = () => QuranComp.next();
+        QuranComp.loadSurah();
+        SalahComp.render();
+        JourneyComp.refresh();
     </script>
 </body>
 </html>
