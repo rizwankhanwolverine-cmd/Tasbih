@@ -9,88 +9,91 @@
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; --glass: rgba(194, 178, 128, 0.08); }
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
 
-        body { 
-            background-color: var(--vanta); color: var(--gold); 
-            font-family: -apple-system, system-ui, sans-serif; 
-            margin: 0; padding: 0; overflow: hidden; height: 100vh;
-            display: flex; flex-direction: column;
-        }
+        body { background-color: var(--vanta); color: var(--gold); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
         /* PAGE SYSTEM */
         .page { display: none; flex-direction: column; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
 
         .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 15px; text-align: center; font-size: 1rem; }
-        
-        /* RESTORED TASBIH UI */
-        .tasbih-circle { width: 220px; height: 220px; border-radius: 50%; border: 2px solid var(--gold); display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 40px; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: 0 0 30px rgba(194,178,128,0.1); }
-        .tasbih-count { font-size: 4rem; color: var(--white); font-weight: 100; }
 
-        /* QURAN / HIFZ UI */
+        /* TASBIH RESTORATION */
+        .tasbih-circle { width: 250px; height: 250px; border-radius: 50%; border: 1px solid var(--gold); display: flex; flex-direction: column; justify-content: center; align-items: center; margin-top: 30px; position: relative; transition: transform 0.1s; }
+        .tasbih-circle:active { transform: scale(0.97); }
+        .progress-ring { position: absolute; top: -5px; left: -5px; width: 260px; height: 260px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--gold); transition: 0.3s; transform: rotate(0deg); }
+        .tasbih-count { font-size: 5rem; color: var(--white); font-weight: 100; font-family: 'Helvetica Neue', sans-serif; }
+        .reset-btn { background: none; border: 1px solid rgba(194,178,128,0.3); color: var(--gold); padding: 8px 15px; border-radius: 20px; font-size: 0.6rem; cursor: pointer; margin: 5px; }
+
+        /* REVELATION UI */
         .controls-row { display: flex; gap: 8px; width: 100%; max-width: 400px; margin-bottom: 10px; }
         .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 10px; flex: 1; font-size: 0.75rem; }
-        
-        .hifz-panel { background: var(--glass); padding: 15px; border-radius: 15px; width: 100%; max-width: 400px; border: 1px solid rgba(194,178,128,0.2); margin-bottom: 12px; }
-        .range-area.locked { opacity: 0.25; pointer-events: none; }
-        .mode-toggle { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 6px 15px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
-        .mode-toggle.active { background: var(--gold); color: var(--vanta); font-weight: bold; }
+        .hifz-panel { background: var(--glass); padding: 15px; border-radius: 15px; width: 100%; max-width: 400px; border: 1px solid rgba(194,178,128,0.2); margin-bottom: 10px; }
+        .hifz-panel.locked { opacity: 0.3; }
+        .apply-btn { background: var(--gold); color: var(--vanta); border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; width: 100%; font-size: 0.7rem; }
 
-        .reader-frame { background: #0a0a0c; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; text-align: center; border: 1px solid rgba(194, 178, 128, 0.1); min-height: 280px; }
-        .arabic-text { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 1.8; color: var(--white); direction: rtl; }
+        /* READER */
+        .reader-frame { background: #0a0a0c; padding: 25px; border-radius: 25px; width: 100%; max-width: 400px; text-align: center; border: 1px solid rgba(194, 178, 128, 0.1); position: relative; }
+        .arabic-text { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 2; color: var(--white); direction: rtl; }
 
-        /* BOOK MODE (The Digital Mushaf) */
-        .mushaf-container { width: 100%; max-width: 500px; text-align: right; padding-bottom: 100px; }
-        .mushaf-verse { border-bottom: 1px solid rgba(194,178,128,0.1); padding: 15px 0; }
+        /* MUSHAF (BOOK) */
+        .mushaf-page { width: 100%; max-width: 600px; background: #fdfdfd; color: #1a1a1a; padding: 40px 20px; border-radius: 5px; box-shadow: 0 0 20px rgba(0,0,0,0.5); min-height: 80vh; margin-bottom: 100px; }
+        .mushaf-ayah { font-family: 'Amiri', serif; font-size: 1.5rem; display: inline; line-height: 2.5; direction: rtl; }
 
         /* NAV BAR */
         .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; transition: 0.3s; flex: 1; cursor: pointer; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; transition: 0.3s; flex: 1; }
         .nav-item.active { opacity: 1; }
         .nav-label { font-size: 0.5rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <div id="page-tasbih" class="page active-page" onclick="countTasbih()">
-        <h1 class="header-title">Tasbih</h1>
-        <div class="tasbih-circle">
+    <div id="page-tasbih" class="page active-page" onclick="handleTap()">
+        <h1 class="header-title">The Beads</h1>
+        <div class="tasbih-circle" id="beadCircle">
+            <div class="progress-ring" id="pRing"></div>
             <span id="tasbih-display" class="tasbih-count">0</span>
-            <span style="font-size:0.6rem; opacity:0.5; letter-spacing:2px;">TAP TO COUNT</span>
+            <span id="cycle-display" style="font-size: 0.6rem; opacity: 0.5;">CYCLE: 0</span>
         </div>
-        <button onclick="resetTasbih(event)" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.3); color:var(--gold); padding:8px 20px; border-radius:20px; font-size:0.7rem;">RESET</button>
+        <div style="margin-top: 20px; display: flex;">
+            <button class="reset-btn" onclick="resetCount(event, 'current')">RESET COUNT</button>
+            <button class="reset-btn" onclick="resetCount(event, 'all')">RESET ALL</button>
+        </div>
     </div>
 
     <div id="page-quran" class="page">
-        <h1 class="header-title">The Revelation</h1>
+        <h1 class="header-title">Recitation</h1>
         <div class="controls-row">
-            <select id="surahSelect" class="selector" onchange="initSurah()">
+            <select id="surahSelect" class="selector" onchange="delayedAction(initSurah)">
                 <option value="1">1. Al-Fatiha</option>
                 <option value="2">2. Al-Baqarah</option>
                 <option value="112">112. Al-Ikhlas</option>
+                <option value="113">113. Al-Falaq</option>
                 <option value="114">114. Al-Nas</option>
             </select>
-            <select id="langSelect" class="selector" onchange="updateVerseUI()">
+            <select id="langSelect" class="selector" onchange="delayedAction(updateVerseUI)">
                 <option value="en">English</option>
                 <option value="ur">Urdu</option>
             </select>
         </div>
 
-        <div class="hifz-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span style="font-size:0.7rem; font-weight:bold;">HIFZ MODE</span>
-                <button id="hifzBtn" class="mode-toggle" onclick="toggleHifz()">OFF</button>
+        <div class="hifz-panel" id="hPanel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.7rem;">HIFZ MODE</span>
+                <button id="hifzBtn" class="selector" style="max-width:60px;" onclick="toggleHifz()">OFF</button>
             </div>
-            <div id="rangeInputs" class="range-area locked" style="display:flex; gap:10px; align-items:center;">
-                <span style="font-size:0.7rem;">FROM:</span> <input type="number" id="loopFrom" class="memo-input" value="1" style="width:50px; background:none; border:1px solid var(--gold); color:white; text-align:center;">
-                <span style="font-size:0.7rem;">TO:</span> <input type="number" id="loopTo" class="memo-input" value="7" style="width:50px; background:none; border:1px solid var(--gold); color:white; text-align:center;">
+            <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+                <input type="number" id="loopFrom" class="selector" value="1">
+                <span>TO</span>
+                <input type="number" id="loopTo" class="selector" value="7">
             </div>
+            <button class="apply-btn" onclick="applyHifz()">APPLY & START</button>
         </div>
 
         <div class="reader-frame">
             <div id="v-num" style="font-size:0.6rem; opacity:0.4; margin-bottom:10px;">AYAH 1</div>
             <div id="q-arabic" class="arabic-text">...</div>
             <div id="q-trans" style="font-size:0.9rem; opacity:0.7; margin-top:15px;">...</div>
-            
             <div style="display:flex; justify-content:space-around; align-items:center; margin-top:25px;">
                 <button onclick="prevVerse()" style="background:none; border:none; fill:var(--gold);"><svg width="30" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
                 <button id="playBtn" onclick="toggleAudio()" style="width:60px; height:60px; border-radius:50%; background:var(--gold); border:none; display:flex; justify-content:center; align-items:center;">
@@ -102,55 +105,42 @@
     </div>
 
     <div id="page-book" class="page">
-        <h1 class="header-title">Digital Mushaf</h1>
-        <div id="mushaf-list" class="mushaf-container">
-            </div>
+        <h1 class="header-title">The Mushaf</h1>
+        <div class="mushaf-page" id="mushafContent"></div>
     </div>
+
+    <div id="page-salah" class="page"><h1 class="header-title">Salah Log</h1></div>
+    <div id="page-dash" class="page"><h1 class="header-title">Journey</h1></div>
 
     <div class="nav-bar">
         <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')"><svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/></svg><span class="nav-label">Beads</span></div>
         <div id="nav-quran" class="nav-item" onclick="switchPage('quran')"><svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg><span class="nav-label">Listen</span></div>
-        <div id="nav-book" class="nav-item" onclick="switchPage('book')"><svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM3 18.5V7c1.1-.35 2.3-.5 3.5-.5 1.34 0 2.61.18 3.5.5v11.5c-.89-.32-2.16-.5-3.5-.5-1.2 0-2.4.15-3.5.5zm18 0c-1.1-.35-2.3-.5-3.5-.5-1.34 0-2.61.18-3.5.5V7c.89-.32 2.16-.5 3.5-.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg><span class="nav-label">Read</span></div>
+        <div id="nav-book" class="nav-item" onclick="switchPage('book')"><svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg><span class="nav-label">Read</span></div>
+        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')"><svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13,3A2,2 0 0,1 15,5A2,2 0 0,1 13,7A2,2 0 0,1 11,5A2,2 0 0,1 13,3M18.5,18.5L20,20H4L5,17L8.5,14L10,15L8,19H16L14,15L15,14L18.5,17.5V18.5Z"/></svg><span class="nav-label">Salah</span></div>
+        <div id="nav-dash" class="nav-item" onclick="switchPage('dash')"><svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="nav-label">Journey</span></div>
     </div>
 
     <audio id="mainAudio" onended="handleAudioEnd()"></audio>
 
     <script>
-        // TASBIH LOGIC
-        let count = parseInt(localStorage.getItem('tasbihCount')) || 0;
-        function countTasbih() {
-            count++;
-            document.getElementById('tasbih-display').textContent = count;
-            localStorage.setItem('tasbihCount', count);
-        }
-        function resetTasbih(e) { e.stopPropagation(); count = 0; document.getElementById('tasbih-display').textContent = 0; localStorage.setItem('tasbihCount', 0); }
-
-        // QURAN LOGIC
-        let currentSurah = 1;
-        let currentVerse = 1;
-        let verseData = [];
-        let isHifzMode = false;
+        // AUDIO ENGINE
+        let currentSurah = 1; let currentVerse = 1; let verseData = []; let isHifzMode = false;
         const audio = document.getElementById('mainAudio');
+        const clickSound = new Audio('https://www.soundjay.com/buttons/button-16.mp3');
+
+        function delayedAction(fn) {
+            setTimeout(fn, 500);
+        }
 
         async function initSurah() {
             currentSurah = document.getElementById('surahSelect').value;
             const resAr = await fetch(`https://api.alquran.cloud/v1/surah/${currentSurah}`);
             const resEn = await fetch(`https://api.alquran.cloud/v1/surah/${currentSurah}/en.sahih`);
             const resUr = await fetch(`https://api.alquran.cloud/v1/surah/${currentSurah}/ur.jalandhry`);
-            
-            const dAr = await resAr.json();
-            const dEn = await resEn.json();
-            const dUr = await resUr.json();
-
-            verseData = dAr.data.ayahs.map((a, i) => ({
-                ar: a.text,
-                en: dEn.data.ayahs[i].text,
-                ur: dUr.data.ayahs[i].text,
-                audio: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3`
-            }));
-            
-            loadMushaf(); // Sync the book view
-            updateVerseUI();
+            const dAr = await resAr.json(); const dEn = await resEn.json(); const dUr = await resUr.json();
+            verseData = dAr.data.ayahs.map((a, i) => ({ ar: a.text, en: dEn.data.ayahs[i].text, ur: dUr.data.ayahs[i].text, audio: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3` }));
+            updateVerseUI(); loadMushaf();
+            if(!audio.paused) audio.play();
         }
 
         function updateVerseUI() {
@@ -162,16 +152,6 @@
             audio.src = v.audio;
         }
 
-        function toggleAudio() {
-            if (audio.paused) {
-                audio.play();
-                document.getElementById('playIcon').innerHTML = '<path d="M14,19H18V5H14M6,19H10V5H6V19Z"/>';
-            } else {
-                audio.pause();
-                document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>';
-            }
-        }
-
         function handleAudioEnd() {
             const from = parseInt(document.getElementById('loopFrom').value);
             const to = parseInt(document.getElementById('loopTo').value);
@@ -181,28 +161,51 @@
             } else if (currentVerse < verseData.length) {
                 currentVerse++; updateVerseUI(); audio.play();
             } else {
-                document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>';
+                // NEXT SURAH LOGIC
+                currentSurah = parseInt(currentSurah) + 1;
+                document.getElementById('surahSelect').value = currentSurah;
+                currentVerse = 1; initSurah();
             }
         }
 
-        function nextVerse() { if(currentVerse < verseData.length) { currentVerse++; updateVerseUI(); if(!audio.paused) audio.play(); } }
-        function prevVerse() { if(currentVerse > 1) { currentVerse--; updateVerseUI(); if(!audio.paused) audio.play(); } }
+        function applyHifz() {
+            isHifzMode = true;
+            document.getElementById('hifzBtn').textContent = "ON";
+            currentVerse = parseInt(document.getElementById('loopFrom').value);
+            updateVerseUI(); audio.play();
+        }
 
-        function toggleHifz() {
-            isHifzMode = !isHifzMode;
-            document.getElementById('hifzBtn').textContent = isHifzMode ? "ON" : "OFF";
-            document.getElementById('hifzBtn').classList.toggle('active', isHifzMode);
-            document.getElementById('rangeInputs').classList.toggle('locked', !isHifzMode);
+        function toggleAudio() {
+            if (audio.paused) { audio.play(); document.getElementById('playIcon').innerHTML = '<path d="M14,19H18V5H14M6,19H10V5H6V19Z"/>'; }
+            else { audio.pause(); document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>'; }
+        }
+
+        function nextVerse() { if(currentVerse < verseData.length) { currentVerse++; updateVerseUI(); delayedAction(() => audio.play()); } }
+        function prevVerse() { if(currentVerse > 1) { currentVerse--; updateVerseUI(); delayedAction(() => audio.play()); } }
+
+        // TASBIH LOGIC
+        let tCount = 0; let tCycle = 0;
+        function handleTap() {
+            tCount++; clickSound.play();
+            if(tCount > 100) { 
+                tCount = 1; tCycle++; 
+                alert("Mabrouk! 100 Tasbihat completed."); 
+            }
+            updateTasbihUI();
+        }
+        function updateTasbihUI() {
+            document.getElementById('tasbih-display').textContent = tCount;
+            document.getElementById('cycle-display').textContent = `CYCLE: ${tCycle}`;
+            document.getElementById('pRing').style.transform = `rotate(${tCount * 3.6}deg)`;
+        }
+        function resetCount(e, type) {
+            e.stopPropagation(); tCount = 0; 
+            if(type === 'all') tCycle = 0;
+            updateTasbihUI();
         }
 
         function loadMushaf() {
-            const container = document.getElementById('mushaf-list');
-            container.innerHTML = verseData.map((v, i) => `
-                <div class="mushaf-verse">
-                    <div style="font-family:'Amiri'; font-size:1.8rem;">${v.ar} <span style="font-size:1rem; color:var(--gold);">(${i+1})</span></div>
-                    <div style="font-size:0.8rem; opacity:0.6; margin-top:5px;">${v.en}</div>
-                </div>
-            `).join('');
+            document.getElementById('mushafContent').innerHTML = verseData.map(v => `<span class="mushaf-ayah">${v.ar} ۝ </span>`).join(' ');
         }
 
         function switchPage(p) {
@@ -210,12 +213,8 @@
             document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active-page');
             document.getElementById('nav-' + p).classList.add('active');
-            audio.pause();
-            document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>';
         }
 
-        // Init
-        document.getElementById('tasbih-display').textContent = count;
         initSurah();
     </script>
 </body>
