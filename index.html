@@ -7,111 +7,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; --glass: rgba(194, 178, 128, 0.08); }
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
         .view-container { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
         .view-active { display: flex; }
-        .header-title { letter-spacing: 6px; font-weight: 300; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.5rem; color: var(--gold); padding-top: 10px; }
+        .header-title { letter-spacing: 6px; font-weight: 300; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-size: 1.5rem; color: var(--gold); }
 
-        /* --- MEMORIZATION (QURAN) --- */
-        .quran-panel { width: 100%; max-width: 400px; }
-        .reader-frame { background: #0a0a0c; padding: 25px; border-radius: 25px; text-align: center; border: 1px solid rgba(194,178,128,0.1); margin-top: 15px; }
-        .arabic-display { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 2; color: var(--white); direction: rtl; min-height: 120px; }
-        .hifz-overlay { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid rgba(194,178,128,0.1); margin-bottom: 10px; }
-        .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 12px; border-radius: 10px; width: 100%; margin-bottom: 10px; }
-        
-        /* --- TASBIH & STARS --- */
-        .tasbih-wrapper { position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
-        .tasbih-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; }
-        .circle-bg { fill: none; stroke: rgba(194,178,128,0.1); stroke-width: 4; }
-        .circle-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.2s ease; }
-        .tasbih-num { font-size: 6rem; color: var(--white); font-weight: 100; font-family: 'Helvetica Neue', sans-serif; margin: 0; }
-        
-        .star { position: absolute; color: var(--gold); font-size: 20px; pointer-events: none; z-index: 100; }
+        /* --- SALAH: THE JOBS DESIGN --- */
+        .date-scroller { display: flex; gap: 15px; margin-bottom: 25px; width: 100%; overflow-x: auto; padding: 10px; scroll-snap-type: x mandatory; }
+        .date-pill { 
+            flex: 0 0 auto; padding: 10px 20px; border-radius: 20px; border: 1px solid rgba(194,178,128,0.2);
+            font-size: 0.7rem; color: var(--gold); scroll-snap-align: center; transition: 0.3s;
+        }
+        .date-pill.active { background: var(--gold); color: var(--vanta); border-color: var(--gold); font-weight: bold; }
+
+        .salah-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
+        .salah-orb { 
+            background: #0f0f12; height: 100px; border-radius: 25px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.03); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+        .salah-orb.lit { 
+            background: radial-gradient(circle at center, rgba(194,178,128,0.2) 0%, #0f0f12 100%);
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(194,178,128,0.1), inset 0 0 10px rgba(194,178,128,0.2);
+        }
+        .orb-name { font-size: 0.8rem; letter-spacing: 2px; color: var(--white); opacity: 0.4; transition: 0.3s; }
+        .lit .orb-name { opacity: 1; text-shadow: 0 0 10px var(--gold); }
+
+        /* --- PARTICLES & ANIMATION --- */
+        .star { position: absolute; color: var(--gold); font-size: 20px; pointer-events: none; z-index: 100; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
-
-        /* --- SALAH --- */
-        .salah-list { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
-        .salah-card { background: var(--dark-grey); padding: 18px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(194,178,128,0.1); cursor: pointer; }
-        .salah-card.completed { border-color: var(--gold); background: var(--glass); }
 
         /* --- NAV BAR --- */
         .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; }
         .nav-item.active { opacity: 1; }
-        .nav-label { font-size: 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 5px; text-align: center; }
+        .nav-label { font-size: 0.5rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <div id="view-journey" class="view-container view-active">
-        <h1 class="header-title">The Journey</h1>
-        <p style="opacity:0.6; text-align:center;">Your spiritual path begins here.</p>
-    </div>
-
-    <div id="view-tasbih" class="view-container">
-        <h1 class="header-title">Tasbih</h1>
-        <div class="tasbih-wrapper" id="tasbih-area" onclick="Tasbih.tap()">
-            <svg class="tasbih-svg"><circle class="circle-bg" cx="140" cy="140" r="130"></circle><circle id="prog-ring" class="circle-prog" cx="140" cy="140" r="130"></circle></svg>
-            <div style="text-align:center; z-index:10;"><p id="display-num" class="tasbih-num">0</p><p style="font-size:0.7rem; opacity:0.5; letter-spacing:3px;">/ 100</p></div>
-        </div>
-        <button onclick="Tasbih.reset()" style="margin-top:40px; background:none; border:1px solid rgba(194,178,128,0.3); color:var(--gold); padding:10px 30px; border-radius:30px; cursor:pointer;">RESET</button>
-    </div>
-
     <div id="view-salah" class="view-container">
         <h1 class="header-title">Salah</h1>
-        <div class="salah-list" id="salah-app"></div>
+        <div class="date-scroller" id="date-scroller"></div>
+        <div class="salah-grid" id="salah-grid"></div>
     </div>
+
+    <div id="view-tasbih" class="view-container view-active">
+        <h1 class="header-title">Tasbih</h1>
+        </div>
 
     <div id="view-memorization" class="view-container">
         <h1 class="header-title">Memorization</h1>
-        <div class="quran-panel">
-            <select id="q-surah" class="selector" onchange="Quran.loadSurah()">
-                <option value="1">1. Al-Fatiha</option>
-                <option value="112">112. Al-Ikhlas</option>
-                <option value="113">113. Al-Falaq</option>
-                <option value="114">114. Al-Nas</option>
-            </select>
-            <div class="hifz-overlay">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-                    <span style="font-size:0.7rem;">HIFZ MODE</span>
-                    <button id="hifz-toggle" onclick="Quran.toggleHifz()" style="background:none; border:1px solid var(--gold); color:var(--gold); border-radius:10px; font-size:0.6rem; padding:4px 12px;">OFF</button>
-                </div>
-                <div id="hifz-controls" style="display:none; align-items:center; justify-content:center;">
-                    <input type="number" id="hifz-from" style="width:50px; background:#000; color:#fff; border:1px solid var(--gold);" value="1"> 
-                    <span style="margin:0 10px; font-size:0.7rem;">TO</span>
-                    <input type="number" id="hifz-to" style="width:50px; background:#000; color:#fff; border:1px solid var(--gold);" value="7">
-                    <button onclick="Quran.applyHifz()" style="background:var(--gold); border:none; padding:5px 10px; border-radius:5px; font-weight:bold; font-size:0.6rem; margin-left:10px;">APPLY</button>
-                </div>
-            </div>
-            <div class="reader-frame">
-                <div id="q-info" style="font-size:0.6rem; opacity:0.4; margin-bottom:10px;">AYAH 1</div>
-                <div id="q-arabic" class="arabic-display">...</div>
-                <div id="q-trans" style="font-size:0.8rem; opacity:0.7; margin-top:15px; height:40px; overflow-y:auto;">...</div>
-                <div style="display:flex; justify-content:space-around; align-items:center; margin-top:30px;">
-                    <button onclick="Quran.prev()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">←</button>
-                    <button id="q-play" onclick="Quran.playToggle()" style="width:55px; height:55px; border-radius:50%; background:var(--gold); border:none; font-size:1.2rem;">▶</button>
-                    <button onclick="Quran.next()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">→</button>
-                </div>
-            </div>
         </div>
-    </div>
-
-    <div id="view-recitation" class="view-container">
-        <h1 class="header-title">Recitation</h1>
-        <p style="opacity:0.6; text-align:center;">Content to be discussed.</p>
-    </div>
 
     <div class="nav-bar">
-        <div id="n-journey" class="nav-item active" onclick="Navigation.go('journey')"><span class="nav-label">Journey</span></div>
-        <div id="n-tasbih" class="nav-item" onclick="Navigation.go('tasbih')"><span class="nav-label">Tasbih</span></div>
+        <div id="n-journey" class="nav-item" onclick="Navigation.go('journey')"><span class="nav-label">Journey</span></div>
+        <div id="n-tasbih" class="nav-item active" onclick="Navigation.go('tasbih')"><span class="nav-label">Tasbih</span></div>
         <div id="n-salah" class="nav-item" onclick="Navigation.go('salah')"><span class="nav-label">Salah</span></div>
         <div id="n-memorization" class="nav-item" onclick="Navigation.go('memorization')"><span class="nav-label">Memorization</span></div>
         <div id="n-recitation" class="nav-item" onclick="Navigation.go('recitation')"><span class="nav-label">Recitation</span></div>
     </div>
-
-    <audio id="globalAudio"></audio>
 
     <script>
         const Navigation = {
@@ -120,114 +79,96 @@
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 document.getElementById('view-' + id).classList.add('view-active');
                 document.getElementById('n-' + id).classList.add('active');
-                if(id !== 'memorization') Quran.stop();
             }
         };
 
-        const Tasbih = {
-            count: 0,
-            // Audio Pool for high-speed tapping
-            pool: [
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')
-            ],
-            poolIdx: 0,
-            finishSound: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
-
-            tap() {
-                this.count++;
-                if (this.count < 100) {
-                    let s = this.pool[this.poolIdx];
-                    s.currentTime = 0; s.play();
-                    this.poolIdx = (this.poolIdx + 1) % this.pool.length;
-                    this.updateUI();
-                } else if (this.count === 100) {
-                    this.finishSound.play();
-                    this.updateUI();
-                    setTimeout(() => { this.celebrate(); this.count = 0; this.updateUI(); }, 500);
-                }
-            },
-            celebrate() {
-                if (navigator.vibrate) navigator.vibrate(500);
+        const Effects = {
+            stars() {
                 for(let i=0; i<30; i++) {
                     const star = document.createElement('div');
                     star.className = 'star'; star.innerHTML = '★';
                     star.style.left = Math.random() * 100 + 'vw';
                     star.style.top = '-20px';
-                    star.style.animation = `fall ${Math.random() * 2 + 1}s linear forwards`;
+                    star.style.animationDuration = (Math.random() * 2 + 1) + 's';
                     document.body.appendChild(star);
                     setTimeout(() => star.remove(), 3000);
                 }
-            },
-            reset() { this.count = 0; this.updateUI(); },
-            updateUI() {
-                document.getElementById('display-num').textContent = this.count;
-                document.getElementById('prog-ring').style.strokeDashoffset = 816 - (this.count/100 * 816);
             }
         };
 
-        const Quran = {
-            idx: 1, data: [], isHifz: false, player: document.getElementById('globalAudio'),
-            async loadSurah() {
-                const sId = document.getElementById('q-surah').value;
-                const r1 = await fetch(`https://api.alquran.cloud/v1/surah/${sId}`);
-                const r2 = await fetch(`https://api.alquran.cloud/v1/surah/${sId}/en.sahih`);
-                const d1 = await r1.json(); const d2 = await r2.json();
-                this.data = d1.data.ayahs.map((a, i) => ({
-                    ar: a.text, en: d2.data.ayahs[i].text,
-                    aud: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3`
-                }));
-                this.render();
-            },
-            render() {
-                const v = this.data[this.idx-1]; if(!v) return;
-                document.getElementById('q-arabic').textContent = v.ar;
-                document.getElementById('q-trans').textContent = v.en;
-                document.getElementById('q-info').textContent = `AYAH ${this.idx} / ${this.data.length}`;
-                this.player.src = v.aud;
-            },
-            playToggle() {
-                if(this.player.paused) { this.player.play(); document.getElementById('q-play').textContent = '||'; }
-                else this.stop();
-            },
-            stop() { this.player.pause(); document.getElementById('q-play').textContent = '▶'; },
-            next() {
-                if(this.isHifz) {
-                    const from = parseInt(document.getElementById('hifz-from').value);
-                    const to = parseInt(document.getElementById('hifz-to').value);
-                    this.idx = (this.idx >= to) ? from : this.idx + 1;
-                } else { if(this.idx < this.data.length) this.idx++; }
-                this.render(); this.player.play();
-            },
-            prev() { if(this.idx > 1) { this.idx--; this.render(); this.player.play(); } },
-            toggleHifz() {
-                this.isHifz = !this.isHifz;
-                document.getElementById('hifz-toggle').textContent = this.isHifz ? "ON" : "OFF";
-                document.getElementById('hifz-controls').style.display = this.isHifz ? "flex" : "none";
-            },
-            applyHifz() { this.idx = parseInt(document.getElementById('hifz-from').value); this.render(); this.player.play(); }
-        };
-
         const Salah = {
-            data: {fajr:false, dhuhr:false, asr:false, maghrib:false, isha:false},
-            init() { this.render(); },
-            toggle(id) { this.data[id] = !this.data[id]; this.render(); },
-            render() {
-                const container = document.getElementById('salah-app');
-                container.innerHTML = '';
-                ['fajr','dhuhr','asr','maghrib','isha'].forEach(id => {
-                    const card = document.createElement('div');
-                    card.className = `salah-card ${this.data[id] ? 'completed' : ''}`;
-                    card.innerHTML = `<span>${id.toUpperCase()}</span><span>${this.data[id] ? '✓' : ''}</span>`;
-                    card.onclick = () => this.toggle(id);
-                    container.appendChild(card);
+            selectedDate: new Date().toDateString(),
+            db: JSON.parse(localStorage.getItem('salah_db_v2')) || {},
+            history: [],
+
+            init() {
+                // Generate last 3 days for scroller
+                for(let i=0; i<3; i++) {
+                    let d = new Date();
+                    d.setDate(d.getDate() - i);
+                    this.history.push(d.toDateString());
+                }
+                this.renderDates();
+                this.renderGrid();
+            },
+
+            renderDates() {
+                const scroller = document.getElementById('date-scroller');
+                scroller.innerHTML = '';
+                this.history.forEach(date => {
+                    const pill = document.createElement('div');
+                    pill.className = `date-pill ${this.selectedDate === date ? 'active' : ''}`;
+                    pill.textContent = date === new Date().toDateString() ? 'TODAY' : date.split(' ').slice(0,3).join(' ');
+                    pill.onclick = () => { this.selectedDate = date; this.renderDates(); this.renderGrid(); };
+                    scroller.appendChild(pill);
+                });
+            },
+
+            toggle(id) {
+                if(!this.db[this.selectedDate]) this.db[this.selectedDate] = {};
+                this.db[this.selectedDate][id] = !this.db[this.selectedDate][id];
+                
+                // Vibration feedback
+                if(navigator.vibrate) navigator.vibrate(20);
+
+                // Celebration Logic
+                if(this.selectedDate === new Date().toDateString()) {
+                    this.checkCelebration();
+                }
+
+                localStorage.setItem('salah_db_v2', JSON.stringify(this.db));
+                this.renderGrid();
+            },
+
+            checkCelebration() {
+                const today = this.db[this.selectedDate];
+                const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const allDone = prayers.every(p => today[p] === true);
+                const hasCelebrated = localStorage.getItem('salah_cele_date') === this.selectedDate;
+
+                if(allDone && !hasCelebrated) {
+                    setTimeout(() => Effects.stars(), 400);
+                    localStorage.setItem('salah_cele_date', this.selectedDate);
+                }
+            },
+
+            renderGrid() {
+                const grid = document.getElementById('salah-grid');
+                grid.innerHTML = '';
+                const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                const dayData = this.db[this.selectedDate] || {};
+
+                prayers.forEach(p => {
+                    const orb = document.createElement('div');
+                    orb.className = `salah-orb ${dayData[p] ? 'lit' : ''}`;
+                    orb.onclick = () => this.toggle(p);
+                    orb.innerHTML = `<span class="orb-name">${p}</span>`;
+                    grid.appendChild(orb);
                 });
             }
         };
 
-        Quran.player.onended = () => Quran.next();
-        Quran.loadSurah();
+        // Initialize
         Salah.init();
     </script>
 </body>
