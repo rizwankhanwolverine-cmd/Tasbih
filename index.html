@@ -7,6 +7,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050508">
     
+    <link rel="manifest" href="manifest.json?v=11">
+    <link rel="apple-touch-icon" href="icon.png?v=11">
+    <link rel="icon" type="image/png" href="icon.png?v=11">
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <title>Sanctuary Infinity</title>
@@ -21,43 +25,37 @@
             display: flex; flex-direction: column;
         }
 
-        .page { display: none; flex-direction: column; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
+        .page { display: none; flex-direction: column; justify-content: center; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
 
         .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-size: 1.2rem; }
-        
-        /* QURAN SPECIFIC STYLES */
-        .quran-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; }
-        .surah-picker { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194, 178, 128, 0.2); padding: 12px; border-radius: 12px; width: 100%; font-size: 0.9rem; letter-spacing: 1px; }
-        
-        .reader-frame { 
-            background: #0a0a0c; padding: 35px 25px; border-radius: 25px; 
-            text-align: center; border: 1px solid rgba(194, 178, 128, 0.1);
-            min-height: 300px; display: flex; flex-direction: column; justify-content: center;
-        }
-        .arabic-text { 
-            font-family: "Amiri", serif; font-size: 2.2rem; line-height: 2.5; 
-            color: var(--white); direction: rtl; margin-bottom: 20px;
-        }
-        .translation-text { font-size: 0.9rem; color: var(--gold); opacity: 0.6; font-style: italic; line-height: 1.6; }
+        .btn-gold { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px 24px; border-radius: 30px; font-size: 0.7rem; letter-spacing: 2px; margin: 10px; cursor: pointer; }
 
-        /* REUSABLE UI */
+        /* CIRCLE UI */
         .circle { width: 200px; height: 200px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 5rem; background: radial-gradient(circle, #1a1a1a 0%, var(--vanta) 100%); box-shadow: inset 0 0 40px #000; }
-        .salah-card { background: var(--dark-grey); margin: 8px 0; padding: 18px; border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05); display: flex; justify-content: center; align-items: center; width: 100%; max-width: 320px; }
-        .salah-card.lit { background: rgba(194, 178, 128, 0.15); border: 1px solid var(--gold); }
-        
+
+        /* SALAH CARD */
+        .salah-card { background: var(--dark-grey); margin: 8px 0; padding: 18px; border-radius: 12px; border: 1px solid rgba(194, 178, 128, 0.05); display: flex; justify-content: center; align-items: center; transition: 0.4s; width: 100%; max-width: 320px; }
+        .salah-card.lit { background: rgba(194, 178, 128, 0.15); border: 1px solid var(--gold); box-shadow: 0 0 20px rgba(194, 178, 128, 0.1); }
+        .salah-name { font-size: 1rem; letter-spacing: 4px; text-transform: uppercase; color: rgba(194,178,128,0.3); }
+        .lit .salah-name { color: var(--white); text-shadow: 0 0 10px var(--gold); }
+
         /* NAV BAR */
         .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 25%; height: 100%; opacity: 0.25; transition: 0.4s; }
         .nav-item.active { opacity: 1; }
-        .nav-icon-svg { width: 26px; height: 26px; fill: var(--gold); margin-bottom: 4px; }
+        .nav-icon-svg { width: 28px; height: 28px; fill: var(--gold); margin-bottom: 6px; }
         .nav-label { font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 340px; }
+        .stat-box { background: var(--dark-grey); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid rgba(194, 178, 128, 0.1); }
     </style>
 </head>
 <body>
 
     <div id="page-tasbih" class="page active-page" onclick="handleTasbihTap(event)">
-        <div style="font-size:0.75rem; letter-spacing:3px; opacity:0.6;">DAILY: <span id="todayNum">0</span></div>
+        <div style="font-size:0.75rem; letter-spacing:3px; opacity:0.6; margin-bottom: 5px;">DAILY: <span id="todayNum">0</span> | SETS: <span id="setNum">0</span></div>
         <h1 class="header-title">Tasbih</h1>
         <div style="position:relative; width:280px; height:280px; display:flex; justify-content:center; align-items:center;">
             <svg width="280" height="280" style="position:absolute; transform:rotate(-90deg);">
@@ -66,114 +64,168 @@
             </svg>
             <div class="circle"><span id="num">0</span></div>
         </div>
+        <button onclick="resetSession(event)" class="btn-gold" style="border:none; opacity:0.3;">Reset Session</button>
     </div>
 
     <div id="page-salah" class="page">
         <h1 class="header-title">Salah Log</h1>
-        <div class="salah-card" onclick="toggleSalah('fajr')">FAJR</div>
-        <div class="salah-card" onclick="toggleSalah('dhuhr')">DHUHR</div>
-        <div class="salah-card" onclick="toggleSalah('asr')">ASR</div>
-        <div class="salah-card" onclick="toggleSalah('maghrib')">MAGHRIB</div>
-        <div class="salah-card" onclick="toggleSalah('isha')">ISHA</div>
+        <div id="salah-list" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <div class="salah-card" onclick="toggleSalah('fajr')"><span class="salah-name">Fajr</span></div>
+            <div class="salah-card" onclick="toggleSalah('dhuhr')"><span class="salah-name">Dhuhr</span></div>
+            <div class="salah-card" onclick="toggleSalah('asr')"><span class="salah-name">Asr</span></div>
+            <div class="salah-card" onclick="toggleSalah('maghrib')"><span class="salah-name">Maghrib</span></div>
+            <div class="salah-card" onclick="toggleSalah('isha')"><span class="salah-name">Isha</span></div>
+        </div>
     </div>
 
     <div id="page-quran" class="page">
         <h1 class="header-title">Quran</h1>
-        <div class="quran-container">
-            <select id="surahSelect" class="surah-picker" onchange="loadSurah()">
-                <option value="fatiha">Al-Fatiha (The Opening)</option>
-                <option value="ikhlas">Al-Ikhlas (Purity)</option>
-                <option value="asr">Al-Asr (The Time)</option>
-                <option value="kawthar">Al-Kawthar (Abundance)</option>
-            </select>
-            
-            <div class="reader-frame">
-                <div id="quran-arabic" class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-                <div id="quran-trans" class="translation-text">In the name of Allah, the Entirely Merciful, the Especially Merciful.</div>
-            </div>
-            <p style="text-align:center; font-size:0.6rem; opacity:0.4; letter-spacing:2px;">LAST READ SAVED AUTOMATICALLY</p>
+        <div style="width: 100%; max-width: 350px; background: #0a0a0c; padding: 40px; border-radius: 25px; text-align: right; font-size: 1.8rem; line-height: 2.2; color: var(--white); border: 1px solid rgba(194, 178, 128, 0.1);">
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </div>
+        <p style="font-size:0.7rem; opacity:0.4; margin-top:30px; letter-spacing:2px;">ZEN READING MODE</p>
     </div>
 
     <div id="page-dash" class="page">
         <h1 class="header-title">Dashboard</h1>
-        <div style="background:var(--dark-grey); padding:30px; border-radius:20px; text-align:center; width:100%; max-width:300px;">
-            <div style="font-size:2rem; color:var(--white);" id="dash-tasbih">0</div>
-            <div style="font-size:0.6rem; opacity:0.5; letter-spacing:2px;">TOTAL DHIKR</div>
+        <div class="dashboard-grid">
+            <div class="stat-box"><span style="font-size:1.8rem; color:var(--white);" id="dash-tasbih">0</span><br><span style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">TOTAL BEADS</span></div>
+            <div class="stat-box"><span style="font-size:1.8rem; color:var(--white);" id="dash-salah">0</span><br><span style="font-size:0.6rem; opacity:0.5; letter-spacing:1px;">STREAK</span></div>
+        </div>
+        <div style="margin-top:40px; display:flex; flex-direction:column; gap:12px; width: 100%; max-width: 300px;">
+            <button onclick="exportData()" class="btn-gold">SAVE JOURNEY</button>
+            <button onclick="document.getElementById('file-input').click()" class="btn-gold" style="opacity:0.6; border-style: dashed;">RESTORE BACKUP</button>
+            <input type="file" id="file-input" style="display:none" onchange="importData(event)">
         </div>
     </div>
 
     <div class="nav-bar">
         <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')">
-            <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12,2A3,3 0 0,1 15,5A3,3 0 0,1 12,8A3,3 0 0,1 9,5A3,3 0 0,1 12,2M12,16A3,3 0 0,1 15,19A3,3 0 0,1 12,22A3,3 0 0,1 9,19A3,3 0 0,1 12,16M18,8A3,3 0 0,1 21,11A3,3 0 0,1 18,14A3,3 0 0,1 15,11A3,3 0 0,1 18,8M6,8A3,3 0 0,1 9,11A3,3 0 0,1 6,14A3,3 0 0,1 3,11A3,3 0 0,1 6,8Z"/></svg>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M12,2A3,3 0 0,1 15,5A3,3 0 0,1 12,8A3,3 0 0,1 9,5A3,3 0 0,1 12,2M12,16A3,3 0 0,1 15,19A3,3 0 0,1 12,22A3,3 0 0,1 9,19A3,3 0 0,1 12,16M18,8A3,3 0 0,1 21,11A3,3 0 0,1 18,14A3,3 0 0,1 15,11A3,3 0 0,1 18,8M6,8A3,3 0 0,1 9,11A3,3 0 0,1 6,14A3,3 0 0,1 3,11A3,3 0 0,1 6,8Z"/>
+            </svg>
             <span class="nav-label">Beads</span>
         </div>
         <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">
-            <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M13,3A2,2 0 0,1 15,5A2,2 0 0,1 13,7A2,2 0 0,1 11,5A2,2 0 0,1 13,3M18.5,18.5L20,20H4L5,17L8.5,14L10,15L8,19H16L14,15L15,14L18.5,17.5V18.5Z"/></svg>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M13,3A2,2 0 0,1 15,5A2,2 0 0,1 13,7A2,2 0 0,1 11,5A2,2 0 0,1 13,3M18.5,18.5L20,20H4L5,17L8.5,14L10,15L8,19H16L14,15L15,14L18.5,17.5V18.5Z"/>
+            </svg>
             <span class="nav-label">Salah</span>
         </div>
         <div id="nav-quran" class="nav-item" onclick="switchPage('quran')">
-            <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12,11.5L19,7V18L12,22.5L5,18V7L12,11.5M12,2L19,6L12,10L5,6L12,2Z"/></svg>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M12,11.5L19,7V18L12,22.5L5,18V7L12,11.5M12,2L19,6L12,10L5,6L12,2Z"/>
+            </svg>
             <span class="nav-label">Quran</span>
         </div>
         <div id="nav-dash" class="nav-item" onclick="switchPage('dash')">
-            <svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12,2L14.5,8.5L21,9.25L16.25,13.75L17.5,20.25L12,17.25L6.5,20.25L7.75,13.75L3,9.25L9.5,8.5L12,2M12,19V22H2V20H22V22H12V19Z"/></svg>
+            <svg class="nav-icon-svg" viewBox="0 0 24 24">
+                <path d="M12,2L14.5,8.5L21,9.25L16.25,13.75L17.5,20.25L12,17.25L6.5,20.25L7.75,13.75L3,9.25L9.5,8.5L12,2M12,19V22H2V20H22V22H12V19Z"/>
+            </svg>
             <span class="nav-label">Journey</span>
         </div>
     </div>
 
     <script>
-        const surahData = {
-            fatiha: { ar: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", en: "All praise is due to Allah, Lord of the worlds." },
-            ikhlas: { ar: "قُلْ هُوَ اللَّهُ أَحَدٌ", en: "Say, 'He is Allah, [who is] One.'" },
-            asr: { ar: "وَالْعَصْرِ إِنَّ الْإِنْسَانَ لَفِي خُسْرٍ", en: "By time, indeed, mankind is in loss." },
-            kawthar: { ar: "إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ", en: "Indeed, We have granted you, [O Muhammad], al-Kawthar." }
-        };
-
-        function loadSurah() {
-            const val = document.getElementById('surahSelect').value;
-            document.getElementById('quran-arabic').textContent = surahData[val].ar;
-            document.getElementById('quran-trans').textContent = surahData[val].en;
-            localStorage.setItem('lastSurah', val);
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const audioContext = new AudioCtx();
+        function playSnd(f, d) {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            const o = audioContext.createOscillator(); const g = audioContext.createGain();
+            o.frequency.setValueAtTime(f, audioContext.currentTime);
+            g.gain.setValueAtTime(0.06, audioContext.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + d);
+            o.connect(g); g.connect(audioContext.destination); o.start(); o.stop(audioContext.currentTime + d);
         }
+
+        let sessionCount = parseInt(localStorage.getItem('tasbihSession')) || 0;
+        let todayCount = parseInt(localStorage.getItem('tasbihToday')) || 0;
 
         function switchPage(p) {
             document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active-page');
             document.getElementById('nav-' + p).classList.add('active');
+            playSnd(150, 0.05);
             updateUI();
         }
 
         function updateUI() {
-            document.getElementById('num').textContent = localStorage.getItem('tasbihSession') || 0;
-            document.getElementById('todayNum').textContent = localStorage.getItem('tasbihToday') || 0;
-            document.getElementById('dash-tasbih').textContent = localStorage.getItem('tasbihToday') || 0;
+            document.getElementById('num').textContent = sessionCount;
+            document.getElementById('todayNum').textContent = todayCount;
+            document.getElementById('setNum').textContent = Math.floor(sessionCount / 100);
             
-            // Restore last surah read
-            const savedSurah = localStorage.getItem('lastSurah');
-            if(savedSurah) {
-                document.getElementById('surahSelect').value = savedSurah;
-                loadSurah();
-            }
+            const circ = 125 * 2 * Math.PI;
+            const ring = document.getElementById('ring');
+            ring.style.strokeDasharray = `${circ} ${circ}`;
+            let p = sessionCount % 100; if (p === 0 && sessionCount > 0) p = 100;
+            ring.style.strokeDashoffset = circ - (p / 100 * circ);
+
+            const todayKey = "salah_" + new Date().toDateString();
+            const state = JSON.parse(localStorage.getItem(todayKey)) || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
+            const cards = document.querySelectorAll('.salah-card');
+            const keys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            keys.forEach((k, i) => {
+                if (state[k]) cards[i].classList.add('lit');
+                else cards[i].classList.remove('lit');
+            });
+
+            document.getElementById('dash-tasbih').textContent = todayCount;
+            localStorage.setItem('tasbihSession', sessionCount);
+            localStorage.setItem('tasbihToday', todayCount);
         }
 
-        // Tasbih & Salah logic remains same as previous version
-        function handleTasbihTap() {
-            let s = parseInt(localStorage.getItem('tasbihSession') || 0) + 1;
-            let t = parseInt(localStorage.getItem('tasbihToday') || 0) + 1;
-            localStorage.setItem('tasbihSession', s);
-            localStorage.setItem('tasbihToday', t);
+        function handleTasbihTap(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            sessionCount++; todayCount++;
+            if (sessionCount % 100 === 0) {
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.5 }, colors: ['#C2B280'] });
+                playSnd(880, 0.4);
+            } else {
+                playSnd(400, 0.1);
+            }
+            if (navigator.vibrate) navigator.vibrate(35);
             updateUI();
         }
 
         function toggleSalah(name) {
             const todayKey = "salah_" + new Date().toDateString();
-            let state = JSON.parse(localStorage.getItem(todayKey)) || {};
+            let state = JSON.parse(localStorage.getItem(todayKey)) || { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false };
             state[name] = !state[name];
             localStorage.setItem(todayKey, JSON.stringify(state));
+            playSnd(state[name] ? 600 : 200, 0.2);
+            
+            if (Object.values(state).every(v => v === true)) {
+                setTimeout(() => {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280', '#FFFFFF'] });
+                    playSnd(880, 0.5);
+                }, 500);
+            }
             updateUI();
         }
+
+        function exportData() {
+            const data = JSON.stringify(localStorage);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `journey_backup_${new Date().toLocaleDateString()}.json`;
+            a.click();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = JSON.parse(e.target.result);
+                Object.keys(data).forEach(key => localStorage.setItem(key, data[key]));
+                location.reload();
+            };
+            reader.readAsText(file);
+        }
+
+        function resetSession(e) { e.stopPropagation(); if(confirm("Reset session?")) { sessionCount = 0; updateUI(); } }
 
         updateUI();
     </script>
