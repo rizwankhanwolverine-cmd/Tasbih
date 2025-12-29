@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <title>Sanctuary Infinity</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; }
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
@@ -16,162 +18,181 @@
             display: flex; flex-direction: column;
         }
 
-        /* PAGE SYSTEM */
         .page { display: none; flex-direction: column; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
-        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.1rem; }
 
-        /* --- TASBIH UI (RESTORED) --- */
-        .tasbih-circle { 
-            width: 250px; height: 250px; border-radius: 50%; border: 1px solid rgba(194,178,128,0.3); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            position: relative; cursor: pointer; background: radial-gradient(circle, #101012 0%, #050508 100%);
-        }
-        .count-num { font-size: 5rem; color: var(--white); font-weight: 100; margin: 0; }
-
-        /* --- SALAH LOG UI (RESTORED) --- */
-        .salah-list { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 12px; }
-        .salah-card { 
-            background: var(--dark-grey); padding: 18px; border-radius: 12px; 
-            display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid rgba(194,178,128,0.1);
-        }
-        .salah-card.completed { border-color: var(--gold); background: rgba(194,178,128,0.05); }
-        .check-box { width: 22px; height: 22px; border: 1px solid var(--gold); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
-        .check-box.checked::after { content: '✓'; color: var(--gold); }
-
-        /* --- REVELATION UI --- */
-        .quran-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
-        .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 10px; font-size: 0.8rem; width: 100%; }
+        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 20px; text-align: center; font-size: 1.2rem; }
+        
+        /* QURAN READER UI */
+        .quran-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        .controls-row { display: flex; gap: 10px; width: 100%; }
+        .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 10px; flex: 1; font-size: 0.8rem; }
+        
         .reader-frame { 
-            background: #0a0a0c; padding: 30px 20px; border-radius: 25px; text-align: center;
-            border: 1px solid rgba(194, 178, 128, 0.1); min-height: 300px;
+            background: #0a0a0c; padding: 30px 20px; border-radius: 20px; 
+            text-align: center; border: 1px solid rgba(194, 178, 128, 0.1);
+            min-height: 320px; display: flex; flex-direction: column; justify-content: center;
         }
-        .arabic-text { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 1.8; color: var(--white); direction: rtl; }
+        .arabic-text { font-size: 2rem; line-height: 2.2; color: var(--white); direction: rtl; margin-bottom: 15px; }
+        .trans-text { font-size: 0.95rem; color: var(--gold); opacity: 0.7; line-height: 1.5; min-height: 50px; }
+
+        .audio-controls { display: flex; justify-content: space-around; align-items: center; margin-top: 20px; background: rgba(194,178,128,0.05); padding: 15px; border-radius: 50px; }
+        .ctrl-btn { background: none; border: none; fill: var(--gold); cursor: pointer; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; }
+        .play-pause { width: 55px; height: 55px; background: var(--gold); border-radius: 50%; fill: var(--vanta); }
 
         /* NAV BAR */
         .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.25; transition: 0.3s; }
         .nav-item.active { opacity: 1; }
-        .nav-label { font-size: 0.5rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+        .nav-icon-svg { width: 24px; height: 24px; fill: var(--gold); margin-bottom: 4px; }
+        .nav-label { font-size: 0.55rem; letter-spacing: 1px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div id="page-tasbih" class="page active-page">
-        <h1 class="header-title">Tasbih</h1>
-        <div class="tasbih-circle" onclick="doTap()">
-            <p id="tCount" class="count-num">0</p>
-            <p style="font-size:0.6rem; letter-spacing:2px; opacity:0.5;">TAP TO PRAY</p>
-        </div>
-        <button onclick="count = 0; updateUI();" style="margin-top:30px; background:none; border:1px solid rgba(255,255,255,0.1); color:var(--gold); padding:8px 25px; border-radius:20px; font-size:0.7rem;">RESET</button>
-    </div>
-
-    <div id="page-quran" class="page">
-        <h1 class="header-title">The Revelation</h1>
+    <div id="page-quran" class="page active-page">
+        <h1 class="header-title">Quran</h1>
         <div class="quran-container">
-            <select id="surahSelect" class="selector" onchange="initSurah()">
-                <option value="1">1. Al-Fatiha</option>
-                <option value="112">112. Al-Ikhlas</option>
-                <option value="114">114. Al-Nas</option>
-            </select>
+            <div class="controls-row">
+                <select id="surahSelect" class="selector" onchange="initSurah()">
+                    <option value="1">1. Al-Fatiha</option>
+                    <option value="112">112. Al-Ikhlas</option>
+                    <option value="113">113. Al-Falaq</option>
+                    <option value="114">114. Al-Nas</option>
+                </select>
+                <select id="langSelect" class="selector" onchange="updateVerseUI()">
+                    <option value="en">English</option>
+                    <option value="ur">Urdu</option>
+                </select>
+            </div>
+            
             <div class="reader-frame">
-                <div id="v-num" style="font-size:0.6rem; opacity:0.4; margin-bottom:10px;">AYAH 1</div>
+                <div id="v-num" style="font-size: 0.6rem; opacity: 0.4; margin-bottom: 10px; letter-spacing: 2px;">VERSE 1</div>
                 <div id="q-arabic" class="arabic-text">...</div>
-                <div id="q-trans" style="font-size:0.9rem; opacity:0.7; margin-top:15px;">...</div>
+                <div id="q-trans" class="trans-text">...</div>
                 
-                <div style="display:flex; justify-content:space-around; align-items:center; margin-top:30px;">
-                    <button onclick="prevVerse()" style="background:none; border:none; fill:var(--gold);"><svg width="30" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
-                    <button id="playBtn" onclick="toggleAudio()" style="width:60px; height:60px; border-radius:50%; background:var(--gold); border:none; display:flex; justify-content:center; align-items:center;">
-                        <svg id="playIcon" width="30" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                <div class="audio-controls">
+                    <button class="ctrl-btn" onclick="prevVerse()">
+                        <svg viewBox="0 0 24 24" width="30"><path d="M6,18L14.5,12L6,6V18M16,6V18H18V6H16Z" transform="rotate(180 12 12)"/></svg>
                     </button>
-                    <button onclick="nextVerse()" style="background:none; border:none; fill:var(--gold);"><svg width="30" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+                    <button id="playBtn" class="ctrl-btn play-pause" onclick="toggleAudio()">
+                        <svg id="playIcon" viewBox="0 0 24 24" width="30"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                    </button>
+                    <button class="ctrl-btn" onclick="nextVerse()">
+                        <svg viewBox="0 0 24 24" width="30"><path d="M6,18L14.5,12L6,6V18M16,6V18H18V6H16Z"/></svg>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="page-salah" class="page">
-        <h1 class="header-title">Salah Log</h1>
-        <div class="salah-list">
-            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
-                <span>Fajr</span> <div class="check-box"></div>
-            </div>
-            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
-                <span>Dhuhr</span> <div class="check-box"></div>
-            </div>
-            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
-                <span>Asr</span> <div class="check-box"></div>
-            </div>
-            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
-                <span>Maghrib</span> <div class="check-box"></div>
-            </div>
-            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
-                <span>Isha</span> <div class="check-box"></div>
-            </div>
-        </div>
-    </div>
+    <div id="page-tasbih" class="page"><h1 class="header-title">Tasbih</h1></div>
+    <div id="page-salah" class="page"><h1 class="header-title">Salah</h1></div>
+    <div id="page-dash" class="page"><h1 class="header-title">Journey</h1></div>
 
     <div class="nav-bar">
-        <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')"><span class="nav-label">Tasbih</span></div>
-        <div id="nav-quran" class="nav-item" onclick="switchPage('quran')"><span class="nav-label">Listen</span></div>
-        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')"><span class="nav-label">Salah</span></div>
+        <div class="nav-item" onclick="switchPage('tasbih')"><svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12,2A3,3 0 0,1 15,5A3,3 0 0,1 12,8A3,3 0 0,1 9,5A3,3 0 0,1 12,2M12,16A3,3 0 0,1 15,19A3,3 0 0,1 12,22A3,3 0 0,1 9,19A3,3 0 0,1 12,16M18,8A3,3 0 0,1 21,11A3,3 0 0,1 18,14A3,3 0 0,1 15,11A3,3 0 0,1 18,8M6,8A3,3 0 0,1 9,11A3,3 0 0,1 6,14A3,3 0 0,1 3,11A3,3 0 0,1 6,8Z"/></svg><span class="nav-label">Beads</span></div>
+        <div class="nav-item" onclick="switchPage('salah')"><svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M13,3A2,2 0 0,1 15,5A2,2 0 0,1 13,7A2,2 0 0,1 11,5A2,2 0 0,1 13,3M18.5,18.5L20,20H4L5,17L8.5,14L10,15L8,19H16L14,15L15,14L18.5,17.5V18.5Z"/></svg><span class="nav-label">Salah</span></div>
+        <div class="nav-item active" onclick="switchPage('quran')"><svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12,11.5L19,7V18L12,22.5L5,18V7L12,11.5M12,2L19,6L12,10L5,6L12,2Z"/></svg><span class="nav-label">Quran</span></div>
+        <div class="nav-item" onclick="switchPage('dash')"><svg class="nav-icon-svg" viewBox="0 0 24 24"><path d="M12,2L14.5,8.5L21,9.25L16.25,13.75L17.5,20.25L12,17.25L6.5,20.25L7.75,13.75L3,9.25L9.5,8.5L12,2M12,19V22H2V20H22V22H12V19Z"/></svg><span class="nav-label">Journey</span></div>
     </div>
 
-    <audio id="mainAudio" onended="nextVerse()"></audio>
+    <audio id="mainAudio" onended="handleAudioEnd()"></audio>
 
     <script>
-        // TASBIH
-        let count = 0;
-        const tapSfx = new Audio('https://www.soundjay.com/buttons/button-16.mp3');
-        function doTap() {
-            count++;
-            tapSfx.play().catch(()=>{});
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-            updateUI();
-        }
-        function updateUI() { document.getElementById('tCount').textContent = count; }
-
-        // REVELATION
-        let currentVerse = 1; let verseData = [];
-        const audio = document.getElementById('mainAudio');
+        let currentSurah = 1;
+        let currentVerse = 1;
+        let totalVerses = 7;
+        let verseData = [];
+        const audioPlayer = document.getElementById('mainAudio');
 
         async function initSurah() {
-            const id = document.getElementById('surahSelect').value;
-            const resAr = await fetch(`https://api.alquran.cloud/v1/surah/${id}`);
-            const resEn = await fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`);
-            const dAr = await resAr.json(); const dEn = await resEn.json();
-            verseData = dAr.data.ayahs.map((a, i) => ({
-                ar: a.text, en: dEn.data.ayahs[i].text,
-                audio: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3`
+            currentSurah = document.getElementById('surahSelect').value;
+            currentVerse = 1;
+            pauseAudio();
+            
+            // Fetch Surah data (Arabic, English, Urdu)
+            const [resAr, resEn, resUr] = await Promise.all([
+                fetch(`https://api.alquran.cloud/v1/surah/${currentSurah}`),
+                fetch(`https://api.alquran.cloud/v1/surah/${currentSurah}/en.sahih`),
+                fetch(`https://api.alquran.cloud/v1/surah/${currentSurah}/ur.jalandhry`)
+            ]);
+
+            const dataAr = await resAr.json();
+            const dataEn = await resEn.json();
+            const dataUr = await resUr.json();
+
+            totalVerses = dataAr.data.numberOfAyahs;
+            verseData = dataAr.data.ayahs.map((ayah, i) => ({
+                ar: ayah.text,
+                en: dataEn.data.ayahs[i].text,
+                ur: dataUr.data.ayahs[i].text,
+                audio: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayah.number}.mp3`
             }));
-            currentVerse = 1; updateVerseUI();
+
+            updateVerseUI();
         }
 
         function updateVerseUI() {
-            const v = verseData[currentVerse - 1];
-            document.getElementById('q-arabic').textContent = v.ar;
-            document.getElementById('q-trans').textContent = v.en;
-            document.getElementById('v-num').textContent = `AYAH ${currentVerse} / ${verseData.length}`;
-            audio.src = v.audio;
+            const verse = verseData[currentVerse - 1];
+            const lang = document.getElementById('langSelect').value;
+            
+            document.getElementById('v-num').textContent = `VERSE ${currentVerse} / ${totalVerses}`;
+            document.getElementById('q-arabic').textContent = verse.ar;
+            document.getElementById('q-trans').textContent = verse[lang];
+            
+            audioPlayer.src = verse.audio;
         }
 
         function toggleAudio() {
-            if (audio.paused) { audio.play(); document.getElementById('playIcon').innerHTML = '<path d="M14,19H18V5H14M6,19H10V5H6V19Z"/>'; }
-            else { audio.pause(); document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>'; }
+            if (audioPlayer.paused) playAudio();
+            else pauseAudio();
         }
 
-        function nextVerse() { if(currentVerse < verseData.length) { currentVerse++; updateVerseUI(); audio.play(); } }
-        function prevVerse() { if(currentVerse > 1) { currentVerse--; updateVerseUI(); audio.play(); } }
+        function playAudio() {
+            audioPlayer.play();
+            document.getElementById('playIcon').innerHTML = '<path d="M14,19H18V5H14M6,19H10V5H6V19Z"/>';
+        }
+
+        function pauseAudio() {
+            audioPlayer.pause();
+            document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>';
+        }
+
+        function nextVerse() {
+            if (currentVerse < totalVerses) {
+                currentVerse++;
+                updateVerseUI();
+                playAudio();
+            }
+        }
+
+        function prevVerse() {
+            if (currentVerse > 1) {
+                currentVerse--;
+                updateVerseUI();
+                playAudio();
+            }
+        }
+
+        function handleAudioEnd() {
+            if (currentVerse < totalVerses) nextVerse();
+            else pauseAudio();
+        }
 
         function switchPage(p) {
             document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active-page');
-            document.getElementById('nav-' + p).classList.add('active');
-            audio.pause();
+            const items = document.querySelectorAll('.nav-item');
+            if (p === 'tasbih') items[0].classList.add('active');
+            if (p === 'salah') items[1].classList.add('active');
+            if (p === 'quran') items[2].classList.add('active');
+            if (p === 'dash') items[3].classList.add('active');
+            pauseAudio();
         }
 
+        // Initialize Fatiha on start
         initSurah();
     </script>
 </body>
