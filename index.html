@@ -1,183 +1,189 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sanctuary Infinity</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --glass: rgba(194, 178, 128, 0.1); }
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
-        body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+<script>
+/* =========================
+   STORAGE MODULE
+========================= */
+const Storage = {
+  get(key, fallback = 0) {
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  },
+  set(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+};
 
-        /* VIEW SYSTEM */
-        .content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 100px; }
-        .view { display: none; flex-direction: column; align-items: center; padding: 20px; }
-        .view.active { display: flex; }
-        .header { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin: 25px 0; font-size: 1.2rem; }
+/* =========================
+   AUDIO MODULE
+========================= */
+const AudioEngine = {
+  unlocked: false,
+  tap: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
+  done: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
 
-        /* TASBIH MODULE */
-        .tasbih-box { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; }
-        .ring-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; }
-        .ring-fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.1s linear; }
-        .count-text { font-size: 6.5rem; color: var(--white); font-weight: 100; }
+  unlock() {
+    if (this.unlocked) return;
+    [this.tap, this.done].forEach(a => {
+      a.play().then(() => a.pause()).catch(() => {});
+      a.currentTime = 0;
+    });
+    this.unlocked = true;
+    const s = document.getElementById('sound-status');
+    if (s) s.style.display = 'none';
+  },
 
-        /* SALAH MODULE */
-        .scroller { display: flex; gap: 10px; overflow-x: auto; width: 100%; padding: 10px; scrollbar-width: none; }
-        .pill { flex: 0 0 auto; padding: 10px 20px; border-radius: 20px; border: 1px solid var(--glass); font-size: 0.7rem; }
-        .pill.active { background: var(--gold); color: var(--vanta); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 350px; }
-        .orb { background: #0f0f12; height: 80px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; text-align: center; }
-        .orb.lit { border-color: var(--gold); background: radial-gradient(circle, rgba(194,178,128,0.1) 0%, #0f0f12 100%); }
+  playTap() {
+    this.tap.currentTime = 0;
+    this.tap.play().catch(() => {});
+  },
 
-        /* NAV BAR */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
-        .nav-btn.active { opacity: 1; }
-        .nav-label { font-size: 0.55rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
+  playDone() {
+    this.done.currentTime = 0;
+    this.done.play().catch(() => {});
+  }
+};
 
-        /* STARS */
-        .star { position: absolute; color: var(--gold); pointer-events: none; animation: fall 2s linear forwards; }
-        @keyframes fall { to { transform: translateY(100vh); opacity: 0; } }
-    </style>
-</head>
-<body>
+/* =========================
+   NAVIGATION MODULE
+========================= */
+const Navigation = {
+  show(id) {
+    AudioEngine.unlock();
+    document.querySelectorAll('.view, .nav-btn')
+      .forEach(e => e.classList.remove('active'));
 
-    <div class="content" id="app-body">
-        <div id="v-journey" class="view active">
-            <h1 class="header">The Journey</h1>
-            <div style="text-align:center; margin-top:60px;">
-                <p style="font-size:0.8rem; opacity:0.5; letter-spacing:2px;">LIFETIME COUNT</p>
-                <p id="life-val" style="font-size:5rem; color:var(--white); font-weight:100;">0</p>
-                <p id="sound-status" style="font-size:0.6rem; margin-top:20px; opacity:0.3;">TAP ANYWHERE TO SYNC SOUND</p>
-            </div>
-        </div>
-        
-        <div id="v-tasbih" class="view">
-            <h1 class="header">Tasbih</h1>
-            <div class="tasbih-box" id="t-trigger">
-                <svg class="ring-svg" viewBox="0 0 280 280">
-                    <circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="8" cx="140" cy="140" r="130"></circle>
-                    <circle id="t-ring" class="ring-fill" cx="140" cy="140" r="130"></circle>
-                </svg>
-                <span id="t-num" class="count-text">0</span>
-            </div>
-            <button onclick="Tasbih.reset()" style="margin-top:40px; background:none; border:1px solid rgba(194,178,128,0.2); color:var(--gold); padding:10px 30px; border-radius:30px; font-size:0.7rem;">RESET SESSION</button>
-        </div>
+    document.getElementById(`v-${id}`).classList.add('active');
+    document.getElementById(`n-${id}`).classList.add('active');
 
-        <div id="v-salah" class="view"><h1 class="header">Salah</h1><div class="scroller" id="s-dates"></div><div class="grid" id="s-grid"></div></div>
-        
-        <div id="v-hifz" class="view"><h1 class="header">Hifz</h1><p style="opacity:0.5;">Loading...</p></div>
+    if (id === 'journey') {
+      document.getElementById('life-val').textContent =
+        Storage.get('t_life', 0);
+    }
+  }
+};
 
-        <div id="v-recite" class="view"><h1 class="header">Recite</h1><p style="opacity:0.5;">Coming Soon</p></div>
-    </div>
+/* =========================
+   TASBIH MODULE
+========================= */
+const Tasbih = {
+  current: Storage.get('t_cur', 0),
+  lifetime: Storage.get('t_life', 0),
+  limit: 100,
 
-    <nav class="nav">
-        <div class="nav-btn active" onclick="Core.show('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
-        <div class="nav-btn" onclick="Core.show('tasbih')" id="n-tasbih"><span class="nav-label">Tasbih</span></div>
-        <div class="nav-btn" onclick="Core.show('salah')" id="n-salah"><span class="nav-label">Salah</span></div>
-        <div class="nav-btn" onclick="Core.show('hifz')" id="n-hifz"><span class="nav-label">Hifz</span></div>
-        <div class="nav-btn" onclick="Core.show('recite')" id="n-recite"><span class="nav-label">Recite</span></div>
-    </nav>
+  hit() {
+    AudioEngine.unlock();
+    this.current++;
+    this.lifetime++;
 
-    <script>
-        // ENGINE 1: CORE (Navigation & Sound Unlocking)
-        const Core = {
-            unlocked: false,
-            tap: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
-            done: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
-            
-            unlock() {
-                if (this.unlocked) return;
-                // Prime the audio engine
-                [this.tap, this.done].forEach(s => { s.play(); s.pause(); s.currentTime = 0; });
-                this.unlocked = true;
-                const status = document.getElementById('sound-status');
-                if(status) status.style.display = 'none';
-                console.log("Audio Unlocked");
-            },
-            show(id) {
-                this.unlock(); // Attempt unlock on any tab switch
-                document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
-                document.getElementById('v-'+id).classList.add('active');
-                document.getElementById('n-'+id).classList.add('active');
-                if(id === 'journey') document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
-            }
-        };
+    if (this.current < this.limit) {
+      AudioEngine.playTap();
+    } else {
+      AudioEngine.playDone();
+      setTimeout(() => {
+        this.current = 0;
+        this.update();
+      }, 500);
+    }
 
-        // ENGINE 2: TASBIH
-        const Tasbih = {
-            c: parseInt(localStorage.getItem('t_cur')) || 0,
-            l: parseInt(localStorage.getItem('t_life')) || 0,
-            hit() {
-                Core.unlock(); // Ensure audio is primed
-                this.c++; this.l++;
-                if(this.c < 100) { 
-                    Core.tap.currentTime = 0; 
-                    Core.tap.play().catch(e => console.log("Sound error:", e)); 
-                    this.update(); 
-                } else { 
-                    Core.done.currentTime = 0; Core.done.play(); this.update();
-                    setTimeout(() => { this.c = 0; this.update(); }, 500); 
-                }
-                localStorage.setItem('t_cur', this.c); 
-                localStorage.setItem('t_life', this.l);
-            },
-            update() {
-                document.getElementById('t-num').textContent = this.c;
-                document.getElementById('t-ring').style.strokeDashoffset = 816 - (this.c / 100 * 816);
-            },
-            reset() { this.c = 0; localStorage.setItem('t_cur', 0); this.update(); }
-        };
+    Storage.set('t_cur', this.current);
+    Storage.set('t_life', this.lifetime);
+    this.update();
+  },
 
-        // ENGINE 3: SALAH
-        const Salah = {
-            db: JSON.parse(localStorage.getItem('s_db_v14')) || {},
-            sel: new Date().toDateString(),
-            init() {
-                const sc = document.getElementById('s-dates'); if(!sc) return;
-                sc.innerHTML = '';
-                for(let i=0; i<7; i++) {
-                    let d = new Date(); d.setDate(d.getDate() - i); let ds = d.toDateString();
-                    let p = document.createElement('div'); p.className = `pill ${ds === this.sel ? 'active' : ''}`;
-                    p.textContent = i === 0 ? 'TODAY' : ds.split(' ')[1] + ' ' + ds.split(' ')[2];
-                    p.onclick = (e) => { e.stopPropagation(); this.sel = ds; this.init(); };
-                    sc.appendChild(p);
-                }
-                this.render();
-            },
-            render() {
-                const g = document.getElementById('s-grid'); if(!g) return;
-                g.innerHTML = '';
-                const data = this.db[this.sel] || {};
-                ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
-                    const o = document.createElement('div'); o.className = `orb ${data[p] ? 'lit' : ''}`;
-                    o.innerHTML = `<span style="font-size:0.75rem;">${p}</span>`;
-                    o.onclick = (e) => { 
-                        e.stopPropagation();
-                        if(!this.db[this.sel]) this.db[this.sel] = {};
-                        this.db[this.sel][p] = !this.db[this.sel][p];
-                        localStorage.setItem('s_db_v14', JSON.stringify(this.db)); this.render();
-                    };
-                    g.appendChild(o);
-                });
-            }
-        };
+  reset() {
+    this.current = 0;
+    Storage.set('t_cur', 0);
+    this.update();
+  },
 
-        // EVENT BINDINGS
-        window.addEventListener('touchstart', () => Core.unlock(), { once: false });
-        window.addEventListener('click', () => Core.unlock(), { once: false });
+  update() {
+    document.getElementById('t-num').textContent = this.current;
+    document.getElementById('t-ring').style.strokeDashoffset =
+      816 - (this.current / this.limit * 816);
+  }
+};
 
-        const tTrig = document.getElementById('t-trigger');
-        tTrig.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); Tasbih.hit(); }, {passive: false});
-        tTrig.addEventListener('click', (e) => { 
-            if(!('ontouchstart' in window)) { e.stopPropagation(); Tasbih.hit(); }
-        });
+/* =========================
+   SALAH MODULE
+========================= */
+const Salah = {
+  db: Storage.get('s_db_v14', {}),
+  selected: new Date().toDateString(),
 
-        window.onload = () => { 
-            document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
-            Tasbih.update(); Salah.init(); 
-        };
-    </script>
-</body>
-</html>
+  init() {
+    this.renderDates();
+    this.renderGrid();
+  },
+
+  renderDates() {
+    const sc = document.getElementById('s-dates');
+    sc.innerHTML = '';
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const ds = d.toDateString();
+
+      const p = document.createElement('div');
+      p.className = `pill ${ds === this.selected ? 'active' : ''}`;
+      p.textContent = i === 0 ? 'TODAY' : `${d.getDate()} ${d.toLocaleString('default',{month:'short'})}`;
+
+      p.onclick = () => {
+        this.selected = ds;
+        this.renderDates();
+        this.renderGrid();
+      };
+
+      sc.appendChild(p);
+    }
+  },
+
+  renderGrid() {
+    const g = document.getElementById('s-grid');
+    g.innerHTML = '';
+    const day = this.db[this.selected] || {};
+
+    ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
+      const o = document.createElement('div');
+      o.className = `orb ${day[p] ? 'lit' : ''}`;
+      o.innerHTML = `<span>${p}</span>`;
+
+      o.onclick = () => {
+        if (!this.db[this.selected]) this.db[this.selected] = {};
+        this.db[this.selected][p] = !this.db[this.selected][p];
+        Storage.set('s_db_v14', this.db);
+        this.renderGrid();
+      };
+
+      g.appendChild(o);
+    });
+  }
+};
+
+/* =========================
+   APP BOOTSTRAP
+========================= */
+const App = {
+  init() {
+    document.getElementById('life-val').textContent =
+      Storage.get('t_life', 0);
+
+    Tasbih.update();
+    Salah.init();
+
+    const t = document.getElementById('t-trigger');
+    t.addEventListener('touchstart', e => {
+      e.preventDefault();
+      Tasbih.hit();
+    }, { passive: false });
+
+    t.addEventListener('click', e => {
+      if (!('ontouchstart' in window)) Tasbih.hit();
+    });
+
+    window.addEventListener('touchstart', () => AudioEngine.unlock());
+    window.addEventListener('click', () => AudioEngine.unlock());
+  }
+};
+
+window.onload = App.init;
+</script>
