@@ -1,48 +1,252 @@
-const Tasbih = {
-    // Logic: Retrieve the last saved count on initialization, default to 0
-    count: parseInt(localStorage.getItem('tasbih_count')) || 0,
-    audioInit: false,
-    pool: [new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'), new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')],
-    poolIdx: 0,
-    finishSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
-    
-    tap() {
-        if(!this.audioInit) {
-            this.pool.forEach(s => { s.play(); s.pause(); });
-            this.finishSfx.play(); this.finishSfx.pause();
-            this.audioInit = true;
-        }
-        this.count++;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sanctuary Infinity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; --glass: rgba(194, 178, 128, 0.08); }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
+        body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+        /* VIEW SYSTEM */
+        .view-container { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .view-active { display: flex; }
+        .header-title { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.6rem; color: var(--gold); padding-top: 20px; }
+
+        /* TASBIH UI */
+        .tasbih-wrapper { position: relative; width: 280px; height: 280px; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .tasbih-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; }
+        .circle-bg { fill: none; stroke: rgba(194,178,128,0.1); stroke-width: 4; }
+        .circle-prog { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.2s ease; }
+        .tasbih-num { font-size: 7rem; color: var(--white); font-weight: 100; font-family: 'Helvetica Neue', sans-serif; margin: 0; }
         
-        // Save to local storage on every tap
-        localStorage.setItem('tasbih_count', this.count);
+        /* SALAH ORBS & SCROLLER */
+        .date-scroller { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; overflow-x: auto; padding: 5px; scrollbar-width: none; }
+        .date-pill { flex: 0 0 auto; padding: 10px 18px; border-radius: 20px; border: 1px solid rgba(194,178,128,0.2); font-size: 0.7rem; color: var(--gold); cursor: pointer; }
+        .date-pill.active { background: var(--gold); color: var(--vanta); }
+        .salah-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
+        .salah-orb { background: #0f0f12; height: 90px; border-radius: 20px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.03); transition: 0.4s; cursor: pointer; }
+        .salah-orb.lit { background: radial-gradient(circle, rgba(194,178,128,0.15) 0%, #0f0f12 100%); border-color: var(--gold); }
 
-        if(this.count < 100) {
-            let s = this.pool[this.poolIdx]; s.currentTime = 0; s.play().catch(e=>{});
-            this.poolIdx = (this.poolIdx + 1) % this.pool.length;
-            this.updateUI();
-        } else {
-            this.finishSfx.currentTime = 0; this.finishSfx.play().catch(e=>{});
-            this.updateUI();
-            setTimeout(() => {
-                if(navigator.vibrate) navigator.vibrate(500);
-                this.stars(); 
-                this.count = 0; 
-                localStorage.setItem('tasbih_count', 0); // Reset storage after celebration
-                this.updateUI();
-            }, 500);
-        }
-    },
-    reset() { 
-        this.count = 0; 
-        localStorage.setItem('tasbih_count', 0); 
-        this.updateUI(); 
-    },
-    updateUI() {
-        document.getElementById('display-num').textContent = this.count;
-        document.getElementById('prog-ring').style.strokeDashoffset = 816 - (this.count/100 * 816);
-    }
-};
+        /* MEMORIZATION UI */
+        .mem-controls { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
+        .selector { width: 100%; background: #121214; color: var(--gold); padding: 12px; border-radius: 10px; border: 1px solid rgba(194,178,128,0.2); }
+        .hifz-panel { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid rgba(194,178,128,0.1); }
+        .hifz-disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+        .arabic-display { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 2; color: var(--white); direction: rtl; text-align: center; min-height: 100px; margin: 20px 0; }
+        .translation-display { font-size: 0.9rem; color: var(--gold); opacity: 0.8; text-align: center; margin-bottom: 20px; font-style: italic; }
 
-// Initial UI update to show the saved count when the app loads
-Tasbih.updateUI();
+        /* STARS */
+        .star { position: absolute; color: var(--gold); font-size: 20px; pointer-events: none; z-index: 100; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+
+        /* NAV */
+        .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; }
+        .nav-item.active { opacity: 1; }
+        .nav-label { font-size: 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="view-journey" class="view-container view-active">
+        <h1 class="header-title">The Journey</h1>
+        <div style="text-align:center; margin-top:50px;">
+            <p style="font-size:0.8rem; opacity:0.6; letter-spacing:2px;">TOTAL LIFETIME TASBIH</p>
+            <p id="lifetime-count" style="font-size:4rem; color:var(--white); font-weight:100;">0</p>
+        </div>
+    </div>
+
+    <div id="view-tasbih" class="view-container">
+        <h1 class="header-title">Tasbih</h1>
+        <div class="tasbih-wrapper" onclick="Tasbih.tap()">
+            <svg class="tasbih-svg"><circle class="circle-bg" cx="140" cy="140" r="130"></circle><circle id="prog-ring" class="circle-prog" cx="140" cy="140" r="130"></circle></svg>
+            <p id="display-num" class="tasbih-num">0</p>
+        </div>
+        <button onclick="Tasbih.reset()" style="margin-top:50px; background:none; border:1px solid rgba(194,178,128,0.3); color:var(--gold); padding:10px 30px; border-radius:30px;">RESET</button>
+    </div>
+
+    <div id="view-salah" class="view-container">
+        <h1 class="header-title">Salah</h1>
+        <div class="date-scroller" id="date-scroller"></div>
+        <div class="salah-grid" id="salah-grid"></div>
+    </div>
+
+    <div id="view-memorization" class="view-container">
+        <h1 class="header-title">Memorization</h1>
+        <div class="mem-controls">
+            <select id="q-surah" class="selector" onchange="Quran.changeTrigger()">
+                <option value="1">1. Al-Fatiha</option>
+                <option value="112">112. Al-Ikhlas</option>
+                <option value="114">114. Al-Nas</option>
+            </select>
+            <select id="q-reciter" class="selector" onchange="Quran.changeTrigger()">
+                <option value="ar.alafasy">Alafasy</option>
+                <option value="ar.abdulsamad">Abdul Basit</option>
+            </select>
+            <select id="q-lang" class="selector" onchange="Quran.changeTrigger()">
+                <option value="en.sahih">English</option>
+                <option value="ur.ahmedali">Urdu</option>
+            </select>
+            <div class="hifz-panel">
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:10px;">
+                    <span>HIFZ MODE</span>
+                    <input type="checkbox" id="hifz-toggle" onchange="Quran.toggleHifzUI()">
+                </div>
+                <div id="hifz-inputs" class="hifz-disabled" style="display:flex; gap:10px; justify-content:center;">
+                    <input type="number" id="h-from" value="1" style="width:50px; background:#000; color:var(--gold); border:1px solid var(--gold);">
+                    <span>TO</span>
+                    <input type="number" id="h-to" value="7" style="width:50px; background:#000; color:var(--gold); border:1px solid var(--gold);">
+                </div>
+            </div>
+            <div id="q-arabic" class="arabic-display">...</div>
+            <div id="q-trans" class="translation-display">...</div>
+            <div style="display:flex; justify-content:space-around; align-items:center;">
+                <button onclick="Quran.prev()" style="background:none; border:none; color:var(--gold); font-size:2rem;">←</button>
+                <button id="q-play" onclick="Quran.playToggle()" style="width:60px; height:60px; border-radius:50%; background:var(--gold); border:none; font-size:1.5rem;">▶</button>
+                <button onclick="Quran.next()" style="background:none; border:none; color:var(--gold); font-size:2rem;">→</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-recitation" class="view-container"><h1 class="header-title">Recitation</h1></div>
+
+    <div class="nav-bar">
+        <div id="n-journey" class="nav-item active" onclick="Navigation.go('journey')"><span class="nav-label">Journey</span></div>
+        <div id="n-tasbih" class="nav-item" onclick="Navigation.go('tasbih')"><span class="nav-label">Tasbih</span></div>
+        <div id="n-salah" class="nav-item" onclick="Navigation.go('salah')"><span class="nav-label">Salah</span></div>
+        <div id="n-memorization" class="nav-item" onclick="Navigation.go('memorization')"><span class="nav-label">Memorization</span></div>
+        <div id="n-recitation" class="nav-item" onclick="Navigation.go('recitation')"><span class="nav-label">Recitation</span></div>
+    </div>
+
+    <audio id="globalAudio"></audio>
+
+    <script>
+        const Navigation = {
+            go(id) {
+                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('view-active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.getElementById('view-' + id).classList.add('view-active');
+                document.getElementById('n-' + id).classList.add('active');
+                if(id !== 'memorization') Quran.stop();
+                if(id === 'journey') document.getElementById('lifetime-count').textContent = localStorage.getItem('t_life') || 0;
+            }
+        };
+
+        const Tasbih = {
+            count: parseInt(localStorage.getItem('t_cur')) || 0,
+            life: parseInt(localStorage.getItem('t_life')) || 0,
+            audioInit: false,
+            pool: [new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'), new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')],
+            finishSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
+            
+            tap() {
+                if(!this.audioInit) { this.pool.forEach(s=>s.load()); this.finishSfx.load(); this.audioInit = true; }
+                this.count++; this.life++;
+                localStorage.setItem('t_cur', this.count); localStorage.setItem('t_life', this.life);
+                
+                if(this.count < 100) {
+                    let s = this.pool[this.count % 2]; s.currentTime = 0; s.play().catch(e=>{});
+                    this.updateUI();
+                } else {
+                    this.finishSfx.play().catch(e=>{}); this.updateUI();
+                    setTimeout(() => {
+                        if(navigator.vibrate) navigator.vibrate(500);
+                        this.stars(); this.count = 0; localStorage.setItem('t_cur', 0); this.updateUI();
+                    }, 500);
+                }
+            },
+            stars() {
+                for(let i=0; i<40; i++) {
+                    const s = document.createElement('div'); s.className = 'star'; s.innerHTML = '★';
+                    s.style.left = Math.random()*100+'vw'; s.style.top = '-20px';
+                    s.style.animationDuration = (Math.random()*2+1)+'s';
+                    document.body.appendChild(s); setTimeout(()=>s.remove(), 3000);
+                }
+            },
+            reset() { this.count = 0; localStorage.setItem('t_cur', 0); this.updateUI(); },
+            updateUI() {
+                document.getElementById('display-num').textContent = this.count;
+                document.getElementById('prog-ring').style.strokeDashoffset = 816 - (this.count/100 * 816);
+            }
+        };
+
+        const Salah = {
+            sel: new Date().toDateString(),
+            db: JSON.parse(localStorage.getItem('s_db_v7')) || {},
+            init() {
+                const sc = document.getElementById('date-scroller'); sc.innerHTML = '';
+                for(let i=0; i<7; i++) {
+                    let d = new Date(); d.setDate(d.getDate() - i); const ds = d.toDateString();
+                    const p = document.createElement('div'); p.className = `date-pill ${this.sel === ds ? 'active' : ''}`;
+                    p.textContent = i === 0 ? 'TODAY' : ds.split(' ').slice(1,3).join(' ');
+                    p.onclick = () => { this.sel = ds; this.init(); this.render(); };
+                    sc.appendChild(p);
+                }
+                this.render();
+            },
+            toggle(pr) {
+                if(!this.db[this.sel]) this.db[this.sel] = {};
+                this.db[this.sel][pr] = !this.db[this.sel][pr];
+                if(this.sel === new Date().toDateString()) this.check();
+                localStorage.setItem('s_db_v7', JSON.stringify(this.db)); this.render();
+            },
+            check() {
+                const d = this.db[this.sel]; const prs = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                if(prs.every(p => d[p]) && localStorage.getItem('c_'+this.sel) !== '1') {
+                    setTimeout(() => Tasbih.stars(), 400); localStorage.setItem('c_'+this.sel, '1');
+                }
+            },
+            render() {
+                const g = document.getElementById('salah-grid'); g.innerHTML = '';
+                const d = this.db[this.sel] || {};
+                ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].forEach(p => {
+                    const o = document.createElement('div'); o.className = `salah-orb ${d[p] ? 'lit' : ''}`;
+                    o.onclick = () => this.toggle(p); o.innerHTML = `<span style="font-size:0.7rem;">${p}</span>`;
+                    g.appendChild(o);
+                });
+            }
+        };
+
+        const Quran = {
+            idx: 0, data: [], player: document.getElementById('globalAudio'),
+            async loadSurah() {
+                const sId = document.getElementById('q-surah').value;
+                const rec = document.getElementById('q-reciter').value;
+                const lng = document.getElementById('q-lang').value;
+                const r1 = await fetch(`https://api.alquran.cloud/v1/surah/${sId}/${rec}`);
+                const r2 = await fetch(`https://api.alquran.cloud/v1/surah/${sId}/${lng}`);
+                const d1 = await r1.json(); const d2 = await r2.json();
+                this.data = d1.data.ayahs.map((a, i) => ({ ar: a.text, aud: a.audio, tr: d2.data.ayahs[i].text }));
+                this.render();
+            },
+            changeTrigger() {
+                const wasPlaying = !this.player.paused;
+                this.stop();
+                this.loadSurah().then(() => {
+                    if(wasPlaying) setTimeout(() => this.playToggle(), 500);
+                });
+            },
+            render() {
+                const v = this.data[this.idx]; if(!v) return;
+                document.getElementById('q-arabic').textContent = v.ar;
+                document.getElementById('q-trans').textContent = v.tr;
+                this.player.src = v.aud;
+            },
+            playToggle() {
+                if(this.player.paused) { this.player.play(); document.getElementById('q-play').textContent = '||'; }
+                else this.stop();
+            },
+            stop() { this.player.pause(); document.getElementById('q-play').textContent = '▶'; },
+            next() { if(this.idx < this.data.length - 1) this.idx++; this.render(); this.player.play(); },
+            prev() { if(this.idx > 0) this.idx--; this.render(); this.player.play(); },
+            toggleHifzUI() { document.getElementById('hifz-inputs').classList.toggle('hifz-disabled', !document.getElementById('hifz-toggle').checked); }
+        };
+
+        Tasbih.updateUI(); Salah.init(); Quran.loadSurah();
+        Quran.player.onended = () => Quran.next();
+    </script>
+</body>
+</html>
