@@ -14,33 +14,29 @@
         .view.active { display: flex; }
         .header { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin: 20px 0; font-size: 1rem; opacity: 0.6; }
 
-        /* SALAH HORIZON (Steve Jobs Style) */
+        /* HORIZON & GALAXY (Salah) */
         .horizon-container { width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 30px; }
-        .horizon-scroller { display: flex; align-items: center; gap: 30px; transition: transform 0.3s ease-out; }
+        .horizon-scroller { display: flex; align-items: center; gap: 30px; }
         .date-orb { flex: 0 0 auto; text-align: center; opacity: 0.2; transition: 0.3s; transform: scale(0.8); cursor: pointer; }
         .date-orb.active { opacity: 1; transform: scale(1.1); font-weight: bold; }
         .d-day { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; }
         .d-num { font-size: 1.5rem; color: var(--white); }
 
         .salah-galaxy { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; max-width: 320px; }
-        .salah-galaxy .orb:nth-child(5) { grid-column: span 2; justify-self: center; width: 140px; } /* Isha in center */
+        .salah-galaxy .orb:nth-child(5) { grid-column: span 2; justify-self: center; width: 140px; }
         
         .orb { 
             width: 140px; height: 100px; border-radius: 50px; background: #0c0c0e;
             border: 1px solid rgba(194,178,128,0.1); display: flex; flex-direction: column;
             align-items: center; justify-content: center; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .orb.lit { 
-            border-color: var(--gold); 
-            background: radial-gradient(circle, rgba(194,178,128,0.15) 0%, #0c0c0e 100%);
-            box-shadow: 0 0 30px rgba(194, 178, 128, 0.1);
-        }
+        .orb.lit { border-color: var(--gold); background: radial-gradient(circle, rgba(194,178,128,0.15) 0%, #0c0c0e 100%); box-shadow: 0 0 30px rgba(194, 178, 128, 0.1); }
         .orb-name { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 5px; opacity: 0.6; }
         .orb.lit .orb-name { color: var(--gold); opacity: 1; }
-        .orb-status { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: 0.3s; }
+        .orb-status { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.1); }
         .orb.lit .orb-status { background: var(--gold); box-shadow: 0 0 10px var(--gold); transform: scale(1.5); }
 
-        /* TASBIH (Stable) */
+        /* TASBIH UI */
         .today-banner { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; padding: 8px 20px; border-radius: 20px; background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.1); }
         .today-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--gold); font-weight: 500; text-transform: uppercase; }
         .today-sep { width: 1px; height: 15px; background: rgba(194, 178, 128, 0.3); }
@@ -51,11 +47,11 @@
         .count-text { font-size: 7rem; color: var(--white); font-weight: 100; pointer-events: none; line-height: 1; }
         .reset-btn { margin-top: 50px; background: none; border: 1px solid rgba(194, 178, 128, 0.2); color: var(--gold); padding: 12px 40px; border-radius: 30px; font-size: 0.7rem; letter-spacing: 2px; cursor: pointer; }
 
-        /* NAV */
+        /* NAV - Re-arranged */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
         .nav-btn.active { opacity: 1; }
-        .nav-label { font-size: 0.55rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
+        .nav-label { font-size: 0.5rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; text-align: center; width: 100%; }
         
         .star { position: absolute; color: var(--gold); pointer-events: none; animation: fall 2.2s linear forwards; z-index: 2000; }
         @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
@@ -72,9 +68,23 @@
             </div>
         </div>
         
+        <div id="v-recitation" class="view">
+            <h1 class="header">Recitation</h1>
+            <p style="opacity: 0.4;">Audio Memorization Engine</p>
+        </div>
+
+        <div id="v-reading" class="view">
+            <h1 class="header">Reading</h1>
+            <p style="opacity: 0.4;">Mushaf & Translation</p>
+        </div>
+
         <div id="v-tasbih" class="view">
             <h1 class="header">Tasbih</h1>
-            <div class="today-banner"><span class="today-label">Today</span><div class="today-sep"></div><span id="today-val" class="today-val">0</span></div>
+            <div class="today-banner">
+                <span class="today-label">Today</span>
+                <div class="today-sep"></div>
+                <span id="today-val" class="today-val">0</span>
+            </div>
             <div class="tasbih-area" id="t-trigger">
                 <svg class="ring-svg" viewBox="0 0 280 280"><circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="8" cx="140" cy="140" r="130"></circle><circle id="t-ring" class="ring-fill" cx="140" cy="140" r="130"></circle></svg>
                 <span id="t-num" class="count-text">0</span>
@@ -82,24 +92,29 @@
             <button class="reset-btn" onclick="Tasbih.resetSession()">Reset Session</button>
         </div>
 
-        <div id="v-salah" class="view">
+        <div id="v-prayer" class="view">
             <h1 class="header">Horizon</h1>
-            <div class="horizon-container">
-                <div class="horizon-scroller" id="h-scroller"></div>
-            </div>
+            <div class="horizon-container"><div class="horizon-scroller" id="h-scroller"></div></div>
             <div class="salah-galaxy" id="salah-grid"></div>
         </div>
-
-        <div id="v-hifz" class="view"><h1 class="header">Hifz</h1></div>
-        <div id="v-recite" class="view"><h1 class="header">Recite</h1></div>
     </div>
 
     <nav class="nav">
-        <div class="nav-btn active" onclick="Core.show('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
-        <div class="nav-btn" onclick="Core.show('tasbih')" id="n-tasbih"><span class="nav-label">Tasbih</span></div>
-        <div class="nav-btn" onclick="Core.show('salah')" id="n-salah"><span class="nav-label">Salah</span></div>
-        <div class="nav-btn" onclick="Core.show('hifz')" id="n-hifz"><span class="nav-label">Hifz</span></div>
-        <div class="nav-btn" onclick="Core.show('recite')" id="n-recite"><span class="nav-label">Recite</span></div>
+        <div class="nav-btn active" onclick="Core.show('journey')" id="n-journey">
+            <span class="nav-label">Journey</span>
+        </div>
+        <div class="nav-btn" onclick="Core.show('recitation')" id="n-recitation">
+            <span class="nav-label">Recitation</span>
+        </div>
+        <div class="nav-btn" onclick="Core.show('reading')" id="n-reading">
+            <span class="nav-label">Reading</span>
+        </div>
+        <div class="nav-btn" onclick="Core.show('tasbih')" id="n-tasbih">
+            <span class="nav-label">Tasbih</span>
+        </div>
+        <div class="nav-btn" onclick="Core.show('prayer')" id="n-prayer">
+            <span class="nav-label">Prayer Log</span>
+        </div>
     </nav>
 
     <script>
@@ -114,7 +129,7 @@
                 document.getElementById('v-'+id).classList.add('active');
                 document.getElementById('n-'+id).classList.add('active');
                 if(id === 'journey') document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
-                if(id === 'salah') Salah.render();
+                if(id === 'prayer') Salah.render();
             },
             stars() {
                 for(let i=0; i<30; i++) {
@@ -150,13 +165,11 @@
 
         const Salah = {
             db: JSON.parse(localStorage.getItem('s_db_v16')) || {},
-            cel: JSON.parse(localStorage.getItem('s_cel')) || {}, // Tracks celebration per date
+            cel: JSON.parse(localStorage.getItem('s_cel')) || {},
             todayStr: new Date().toDateString(),
             selectedDate: new Date().toDateString(),
-            
             render() {
                 const scroller = document.getElementById('h-scroller'); scroller.innerHTML = '';
-                // 7 days total, today in the middle (index 3)
                 for(let i=6; i>=0; i--) {
                     let d = new Date(); d.setDate(d.getDate() - i);
                     let ds = d.toDateString();
@@ -166,11 +179,9 @@
                     orb.onclick = () => { this.selectedDate = ds; this.render(); };
                     scroller.appendChild(orb);
                 }
-
                 const grid = document.getElementById('salah-grid'); grid.innerHTML = '';
                 const dayData = this.db[this.selectedDate] || {};
                 const prayers = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-                
                 prayers.forEach(p => {
                     const orb = document.createElement('div');
                     orb.className = `orb ${dayData[p] ? 'lit' : ''}`;
@@ -179,14 +190,11 @@
                         if(!this.db[this.selectedDate]) this.db[this.selectedDate] = {};
                         this.db[this.selectedDate][p] = !this.db[this.selectedDate][p];
                         localStorage.setItem('s_db_v16', JSON.stringify(this.db));
-                        
-                        // Check celebration for TODAY ONLY
                         if(this.selectedDate === this.todayStr) {
                             const count = prayers.filter(k => this.db[this.todayStr][k]).length;
                             if(count === 5 && !this.cel[this.todayStr]) {
                                 Core.doneSfx.play(); Core.stars();
-                                this.cel[this.todayStr] = true;
-                                localStorage.setItem('s_cel', JSON.stringify(this.cel));
+                                this.cel[this.todayStr] = true; localStorage.setItem('s_cel', JSON.stringify(this.cel));
                             }
                         }
                         this.render();
