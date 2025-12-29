@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sanctuary Infinity</title>
     <style>
-        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; }
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --glass: rgba(194, 178, 128, 0.1); }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
@@ -15,31 +15,55 @@
         .view.active { display: flex; }
         .header { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin: 25px 0; font-size: 1.2rem; }
 
-        /* TASBIH UI */
-        .stats-row { text-align: center; margin-bottom: 5px; pointer-events: none; }
-        .today-label { font-size: 0.6rem; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; }
-        .today-val { font-size: 1.8rem; color: var(--white); display: block; font-weight: 300; }
+        /* TASBIH UI REFINEMENTS */
+        .today-banner { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            margin-bottom: 10px; 
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(194, 178, 128, 0.05);
+            border: 1px solid rgba(194, 178, 128, 0.1);
+        }
+        .today-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--gold); font-weight: 500; text-transform: uppercase; }
+        .today-sep { width: 1px; height: 15px; background: rgba(194, 178, 128, 0.3); }
+        .today-val { font-size: 1.2rem; color: var(--white); font-weight: 400; }
 
         .tasbih-area { 
             position: relative; 
-            width: 320px; 
-            height: 320px; 
+            width: 300px; 
+            height: 300px; 
             display: flex; 
             flex-direction: column;
             align-items: center; 
             justify-content: center; 
-            margin-top: 10px;
-            z-index: 50; /* Ensuring it's on top of everything */
-            cursor: pointer;
+            margin-top: 20px;
+            z-index: 50;
         }
         .ring-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; pointer-events: none; }
         .ring-fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.1s linear; }
-        .count-text { font-size: 7.5rem; color: var(--white); font-weight: 100; pointer-events: none; line-height: 1; }
-        .session-label { font-size: 0.6rem; letter-spacing: 3px; opacity: 0.4; pointer-events: none; margin-top: -10px; }
+        .count-text { font-size: 7rem; color: var(--white); font-weight: 100; pointer-events: none; line-height: 1; }
+        .session-label { font-size: 0.6rem; letter-spacing: 3px; opacity: 0.4; pointer-events: none; margin-top: -5px; }
+
+        .reset-btn {
+            margin-top: 50px;
+            background: none;
+            border: 1px solid rgba(194, 178, 128, 0.2);
+            color: var(--gold);
+            padding: 12px 40px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .reset-btn:active { background: rgba(194, 178, 128, 0.1); transform: scale(0.95); }
 
         /* NAV BAR */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: opacity 0.2s; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
         .nav-btn.active { opacity: 1; }
         .nav-label { font-size: 0.55rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
 
@@ -62,8 +86,9 @@
         <div id="v-tasbih" class="view">
             <h1 class="header">Tasbih</h1>
             
-            <div class="stats-row">
+            <div class="today-banner">
                 <span class="today-label">Today</span>
+                <div class="today-sep"></div>
                 <span id="today-val" class="today-val">0</span>
             </div>
 
@@ -75,6 +100,8 @@
                 <span id="t-num" class="count-text">0</span>
                 <span class="session-label">SESSION</span>
             </div>
+
+            <button class="reset-btn" onclick="Tasbih.resetSession()">Reset Session</button>
         </div>
 
         <div id="v-salah" class="view"><h1 class="header">Salah</h1></div>
@@ -93,14 +120,12 @@
     <script>
         const Core = {
             unlocked: false,
-            // Water droplet and completion sounds
             tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3'), 
             doneSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
             
             unlock() {
                 if (this.unlocked) return;
-                this.tapSfx.play().then(() => { this.tapSfx.pause(); this.tapSfx.currentTime = 0; }).catch(()=>{});
-                this.doneSfx.play().then(() => { this.doneSfx.pause(); this.doneSfx.currentTime = 0; }).catch(()=>{});
+                [this.tapSfx, this.doneSfx].forEach(s => { s.play(); s.pause(); s.currentTime = 0; });
                 this.unlocked = true;
             },
             show(id) {
@@ -128,12 +153,10 @@
                     Core.tapSfx.play().catch(()=>{});
                     this.updateUI();
                 } else {
-                    // Handle 100th tap
                     Core.tapSfx.currentTime = 0;
                     Core.tapSfx.play().catch(()=>{});
                     this.updateUI();
                     
-                    // 500ms delay for celebration
                     setTimeout(() => {
                         Core.doneSfx.play().catch(()=>{});
                         this.stars();
@@ -142,6 +165,12 @@
                     }, 500);
                 }
                 this.save();
+            },
+
+            resetSession() {
+                this.session = 0;
+                this.save();
+                this.updateUI();
             },
 
             stars() {
@@ -167,19 +196,12 @@
         };
 
         const trigger = document.getElementById('t-trigger');
-        
-        // Touchstart is the priority for mobile
         trigger.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            Tasbih.hit();
+            e.preventDefault(); e.stopPropagation(); Tasbih.hit();
         }, { passive: false });
 
-        // Click fallback for desktop
         trigger.addEventListener('click', (e) => {
-            if (!('ontouchstart' in window)) {
-                Tasbih.hit();
-            }
+            if (!('ontouchstart' in window)) Tasbih.hit();
         });
 
         window.onload = () => { Tasbih.updateUI(); };
