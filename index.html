@@ -10,6 +10,7 @@
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
+        /* VIEW SYSTEM */
         .view-container { flex: 1; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
         .view-active { display: flex; }
         .header-title { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.6rem; color: var(--gold); padding-top: 20px; }
@@ -29,16 +30,18 @@
         .salah-orb { background: #0f0f12; height: 90px; border-radius: 20px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.03); transition: 0.4s; cursor: pointer; }
         .salah-orb.lit { background: radial-gradient(circle, rgba(194,178,128,0.15) 0%, #0f0f12 100%); border-color: var(--gold); }
 
-        /* MEMORIZATION */
-        .selector { width: 100%; background: #121214; color: var(--gold); padding: 12px; border-radius: 10px; border: 1px solid rgba(194,178,128,0.2); margin-bottom: 10px; }
+        /* MEMORIZATION UI */
+        .selector { width: 100%; background: #121214; color: var(--gold); padding: 12px; border-radius: 10px; border: 1px solid rgba(194,178,128,0.2); margin-bottom: 10px; font-size: 0.8rem; }
         .hifz-panel { background: var(--glass); padding: 15px; border-radius: 15px; border: 1px solid rgba(194,178,128,0.1); width: 100%; max-width: 400px; }
         .hifz-disabled { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
         .arabic-display { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 2; color: var(--white); direction: rtl; text-align: center; min-height: 100px; margin: 20px 0; }
         .translation-display { font-size: 0.9rem; color: var(--gold); opacity: 0.8; text-align: center; margin-bottom: 20px; font-style: italic; }
 
+        /* STARS */
         .star { position: absolute; color: var(--gold); font-size: 20px; pointer-events: none; z-index: 100; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
 
+        /* NAVIGATION */
         .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.3; flex: 1; cursor: pointer; }
         .nav-item.active { opacity: 1; }
@@ -61,7 +64,7 @@
             <svg class="tasbih-svg"><circle class="circle-bg" cx="140" cy="140" r="130"></circle><circle id="prog-ring" class="circle-prog" cx="140" cy="140" r="130"></circle></svg>
             <p id="display-num" class="tasbih-num">0</p>
         </div>
-        <button onclick="Tasbih.reset()" style="margin-top:50px; background:none; border:1px solid rgba(194,178,128,0.3); color:var(--gold); padding:10px 30px; border-radius:30px;">RESET</button>
+        <button onclick="Tasbih.reset()" style="margin-top:50px; background:none; border:1px solid rgba(194,178,128,0.3); color:var(--gold); padding:10px 30px; border-radius:30px; letter-spacing:1px; font-size:0.7rem;">RESET</button>
     </div>
 
     <div id="view-salah" class="view-container">
@@ -76,6 +79,7 @@
             <select id="q-surah" class="selector" onchange="Quran.changeTrigger()">
                 <option value="1">1. Al-Fatiha</option>
                 <option value="112">112. Al-Ikhlas</option>
+                <option value="113">113. Al-Falaq</option>
                 <option value="114">114. Al-Nas</option>
             </select>
             <select id="q-reciter" class="selector" onchange="Quran.changeTrigger()">
@@ -88,20 +92,20 @@
             </select>
             <div class="hifz-panel">
                 <div style="display:flex; justify-content:space-between; font-size:0.7rem; margin-bottom:10px;">
-                    <span>HIFZ MODE</span>
+                    <span>HIFZ MODE (REPEAT RANGE)</span>
                     <input type="checkbox" id="hifz-toggle" onchange="Quran.toggleHifzUI()">
                 </div>
-                <div id="hifz-inputs" class="hifz-disabled" style="display:flex; gap:10px; justify-content:center;">
-                    <input type="number" id="h-from" value="1" style="width:50px; background:#000; color:var(--gold); border:1px solid var(--gold);">
-                    <span>TO</span>
-                    <input type="number" id="h-to" value="7" style="width:50px; background:#000; color:var(--gold); border:1px solid var(--gold);">
+                <div id="hifz-inputs" class="hifz-disabled" style="display:flex; gap:10px; justify-content:center; align-items:center;">
+                    <input type="number" id="h-from" value="1" style="width:50px; background:#000; color:var(--gold); border:1px solid var(--gold); padding:5px; text-align:center;">
+                    <span style="font-size:0.6rem;">TO</span>
+                    <input type="number" id="h-to" value="7" style="width:50px; background:#000; color:var(--gold); border:1px solid var(--gold); padding:5px; text-align:center;">
                 </div>
             </div>
             <div id="q-arabic" class="arabic-display">...</div>
             <div id="q-trans" class="translation-display">...</div>
             <div style="display:flex; justify-content:space-around; align-items:center;">
                 <button onclick="Quran.prev()" style="background:none; border:none; color:var(--gold); font-size:2rem;">←</button>
-                <button id="q-play" onclick="Quran.playToggle()" style="width:65px; height:65px; border-radius:50%; background:var(--gold); border:none; font-size:1.5rem;">▶</button>
+                <button id="q-play" onclick="Quran.playToggle()" style="width:65px; height:65px; border-radius:50%; background:var(--gold); border:none; font-size:1.5rem; color:black;">▶</button>
                 <button onclick="Quran.next()" style="background:none; border:none; color:var(--gold); font-size:2rem;">→</button>
             </div>
         </div>
@@ -127,7 +131,12 @@
                 document.getElementById('view-' + id).classList.add('view-active');
                 document.getElementById('n-' + id).classList.add('active');
                 if(id !== 'memorization') Quran.stop();
-                if(id === 'journey') document.getElementById('lifetime-count').textContent = localStorage.getItem('t_life') || 0;
+                if(id === 'journey') this.updateLifetimeUI();
+            },
+            updateLifetimeUI() {
+                const count = localStorage.getItem('t_life') || 0;
+                const el = document.getElementById('lifetime-count');
+                if(el) el.textContent = count;
             }
         };
 
@@ -135,38 +144,66 @@
             count: parseInt(localStorage.getItem('t_cur')) || 0,
             life: parseInt(localStorage.getItem('t_life')) || 0,
             audioInit: false,
-            pool: [new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'), new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')],
+            // Pre-defined audio objects to gain browser trust
+            tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
             finishSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
             
+            unlockAudio() {
+                if(this.audioInit) return;
+                // Silent play/pause to unlock audio bridge on mobile
+                this.tapSfx.play().then(() => { this.tapSfx.pause(); this.tapSfx.currentTime = 0; });
+                this.finishSfx.play().then(() => { this.finishSfx.pause(); this.finishSfx.currentTime = 0; });
+                this.audioInit = true;
+            },
+
             tap() {
-                if(!this.audioInit) { this.pool.forEach(s=>s.load()); this.finishSfx.load(); this.audioInit = true; }
-                this.count++; this.life++;
-                localStorage.setItem('t_cur', this.count); localStorage.setItem('t_life', this.life);
+                this.unlockAudio();
+                this.count++;
+                this.life++;
+                
+                localStorage.setItem('t_cur', this.count);
+                localStorage.setItem('t_life', this.life);
                 
                 if(this.count < 100) {
-                    let s = this.pool[this.count % 2]; s.currentTime = 0; s.play().catch(()=>{});
+                    this.tapSfx.currentTime = 0;
+                    this.tapSfx.play().catch(e => {});
                     this.updateUI();
                 } else {
-                    this.finishSfx.play().catch(()=>{}); this.updateUI();
+                    this.finishSfx.currentTime = 0;
+                    this.finishSfx.play().catch(e => {});
+                    this.updateUI();
+                    
+                    // Requirement: 500ms pause before celebration
                     setTimeout(() => {
                         if(navigator.vibrate) navigator.vibrate(500);
-                        this.stars(); this.count = 0; localStorage.setItem('t_cur', 0); this.updateUI();
+                        this.stars();
+                        this.count = 0;
+                        localStorage.setItem('t_cur', 0);
+                        this.updateUI();
                     }, 500);
                 }
             },
+
             stars() {
                 for(let i=0; i<40; i++) {
                     const s = document.createElement('div'); s.className = 'star'; s.innerHTML = '★';
                     s.style.left = Math.random()*100+'vw'; s.style.top = '-20px';
                     s.style.animationDuration = (Math.random()*2+1)+'s';
-                    document.body.appendChild(s); setTimeout(()=>s.remove(), 3000);
+                    document.body.appendChild(s); 
+                    setTimeout(()=>s.remove(), 3000);
                 }
             },
-            reset() { this.count = 0; localStorage.setItem('t_cur', 0); this.updateUI(); },
+
+            reset() {
+                this.count = 0;
+                localStorage.setItem('t_cur', 0);
+                this.updateUI();
+            },
+
             updateUI() {
-                const el = document.getElementById('display-num');
+                const display = document.getElementById('display-num');
                 const ring = document.getElementById('prog-ring');
-                if(el) el.textContent = this.count;
+                if(display) display.textContent = this.count;
                 if(ring) ring.style.strokeDashoffset = 816 - (this.count/100 * 816);
             }
         };
@@ -175,11 +212,16 @@
             sel: new Date().toDateString(),
             db: JSON.parse(localStorage.getItem('s_db_v7')) || {},
             init() {
-                const sc = document.getElementById('date-scroller'); if(!sc) return;
+                const sc = document.getElementById('date-scroller');
+                if(!sc) return;
                 sc.innerHTML = '';
+                // Generate 7-day window
                 for(let i=0; i<7; i++) {
-                    let d = new Date(); d.setDate(d.getDate() - i); const ds = d.toDateString();
-                    const p = document.createElement('div'); p.className = `date-pill ${this.sel === ds ? 'active' : ''}`;
+                    let d = new Date();
+                    d.setDate(d.getDate() - i);
+                    const ds = d.toDateString();
+                    const p = document.createElement('div');
+                    p.className = `date-pill ${this.sel === ds ? 'active' : ''}`;
                     p.textContent = i === 0 ? 'TODAY' : ds.split(' ').slice(1,3).join(' ');
                     p.onclick = () => { this.sel = ds; this.init(); this.render(); };
                     sc.appendChild(p);
@@ -189,71 +231,101 @@
             toggle(pr) {
                 if(!this.db[this.sel]) this.db[this.sel] = {};
                 this.db[this.sel][pr] = !this.db[this.sel][pr];
-                if(this.sel === new Date().toDateString()) this.check();
-                localStorage.setItem('s_db_v7', JSON.stringify(this.db)); this.render();
+                // Celebration only for TODAY
+                if(this.sel === new Date().toDateString()) this.checkCelebration();
+                localStorage.setItem('s_db_v7', JSON.stringify(this.db));
+                this.render();
             },
-            check() {
-                const d = this.db[this.sel]; const prs = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-                if(prs.every(p => d[p]) && localStorage.getItem('c_'+this.sel) !== '1') {
-                    setTimeout(() => Tasbih.stars(), 400); localStorage.setItem('c_'+this.sel, '1');
+            checkCelebration() {
+                const day = this.db[this.sel];
+                const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+                if(prayers.every(p => day[p]) && localStorage.getItem('c_salah_'+this.sel) !== 'done') {
+                    setTimeout(() => Tasbih.stars(), 400);
+                    localStorage.setItem('c_salah_'+this.sel, 'done');
                 }
             },
             render() {
-                const g = document.getElementById('salah-grid'); if(!g) return;
-                g.innerHTML = '';
-                const d = this.db[this.sel] || {};
+                const grid = document.getElementById('salah-grid');
+                if(!grid) return;
+                grid.innerHTML = '';
+                const dayData = this.db[this.sel] || {};
                 ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].forEach(p => {
-                    const o = document.createElement('div'); o.className = `salah-orb ${d[p] ? 'lit' : ''}`;
-                    o.onclick = () => this.toggle(p); o.innerHTML = `<span style="font-size:0.7rem;">${p}</span>`;
-                    g.appendChild(o);
+                    const orb = document.createElement('div');
+                    orb.className = `salah-orb ${dayData[p] ? 'lit' : ''}`;
+                    orb.onclick = () => this.toggle(p);
+                    orb.innerHTML = `<span style="font-size:0.75rem; letter-spacing:1px; color:white; opacity:${dayData[p]?1:0.4}">${p}</span>`;
+                    grid.appendChild(orb);
                 });
             }
         };
 
         const Quran = {
-            idx: 0, data: [], player: document.getElementById('globalAudio'),
+            idx: 0,
+            data: [],
+            player: document.getElementById('globalAudio'),
             async loadSurah() {
                 const sId = document.getElementById('q-surah').value;
                 const rec = document.getElementById('q-reciter').value;
                 const lng = document.getElementById('q-lang').value;
                 try {
-                    const [r1, r2] = await Promise.all([
+                    const [resAud, resTrans] = await Promise.all([
                         fetch(`https://api.alquran.cloud/v1/surah/${sId}/${rec}`),
                         fetch(`https://api.alquran.cloud/v1/surah/${sId}/${lng}`)
                     ]);
-                    const d1 = await r1.json(); const d2 = await r2.json();
-                    this.data = d1.data.ayahs.map((a, i) => ({ ar: a.text, aud: a.audio, tr: d2.data.ayahs[i].text }));
+                    const dAud = await resAud.json();
+                    const dTrans = await resTrans.json();
+                    this.data = dAud.data.ayahs.map((a, i) => ({
+                        ar: a.text,
+                        aud: a.audio,
+                        tr: dTrans.data.ayahs[i].text
+                    }));
                     this.render();
-                } catch(e) {}
+                } catch(e) { console.error("Quran Fetch Error", e); }
             },
             changeTrigger() {
                 const wasPlaying = !this.player.paused;
                 this.stop();
-                this.loadSurah().then(() => { if(wasPlaying) setTimeout(() => this.playToggle(), 500); });
+                this.loadSurah().then(() => {
+                    // Logic: Auto-play after 500ms if previously playing
+                    if(wasPlaying) setTimeout(() => this.playToggle(), 500);
+                });
             },
             render() {
-                const v = this.data[this.idx]; if(!v) return;
+                const v = this.data[this.idx];
+                if(!v) return;
                 document.getElementById('q-arabic').textContent = v.ar;
                 document.getElementById('q-trans').textContent = v.tr;
                 this.player.src = v.aud;
             },
             playToggle() {
-                if(this.player.paused) { this.player.play(); document.getElementById('q-play').textContent = '||'; }
-                else this.stop();
+                if(this.player.paused) {
+                    this.player.play();
+                    document.getElementById('q-play').textContent = '||';
+                } else {
+                    this.stop();
+                }
             },
-            stop() { this.player.pause(); document.getElementById('q-play').textContent = '▶'; },
+            stop() {
+                this.player.pause();
+                document.getElementById('q-play').textContent = '▶';
+            },
             next() { if(this.idx < this.data.length - 1) this.idx++; this.render(); this.player.play(); },
             prev() { if(this.idx > 0) this.idx--; this.render(); this.player.play(); },
-            toggleHifzUI() { document.getElementById('hifz-inputs').classList.toggle('hifz-disabled', !document.getElementById('hifz-toggle').checked); }
+            toggleHifzUI() {
+                const isChecked = document.getElementById('hifz-toggle').checked;
+                document.getElementById('hifz-inputs').classList.toggle('hifz-disabled', !isChecked);
+            }
         };
 
-        // FINAL INITIALIZATION: Ensures all HTML elements are ready before script runs
+        // DOM Lifecycle Initialization
         window.addEventListener('DOMContentLoaded', () => {
             Tasbih.updateUI();
             Salah.init();
             Quran.loadSurah();
+            Navigation.updateLifetimeUI();
+            
+            // Auto-advance audio
             Quran.player.onended = () => Quran.next();
-            document.getElementById('lifetime-count').textContent = localStorage.getItem('t_life') || 0;
         });
     </script>
 </body>
