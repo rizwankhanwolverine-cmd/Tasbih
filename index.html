@@ -48,8 +48,9 @@ const AudioEngine = {
 const Navigation = {
   show(id) {
     AudioEngine.unlock();
+
     document.querySelectorAll('.view, .nav-btn')
-      .forEach(e => e.classList.remove('active'));
+      .forEach(el => el.classList.remove('active'));
 
     document.getElementById(`v-${id}`).classList.add('active');
     document.getElementById(`n-${id}`).classList.add('active');
@@ -59,6 +60,12 @@ const Navigation = {
         Storage.get('t_life', 0);
     }
   }
+};
+
+/* ✅ BACKWARD COMPATIBILITY FIX */
+const Core = {
+  show: (id) => Navigation.show(id),
+  unlock: () => AudioEngine.unlock()
 };
 
 /* =========================
@@ -145,7 +152,7 @@ const Salah = {
     ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
       const o = document.createElement('div');
       o.className = `orb ${day[p] ? 'lit' : ''}`;
-      o.innerHTML = `<span>${p}</span>`;
+      o.innerHTML = `<span style="font-size:0.75rem;">${p}</span>`;
 
       o.onclick = () => {
         if (!this.db[this.selected]) this.db[this.selected] = {};
@@ -162,28 +169,26 @@ const Salah = {
 /* =========================
    APP BOOTSTRAP
 ========================= */
-const App = {
-  init() {
-    document.getElementById('life-val').textContent =
-      Storage.get('t_life', 0);
+window.onload = () => {
+  document.getElementById('life-val').textContent =
+    Storage.get('t_life', 0);
 
-    Tasbih.update();
-    Salah.init();
+  Tasbih.update();
+  Salah.init();
 
-    const t = document.getElementById('t-trigger');
-    t.addEventListener('touchstart', e => {
-      e.preventDefault();
-      Tasbih.hit();
-    }, { passive: false });
+  const t = document.getElementById('t-trigger');
 
-    t.addEventListener('click', e => {
-      if (!('ontouchstart' in window)) Tasbih.hit();
-    });
+  t.addEventListener('touchstart', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    Tasbih.hit();
+  }, { passive: false });
 
-    window.addEventListener('touchstart', () => AudioEngine.unlock());
-    window.addEventListener('click', () => AudioEngine.unlock());
-  }
+  t.addEventListener('click', e => {
+    if (!('ontouchstart' in window)) Tasbih.hit();
+  });
+
+  window.addEventListener('touchstart', () => AudioEngine.unlock());
+  window.addEventListener('click', () => AudioEngine.unlock());
 };
-
-window.onload = App.init;
 </script>
