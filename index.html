@@ -9,60 +9,55 @@
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* VIEW SYSTEM */
         .content { flex: 1; display: flex; flex-direction: column; }
-        .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; overflow-y: auto; }
+        .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; }
         .view.active { display: flex; }
-        .header { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin: 25px 0; font-size: 1.2rem; }
+        .header { letter-spacing: 8px; font-weight: 300; text-transform: uppercase; margin: 20px 0; font-size: 1rem; opacity: 0.6; }
 
-        /* SALAH MODULE UI */
-        .scroller { display: flex; gap: 12px; overflow-x: auto; width: 100%; padding: 10px 0; scrollbar-width: none; margin-bottom: 20px; }
-        .scroller::-webkit-scrollbar { display: none; }
-        .pill { flex: 0 0 auto; padding: 10px 22px; border-radius: 25px; border: 1px solid var(--glass); font-size: 0.75rem; color: var(--gold); transition: 0.3s; cursor: pointer; }
-        .pill.active { background: var(--gold); color: var(--vanta); border-color: var(--gold); font-weight: bold; }
+        /* SALAH HORIZON (Steve Jobs Style) */
+        .horizon-container { width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; margin-bottom: 30px; }
+        .horizon-scroller { display: flex; align-items: center; gap: 30px; transition: transform 0.3s ease-out; }
+        .date-orb { flex: 0 0 auto; text-align: center; opacity: 0.2; transition: 0.3s; transform: scale(0.8); cursor: pointer; }
+        .date-orb.active { opacity: 1; transform: scale(1.1); font-weight: bold; }
+        .d-day { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; }
+        .d-num { font-size: 1.5rem; color: var(--white); }
 
-        .salah-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 320px; margin-top: 10px; }
+        .salah-galaxy { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 100%; max-width: 320px; }
+        .salah-galaxy .orb:nth-child(5) { grid-column: span 2; justify-self: center; width: 140px; } /* Isha in center */
+        
         .orb { 
-            background: #0f0f12; 
-            height: 75px; 
-            border-radius: 18px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            display: flex; 
-            align-items: center; 
-            padding: 0 25px;
-            justify-content: space-between;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+            width: 140px; height: 100px; border-radius: 50px; background: #0c0c0e;
+            border: 1px solid rgba(194,178,128,0.1); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .orb.lit { 
             border-color: var(--gold); 
-            background: radial-gradient(circle at center, rgba(194,178,128,0.2) 0%, #0f0f12 100%);
-            box-shadow: 0 0 15px rgba(194, 178, 128, 0.1);
+            background: radial-gradient(circle, rgba(194,178,128,0.15) 0%, #0c0c0e 100%);
+            box-shadow: 0 0 30px rgba(194, 178, 128, 0.1);
         }
-        .orb-label { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7); }
-        .orb.lit .orb-label { color: var(--white); font-weight: 500; }
-        .status-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--gold); transition: 0.3s; }
-        .orb.lit .status-dot { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .orb-name { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 5px; opacity: 0.6; }
+        .orb.lit .orb-name { color: var(--gold); opacity: 1; }
+        .orb-status { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.1); transition: 0.3s; }
+        .orb.lit .orb-status { background: var(--gold); box-shadow: 0 0 10px var(--gold); transform: scale(1.5); }
 
-        /* TASBIH UI (STABLE) */
+        /* TASBIH (Stable) */
         .today-banner { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; padding: 8px 20px; border-radius: 20px; background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.1); }
         .today-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--gold); font-weight: 500; text-transform: uppercase; }
         .today-sep { width: 1px; height: 15px; background: rgba(194, 178, 128, 0.3); }
         .today-val { font-size: 1.2rem; color: var(--white); font-weight: 400; }
-        .tasbih-area { position: relative; width: 300px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 20px; z-index: 50; }
+        .tasbih-area { position: relative; width: 300px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; }
         .ring-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; pointer-events: none; }
         .ring-fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.1s linear; }
         .count-text { font-size: 7rem; color: var(--white); font-weight: 100; pointer-events: none; line-height: 1; }
-        .session-label { font-size: 0.6rem; letter-spacing: 3px; opacity: 0.4; pointer-events: none; margin-top: -5px; }
-        .reset-btn { margin-top: 50px; background: none; border: 1px solid rgba(194, 178, 128, 0.2); color: var(--gold); padding: 12px 40px; border-radius: 30px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+        .reset-btn { margin-top: 50px; background: none; border: 1px solid rgba(194, 178, 128, 0.2); color: var(--gold); padding: 12px 40px; border-radius: 30px; font-size: 0.7rem; letter-spacing: 2px; cursor: pointer; }
 
-        /* NAV BAR */
+        /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
         .nav-btn.active { opacity: 1; }
         .nav-label { font-size: 0.55rem; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
-
-        .star { position: absolute; color: var(--gold); pointer-events: none; animation: fall 2s linear forwards; }
+        
+        .star { position: absolute; color: var(--gold); pointer-events: none; animation: fall 2.2s linear forwards; z-index: 2000; }
         @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
     </style>
 </head>
@@ -79,26 +74,20 @@
         
         <div id="v-tasbih" class="view">
             <h1 class="header">Tasbih</h1>
-            <div class="today-banner">
-                <span class="today-label">Today</span>
-                <div class="today-sep"></div>
-                <span id="today-val" class="today-val">0</span>
-            </div>
+            <div class="today-banner"><span class="today-label">Today</span><div class="today-sep"></div><span id="today-val" class="today-val">0</span></div>
             <div class="tasbih-area" id="t-trigger">
-                <svg class="ring-svg" viewBox="0 0 280 280">
-                    <circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="8" cx="140" cy="140" r="130"></circle>
-                    <circle id="t-ring" class="ring-fill" cx="140" cy="140" r="130"></circle>
-                </svg>
+                <svg class="ring-svg" viewBox="0 0 280 280"><circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="8" cx="140" cy="140" r="130"></circle><circle id="t-ring" class="ring-fill" cx="140" cy="140" r="130"></circle></svg>
                 <span id="t-num" class="count-text">0</span>
-                <span class="session-label">SESSION</span>
             </div>
             <button class="reset-btn" onclick="Tasbih.resetSession()">Reset Session</button>
         </div>
 
         <div id="v-salah" class="view">
-            <h1 class="header">Salah</h1>
-            <div class="scroller" id="date-scroller"></div>
-            <div class="salah-grid" id="salah-grid"></div>
+            <h1 class="header">Horizon</h1>
+            <div class="horizon-container">
+                <div class="horizon-scroller" id="h-scroller"></div>
+            </div>
+            <div class="salah-galaxy" id="salah-grid"></div>
         </div>
 
         <div id="v-hifz" class="view"><h1 class="header">Hifz</h1></div>
@@ -118,11 +107,7 @@
             unlocked: false,
             tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3'), 
             doneSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
-            unlock() {
-                if (this.unlocked) return;
-                [this.tapSfx, this.doneSfx].forEach(s => { s.play(); s.pause(); s.currentTime = 0; });
-                this.unlocked = true;
-            },
+            unlock() { if (this.unlocked) return; [this.tapSfx, this.doneSfx].forEach(s => { s.play(); s.pause(); s.currentTime = 0; }); this.unlocked = true; },
             show(id) {
                 this.unlock();
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
@@ -130,6 +115,13 @@
                 document.getElementById('n-'+id).classList.add('active');
                 if(id === 'journey') document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
                 if(id === 'salah') Salah.render();
+            },
+            stars() {
+                for(let i=0; i<30; i++) {
+                    const s = document.createElement('div'); s.className = 'star'; s.innerHTML = '★';
+                    s.style.left = Math.random()*100+'vw'; s.style.top = '-20px';
+                    document.body.appendChild(s); setTimeout(() => s.remove(), 2200);
+                }
             }
         };
 
@@ -138,73 +130,65 @@
             today: parseInt(localStorage.getItem('t_today')) || 0,
             life: parseInt(localStorage.getItem('t_life')) || 0,
             hit() {
-                Core.unlock();
                 this.session++; this.today++; this.life++;
                 if (this.session < 100) {
                     Core.tapSfx.currentTime = 0; Core.tapSfx.play().catch(()=>{});
                     this.updateUI();
                 } else {
-                    Core.tapSfx.currentTime = 0; Core.tapSfx.play().catch(()=>{});
-                    this.updateUI();
-                    setTimeout(() => {
-                        Core.doneSfx.play().catch(()=>{});
-                        this.stars(); this.session = 0; this.updateUI();
-                    }, 500);
+                    Core.tapSfx.currentTime = 0; Core.tapSfx.play(); this.updateUI();
+                    setTimeout(() => { Core.doneSfx.play(); Core.stars(); this.session = 0; this.updateUI(); }, 500);
                 }
-                this.save();
+                localStorage.setItem('t_cur', this.session); localStorage.setItem('t_today', this.today); localStorage.setItem('t_life', this.life);
             },
-            resetSession() { this.session = 0; this.save(); this.updateUI(); },
-            stars() {
-                for(let i=0; i<25; i++) {
-                    const s = document.createElement('div'); s.className = 'star'; s.innerHTML = '★';
-                    s.style.left = Math.random()*100+'vw'; s.style.top = '-20px';
-                    document.body.appendChild(s); setTimeout(() => s.remove(), 2000);
-                }
-            },
-            save() {
-                localStorage.setItem('t_cur', this.session);
-                localStorage.setItem('t_today', this.today);
-                localStorage.setItem('t_life', this.life);
-            },
+            resetSession() { this.session = 0; this.updateUI(); localStorage.setItem('t_cur', 0); },
             updateUI() {
                 document.getElementById('t-num').textContent = this.session;
                 document.getElementById('today-val').textContent = this.today;
-                const ring = document.getElementById('t-ring');
-                if(ring) ring.style.strokeDashoffset = 816 - (this.session / 100 * 816);
+                const r = document.getElementById('t-ring'); if(r) r.style.strokeDashoffset = 816 - (this.session/100*816);
             }
         };
 
         const Salah = {
-            db: JSON.parse(localStorage.getItem('s_db_v15')) || {},
+            db: JSON.parse(localStorage.getItem('s_db_v16')) || {},
+            cel: JSON.parse(localStorage.getItem('s_cel')) || {}, // Tracks celebration per date
+            todayStr: new Date().toDateString(),
             selectedDate: new Date().toDateString(),
             
             render() {
-                const scroller = document.getElementById('date-scroller');
-                scroller.innerHTML = '';
-                for(let i=0; i<7; i++) {
+                const scroller = document.getElementById('h-scroller'); scroller.innerHTML = '';
+                // 7 days total, today in the middle (index 3)
+                for(let i=6; i>=0; i--) {
                     let d = new Date(); d.setDate(d.getDate() - i);
                     let ds = d.toDateString();
-                    let pill = document.createElement('div');
-                    pill.className = `pill ${ds === this.selectedDate ? 'active' : ''}`;
-                    pill.textContent = i === 0 ? 'Today' : ds.split(' ')[0] + ' ' + ds.split(' ')[2];
-                    pill.onclick = () => { this.selectedDate = ds; this.render(); };
-                    scroller.appendChild(pill);
+                    let orb = document.createElement('div');
+                    orb.className = `date-orb ${ds === this.selectedDate ? 'active' : ''}`;
+                    orb.innerHTML = `<div class="d-day">${ds.split(' ')[0]}</div><div class="d-num">${ds.split(' ')[2]}</div>`;
+                    orb.onclick = () => { this.selectedDate = ds; this.render(); };
+                    scroller.appendChild(orb);
                 }
 
-                const grid = document.getElementById('salah-grid');
-                grid.innerHTML = '';
+                const grid = document.getElementById('salah-grid'); grid.innerHTML = '';
                 const dayData = this.db[this.selectedDate] || {};
-                ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
+                const prayers = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+                
+                prayers.forEach(p => {
                     const orb = document.createElement('div');
                     orb.className = `orb ${dayData[p] ? 'lit' : ''}`;
-                    orb.innerHTML = `
-                        <span class="orb-label">${p}</span>
-                        <div class="status-dot"></div>
-                    `;
+                    orb.innerHTML = `<span class="orb-name">${p}</span><div class="status-dot"></div>`;
                     orb.onclick = () => {
                         if(!this.db[this.selectedDate]) this.db[this.selectedDate] = {};
                         this.db[this.selectedDate][p] = !this.db[this.selectedDate][p];
-                        localStorage.setItem('s_db_v15', JSON.stringify(this.db));
+                        localStorage.setItem('s_db_v16', JSON.stringify(this.db));
+                        
+                        // Check celebration for TODAY ONLY
+                        if(this.selectedDate === this.todayStr) {
+                            const count = prayers.filter(k => this.db[this.todayStr][k]).length;
+                            if(count === 5 && !this.cel[this.todayStr]) {
+                                Core.doneSfx.play(); Core.stars();
+                                this.cel[this.todayStr] = true;
+                                localStorage.setItem('s_cel', JSON.stringify(this.cel));
+                            }
+                        }
                         this.render();
                     };
                     grid.appendChild(orb);
