@@ -6,45 +6,48 @@
     <title>Sanctuary Infinity</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; --glass: rgba(194, 178, 128, 0.08); }
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --dark-grey: #121214; }
         * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
 
-        body { background-color: var(--vanta); color: var(--gold); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        body { 
+            background-color: var(--vanta); color: var(--gold); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            margin: 0; padding: 0; overflow: hidden; height: 100vh;
+            display: flex; flex-direction: column;
+        }
 
         /* PAGE SYSTEM */
         .page { display: none; flex-direction: column; align-items: center; height: calc(100vh - 85px); width: 100%; padding: 20px; overflow-y: auto; }
         .active-page { display: flex; }
+        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.1rem; }
 
-        .header-title { letter-spacing: 5px; font-weight: 200; text-transform: uppercase; margin-bottom: 25px; text-align: center; font-size: 1.1rem; color: var(--gold); }
-
-        /* --- TASBIH RESTORED --- */
-        .tasbih-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
+        /* --- TASBIH UI (RESTORED) --- */
         .tasbih-circle { 
-            width: 260px; height: 260px; border-radius: 50%; border: 1px solid rgba(194,178,128,0.3); 
+            width: 250px; height: 250px; border-radius: 50%; border: 1px solid rgba(194,178,128,0.3); 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            position: relative; cursor: pointer; transition: transform 0.05s;
-            background: radial-gradient(circle, #0a0a0c 0%, #050508 100%);
+            position: relative; cursor: pointer; background: radial-gradient(circle, #101012 0%, #050508 100%);
         }
-        .tasbih-circle:active { transform: scale(0.95); border-color: var(--gold); }
-        .progress-svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); width: 260px; height: 260px; pointer-events: none; }
-        .progress-bg { fill: none; stroke: rgba(194,178,128,0.05); stroke-width: 4; }
-        .progress-bar { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 816; stroke-dashoffset: 816; transition: stroke-dashoffset 0.2s; }
-        .count-num { font-size: 5.5rem; color: var(--white); font-weight: 100; margin: 0; font-family: 'Helvetica Neue', sans-serif; }
-        .target-label { font-size: 0.7rem; letter-spacing: 3px; opacity: 0.5; margin-top: -10px; }
+        .count-num { font-size: 5rem; color: var(--white); font-weight: 100; margin: 0; }
 
-        /* --- SALAH LOG RESTORED --- */
-        .salah-list { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 15px; }
+        /* --- SALAH LOG UI (RESTORED) --- */
+        .salah-list { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 12px; }
         .salah-card { 
-            background: var(--dark-grey); padding: 20px; border-radius: 15px; 
+            background: var(--dark-grey); padding: 18px; border-radius: 12px; 
             display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid rgba(194,178,128,0.1); cursor: pointer;
+            border: 1px solid rgba(194,178,128,0.1);
         }
         .salah-card.completed { border-color: var(--gold); background: rgba(194,178,128,0.05); }
-        .salah-info { display: flex; flex-direction: column; }
-        .salah-name { font-size: 1rem; color: var(--white); letter-spacing: 1px; }
-        .salah-status { font-size: 0.6rem; color: var(--gold); opacity: 0.6; margin-top: 4px; }
-        .check-box { width: 24px; height: 24px; border: 1px solid var(--gold); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-        .check-box.checked::after { content: '✓'; color: var(--gold); font-weight: bold; }
+        .check-box { width: 22px; height: 22px; border: 1px solid var(--gold); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .check-box.checked::after { content: '✓'; color: var(--gold); }
+
+        /* --- REVELATION UI --- */
+        .quran-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
+        .selector { background: var(--dark-grey); color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 10px; font-size: 0.8rem; width: 100%; }
+        .reader-frame { 
+            background: #0a0a0c; padding: 30px 20px; border-radius: 25px; text-align: center;
+            border: 1px solid rgba(194, 178, 128, 0.1); min-height: 300px;
+        }
+        .arabic-text { font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 1.8; color: var(--white); direction: rtl; }
 
         /* NAV BAR */
         .nav-bar { height: 85px; background: #08080a; border-top: 1px solid rgba(194, 178, 128, 0.1); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
@@ -57,19 +60,33 @@
 
     <div id="page-tasbih" class="page active-page">
         <h1 class="header-title">Tasbih</h1>
-        <div class="tasbih-container">
-            <div class="tasbih-circle" onclick="incrementTasbih()">
-                <svg class="progress-svg">
-                    <circle class="progress-bg" cx="130" cy="130" r="128"></circle>
-                    <circle id="pBar" class="progress-bar" cx="130" cy="130" r="128"></circle>
-                </svg>
-                <p id="tCount" class="count-num">0</p>
-                <p class="target-label" id="tTarget">TARGET: 33</p>
-            </div>
-            <div style="margin-top: 40px; display: flex; gap: 10px;">
-                <button class="reset-btn" onclick="setTarget(33)" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:5px 15px; border-radius:20px; font-size:0.6rem;">33</button>
-                <button class="reset-btn" onclick="setTarget(100)" style="background:none; border:1px solid var(--gold); color:var(--gold); padding:5px 15px; border-radius:20px; font-size:0.6rem;">100</button>
-                <button onclick="resetTasbih()" style="background:none; border:1px solid rgba(255,0,0,0.3); color:white; padding:5px 15px; border-radius:20px; font-size:0.6rem;">RESET</button>
+        <div class="tasbih-circle" onclick="doTap()">
+            <p id="tCount" class="count-num">0</p>
+            <p style="font-size:0.6rem; letter-spacing:2px; opacity:0.5;">TAP TO PRAY</p>
+        </div>
+        <button onclick="count = 0; updateUI();" style="margin-top:30px; background:none; border:1px solid rgba(255,255,255,0.1); color:var(--gold); padding:8px 25px; border-radius:20px; font-size:0.7rem;">RESET</button>
+    </div>
+
+    <div id="page-quran" class="page">
+        <h1 class="header-title">The Revelation</h1>
+        <div class="quran-container">
+            <select id="surahSelect" class="selector" onchange="initSurah()">
+                <option value="1">1. Al-Fatiha</option>
+                <option value="112">112. Al-Ikhlas</option>
+                <option value="114">114. Al-Nas</option>
+            </select>
+            <div class="reader-frame">
+                <div id="v-num" style="font-size:0.6rem; opacity:0.4; margin-bottom:10px;">AYAH 1</div>
+                <div id="q-arabic" class="arabic-text">...</div>
+                <div id="q-trans" style="font-size:0.9rem; opacity:0.7; margin-top:15px;">...</div>
+                
+                <div style="display:flex; justify-content:space-around; align-items:center; margin-top:30px;">
+                    <button onclick="prevVerse()" style="background:none; border:none; fill:var(--gold);"><svg width="30" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+                    <button id="playBtn" onclick="toggleAudio()" style="width:60px; height:60px; border-radius:50%; background:var(--gold); border:none; display:flex; justify-content:center; align-items:center;">
+                        <svg id="playIcon" width="30" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                    </button>
+                    <button onclick="nextVerse()" style="background:none; border:none; fill:var(--gold);"><svg width="30" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+                </div>
             </div>
         </div>
     </div>
@@ -77,117 +94,85 @@
     <div id="page-salah" class="page">
         <h1 class="header-title">Salah Log</h1>
         <div class="salah-list">
-            <div class="salah-card" id="fajr" onclick="toggleSalah('fajr')">
-                <div class="salah-info"><span class="salah-name">Fajr</span><span class="salah-status">Dusk Prayer</span></div>
-                <div class="check-box" id="check-fajr"></div>
+            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
+                <span>Fajr</span> <div class="check-box"></div>
             </div>
-            <div class="salah-card" id="dhuhr" onclick="toggleSalah('dhuhr')">
-                <div class="salah-info"><span class="salah-name">Dhuhr</span><span class="salah-status">Noon Prayer</span></div>
-                <div class="check-box" id="check-dhuhr"></div>
+            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
+                <span>Dhuhr</span> <div class="check-box"></div>
             </div>
-            <div class="salah-card" id="asr" onclick="toggleSalah('asr')">
-                <div class="salah-info"><span class="salah-name">Asr</span><span class="salah-status">Afternoon Prayer</span></div>
-                <div class="check-box" id="check-asr"></div>
+            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
+                <span>Asr</span> <div class="check-box"></div>
             </div>
-            <div class="salah-card" id="maghrib" onclick="toggleSalah('maghrib')">
-                <div class="salah-info"><span class="salah-name">Maghrib</span><span class="salah-status">Sunset Prayer</span></div>
-                <div class="check-box" id="check-maghrib"></div>
+            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
+                <span>Maghrib</span> <div class="check-box"></div>
             </div>
-            <div class="salah-card" id="isha" onclick="toggleSalah('isha')">
-                <div class="salah-info"><span class="salah-name">Isha</span><span class="salah-status">Night Prayer</span></div>
-                <div class="check-box" id="check-isha"></div>
+            <div class="salah-card" onclick="this.classList.toggle('completed'); this.querySelector('.check-box').classList.toggle('checked');">
+                <span>Isha</span> <div class="check-box"></div>
             </div>
         </div>
     </div>
-
-    <div id="page-quran" class="page"><h1 class="header-title">Listen</h1></div>
-    <div id="page-book" class="page"><h1 class="header-title">Read</h1></div>
-    <div id="page-dash" class="page"><h1 class="header-title">Journey</h1></div>
 
     <div class="nav-bar">
-        <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')">
-            <svg width="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="6" r="1"/><circle cx="12" cy="18" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg>
-            <span class="nav-label">Tasbih</span>
-        </div>
-        <div id="nav-quran" class="nav-item" onclick="switchPage('quran')">
-            <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
-            <span class="nav-label">Listen</span>
-        </div>
-        <div id="nav-book" class="nav-item" onclick="switchPage('book')">
-            <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1z"/></svg>
-            <span class="nav-label">Read</span>
-        </div>
-        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')">
-            <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13,3A2,2 0 0,1 15,5A2,2 0 0,1 13,7A2,2 0 0,1 11,5A2,2 0 0,1 13,3M18.5,18.5L20,20H4L5,17L8.5,14L10,15L8,19H16L14,15L15,14L18.5,17.5V18.5Z"/></svg>
-            <span class="nav-label">Salah</span>
-        </div>
-        <div id="nav-dash" class="nav-item" onclick="switchPage('dash')">
-            <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span class="nav-label">Journey</span>
-        </div>
+        <div id="nav-tasbih" class="nav-item active" onclick="switchPage('tasbih')"><span class="nav-label">Tasbih</span></div>
+        <div id="nav-quran" class="nav-item" onclick="switchPage('quran')"><span class="nav-label">Listen</span></div>
+        <div id="nav-salah" class="nav-item" onclick="switchPage('salah')"><span class="nav-label">Salah</span></div>
     </div>
 
+    <audio id="mainAudio" onended="nextVerse()"></audio>
+
     <script>
-        // --- PAGE SWITCHING ---
+        // TASBIH
+        let count = 0;
+        const tapSfx = new Audio('https://www.soundjay.com/buttons/button-16.mp3');
+        function doTap() {
+            count++;
+            tapSfx.play().catch(()=>{});
+            if (window.navigator.vibrate) window.navigator.vibrate(50);
+            updateUI();
+        }
+        function updateUI() { document.getElementById('tCount').textContent = count; }
+
+        // REVELATION
+        let currentVerse = 1; let verseData = [];
+        const audio = document.getElementById('mainAudio');
+
+        async function initSurah() {
+            const id = document.getElementById('surahSelect').value;
+            const resAr = await fetch(`https://api.alquran.cloud/v1/surah/${id}`);
+            const resEn = await fetch(`https://api.alquran.cloud/v1/surah/${id}/en.sahih`);
+            const dAr = await resAr.json(); const dEn = await resEn.json();
+            verseData = dAr.data.ayahs.map((a, i) => ({
+                ar: a.text, en: dEn.data.ayahs[i].text,
+                audio: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${a.number}.mp3`
+            }));
+            currentVerse = 1; updateVerseUI();
+        }
+
+        function updateVerseUI() {
+            const v = verseData[currentVerse - 1];
+            document.getElementById('q-arabic').textContent = v.ar;
+            document.getElementById('q-trans').textContent = v.en;
+            document.getElementById('v-num').textContent = `AYAH ${currentVerse} / ${verseData.length}`;
+            audio.src = v.audio;
+        }
+
+        function toggleAudio() {
+            if (audio.paused) { audio.play(); document.getElementById('playIcon').innerHTML = '<path d="M14,19H18V5H14M6,19H10V5H6V19Z"/>'; }
+            else { audio.pause(); document.getElementById('playIcon').innerHTML = '<path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>'; }
+        }
+
+        function nextVerse() { if(currentVerse < verseData.length) { currentVerse++; updateVerseUI(); audio.play(); } }
+        function prevVerse() { if(currentVerse > 1) { currentVerse--; updateVerseUI(); audio.play(); } }
+
         function switchPage(p) {
             document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active-page'));
             document.querySelectorAll('.nav-item').forEach(ni => ni.classList.remove('active'));
             document.getElementById('page-' + p).classList.add('active-page');
             document.getElementById('nav-' + p).classList.add('active');
+            audio.pause();
         }
 
-        // --- TASBIH LOGIC RESTORED ---
-        let count = 0;
-        let target = 33;
-        const clickSfx = new Audio('https://www.soundjay.com/buttons/button-16.mp3');
-
-        function incrementTasbih() {
-            count++;
-            clickSfx.play().catch(() => {}); // Play sound
-            if (window.navigator.vibrate) window.navigator.vibrate(50); // Haptic feedback
-            
-            if (count > target) {
-                count = 1;
-                if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]); // Celebration vibe
-            }
-            updateTasbihUI();
-        }
-
-        function setTarget(t) { target = t; resetTasbih(); document.getElementById('tTarget').textContent = `TARGET: ${t}`; }
-        function resetTasbih() { count = 0; updateTasbihUI(); }
-
-        function updateTasbihUI() {
-            document.getElementById('tCount').textContent = count;
-            const offset = 816 - (count / target) * 816;
-            document.getElementById('pBar').style.strokeDashoffset = offset;
-        }
-
-        // --- SALAH LOG LOGIC RESTORED ---
-        let salahState = JSON.parse(localStorage.getItem('salahLogs')) || { fajr:false, dhuhr:false, asr:false, maghrib:false, isha:false };
-
-        function toggleSalah(name) {
-            salahState[name] = !salahState[name];
-            localStorage.setItem('salahLogs', JSON.stringify(salahState));
-            updateSalahUI();
-        }
-
-        function updateSalahUI() {
-            for (let s in salahState) {
-                const card = document.getElementById(s);
-                const box = document.getElementById('check-' + s);
-                if (salahState[s]) {
-                    card.classList.add('completed');
-                    box.classList.add('checked');
-                } else {
-                    card.classList.remove('completed');
-                    box.classList.remove('checked');
-                }
-            }
-        }
-
-        // Init
-        updateSalahUI();
-        updateTasbihUI();
+        initSurah();
     </script>
 </body>
 </html>
