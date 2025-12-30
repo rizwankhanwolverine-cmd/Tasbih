@@ -42,14 +42,15 @@
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            // Play silence to warm up the hardware
+            sfx.currentTime = 0;
             sfx.play().then(() => { sfx.pause(); sfx.currentTime = 0; }).catch(() => {});
         }
 
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
+                unlockAudio();  // ensure context is active
                 sfx.currentTime = 0;
-                sfx.play().catch(() => { console.log("Iframe click required for local audio"); });
+                sfx.play().catch(() => { console.log("Audio blocked until user interaction"); });
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
