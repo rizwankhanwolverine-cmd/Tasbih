@@ -2,30 +2,31 @@
 <html>
 <head>
     <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
         .salah-list { width: 100%; max-width: 400px; margin-top: 20px; }
         .salah-item { 
-            background: rgba(194,178,128,0.05); border: 1px solid rgba(194,178,128,0.1); 
-            border-radius: 15px; padding: 20px; margin-bottom: 12px;
+            background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.1); 
+            border-radius: 15px; padding: 22px; margin-bottom: 15px;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
-        .salah-item.done { border-color: #C2B280; background: rgba(194,178,128,0.15); opacity: 0.8; }
-        .name { font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-        .check { width: 24px; height: 24px; border: 2px solid #C2B280; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-        .done .check::after { content: '✓'; color: #C2B280; font-weight: bold; }
+        .salah-item.done { border-color: #C2B280; background: rgba(194, 178, 128, 0.1); }
+        .name { font-weight: 700; letter-spacing: 3px; text-transform: uppercase; font-size: 0.9rem; }
+        .check { width: 24px; height: 24px; border: 1px solid #C2B280; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .done .check { background: #C2B280; }
+        .done .check::after { content: '✓'; color: #050508; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h2 style="letter-spacing:5px; text-transform:uppercase; font-size:1rem;">Daily Prayers</h2>
-    <div class="salah-list" id="salah-box"></div>
+    <h2 style="letter-spacing:5px; text-transform:uppercase; font-size:1rem; margin-top:10px;">Daily Prayers</h2>
+    <div class="salah-list" id="box"></div>
 
     <script>
         const prayers = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
-        let state = JSON.parse(localStorage.getItem('salah_done')) || {};
+        let state = JSON.parse(localStorage.getItem('salah_v2')) || {};
 
         function render() {
-            const box = document.getElementById('salah-box');
-            box.innerHTML = prayers.map(p => `
+            const container = document.getElementById('box');
+            container.innerHTML = prayers.map(p => `
                 <div class="salah-item ${state[p] ? 'done' : ''}" onclick="toggle('${p}')">
                     <div class="name">${p}</div>
                     <div class="check"></div>
@@ -33,12 +34,11 @@
             `).join('');
         }
 
-        function toggle(name) {
-            state[name] = !state[name];
-            localStorage.setItem('salah_done', JSON.stringify(state));
+        function toggle(p) {
+            state[p] = !state[p];
+            localStorage.setItem('salah_v2', JSON.stringify(state));
             render();
         }
-
         render();
     </script>
 </body>
