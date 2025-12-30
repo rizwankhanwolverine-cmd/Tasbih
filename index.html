@@ -15,29 +15,66 @@
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
-<body onclick="forceUnlock()">
-    <audio id="global-sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+<body onclick="wakeAudio()">
+
+    <audio id="global-sfx" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+
     <iframe id="module-container" src=""></iframe>
+
     <nav class="nav">
         <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><span class="nav-label">Journey</span></div>
         <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><span class="nav-label">Recite</span></div>
-        <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih"><span class="nav-label">Tasbih</span></div>
+        <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih"><span class="nav-label">Beeds</span></div>
         <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><span class="nav-label">Salah</span></div>
     </nav>
+
     <script>
-        const audio = document.getElementById('global-sfx');
-        function forceUnlock() { audio.play().then(() => { audio.pause(); }).catch(e => {}); }
+        const sfx = document.getElementById('global-sfx');
+        let isUnlocked = false;
+
+        // Forced Audio Wake-up
+        function wakeAudio() {
+            if (!isUnlocked) {
+                sfx.play().then(() => {
+                    sfx.pause();
+                    sfx.currentTime = 0;
+                    isUnlocked = true;
+                    console.log("Audio Engine Authorized");
+                }).catch(err => console.log("Waiting for user gesture..."));
+            }
+        }
+
         function loadModule(name, btnEl) {
+            wakeAudio(); // Try to unlock on every nav click
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            if(btnEl) btnEl.classList.add('active'); else document.getElementById('btn-'+name).classList.add('active');
+            if(btnEl) btnEl.classList.add('active'); 
+            else document.getElementById('btn-'+name).classList.add('active');
             document.getElementById('module-container').src = name + ".html";
         }
+
+        // Handle Tap Message from Tasbih Module
         window.addEventListener('message', (e) => {
-            if (e.data === 'playTap') { audio.currentTime = 0; audio.play(); }
-            if (e.data === 'celebrate') { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280'] }); }
+            if (e.data === 'playTap') {
+                if (isUnlocked) {
+                    sfx.currentTime = 0;
+                    sfx.play();
+                } else {
+                    // Fallback try
+                    sfx.play();
+                }
+            }
+            if (e.data === 'celebrate') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280'] });
+            }
         });
-        window.onload = () => { loadModule(localStorage.getItem('active_tab') || 'tasbih'); };
+
+        window.onload = () => {
+            const lastTab = localStorage.getItem('active_tab') || 'tasbih';
+            loadModule(lastTab);
+        };
     </script>
 </body>
 </html>
