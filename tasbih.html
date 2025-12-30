@@ -3,13 +3,15 @@
 <head>
     <style>
         body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; -webkit-user-select: none; user-select: none; }
-        .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; }
         #t-num { font-size: 7rem; color: white; font-weight: 200; pointer-events: none; }
         circle { transition: 0.1s; stroke-linecap: round; }
+        .daily-label { font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px; text-transform: uppercase; }
+        #status-hint { font-size: 0.5rem; margin-top: 15px; opacity: 0.3; letter-spacing: 1px; }
     </style>
 </head>
-<body onclick="tapBeed()">
-    <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px;">DAILY BEEDS: <span id="t-today" style="color:white">0</span></div>
+<body onclick="handleTap()">
+    <div class="daily-label">DAILY BEEDS: <span id="t-today" style="color:white">0</span></div>
     
     <div class="tasbih-display">
         <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 260 260">
@@ -19,24 +21,28 @@
         <div id="t-num">0</div>
     </div>
     
-    <button onclick="event.stopPropagation(); doReset();" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.2); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer;">RESET CYCLE</button>
+    <button onclick="event.stopPropagation(); resetCount();" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.2); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer; text-transform:uppercase;">Reset Cycle</button>
+    <div id="status-hint">TAP SCREEN OR PRESS SPACEBAR</div>
 
     <script>
-        // Using a more standard, high-compatibility sound source
-        const audio = new Audio("https://actions.google.com/sounds/v1/foley/button_click.ogg");
+        // Use a standard WAV sound for immediate laptop response
+        const localSfx = new Audio("https://cdn.freesound.org/previews/256/256113_3263901-lq.wav");
         
+        // Persistent Data Loading
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
 
-        function tapBeed() {
-            // THE TRICK: We trigger BOTH local audio and the Shell bridge
-            // This ensures that if the iframe is blocked, the Parent plays it instead.
-            audio.currentTime = 0;
-            audio.play().catch(() => {}); 
-            
+        function handleTap() {
+            // 1. Play Sound (Local & Parent Bridge)
+            localSfx.currentTime = 0;
+            localSfx.play().catch(() => {}); 
             window.parent.postMessage('play_beed', '*');
             
-            count++; today++;
+            // 2. Increment Logic
+            count++; 
+            today++;
+            
+            // 3. Celebration Logic (Every 10 counts)
             if(count >= 10) {
                 window.parent.postMessage('celebrate', '*');
                 count = 0;
@@ -44,14 +50,32 @@
             save();
         }
 
-        function doReset() { count = 0; save(); }
+        // Laptop Keyboard Support
+        window.addEventListener('keydown', (e) => {
+            if (e.code === "Space" || e.code === "Enter") {
+                e.preventDefault();
+                handleTap();
+            }
+        });
+
+        function resetCount() {
+            count = 0;
+            save();
+        }
+
         function save() {
             document.getElementById('t-num').textContent = count;
             document.getElementById('t-today').textContent = today;
-            document.getElementById('ring').style.strokeDashoffset = 722 - (count / 10 * 722);
-            localStorage.setItem('t_cur', count, true); // Saving persistent count
+            // Update the gold ring (722 is the circumference)
+            const offset = 722 - (count / 10 * 722);
+            document.getElementById('ring').style.strokeDashoffset = offset;
+            
+            // Persistent Storage
+            localStorage.setItem('t_cur', count);
             localStorage.setItem('t_today', today);
         }
+
+        // Initial render on load
         save();
     </script>
 </body>
