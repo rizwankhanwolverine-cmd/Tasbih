@@ -8,14 +8,7 @@
     <style>
         :root { --vanta: #050508; --gold: #C2B280; }
         body { background: #000; margin: 0; height: 100vh; display: flex; justify-content: center; font-family: sans-serif; overflow: hidden; }
-        
-        /* Laptop/Desktop centering wrapper */
-        #app-shell { 
-            width: 100%; max-width: 500px; height: 100vh; background: var(--vanta); 
-            display: flex; flex-direction: column; position: relative; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.8); 
-        }
-
+        #app-shell { width: 100%; max-width: 500px; height: 100vh; background: var(--vanta); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
         #module-container { flex: 1; border: none; width: 100%; height: 100%; }
         .nav { height: 80px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); }
@@ -23,7 +16,7 @@
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
-<body onclick="unlockAudioHardware()">
+<body onclick="wakeUpAudio()">
 
     <div id="app-shell">
         <audio id="master-sfx" preload="auto">
@@ -44,27 +37,29 @@
         const sfx = document.getElementById('master-sfx');
         let audioContext;
 
-        // UNLOCK FOR ALL DEVICES
-        function unlockAudioHardware() {
-            // Logic for Laptops (Chrome/Edge)
+        // FORCED WAKE UP FOR LAPTOPS & PHONES
+        function wakeUpAudio() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
-            // Logic for iOS/Mobile Safari
+            // Prime the audio element with a silent play
             sfx.play().then(() => {
                 sfx.pause();
                 sfx.currentTime = 0;
-            }).catch(e => {});
+            }).catch(e => console.log("Audio unlock pending click..."));
         }
 
-        // LISTEN FOR BEED SIGNAL
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
+                // The laptop needs a fresh interaction signal
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
                 sfx.currentTime = 0;
-                sfx.play();
+                sfx.play().catch(err => console.log("Playback blocked: Click the page once first."));
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280'] });
@@ -72,7 +67,7 @@
         });
 
         function loadModule(name, btnEl) {
-            unlockAudioHardware();
+            wakeUpAudio();
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active'); 
