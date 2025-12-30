@@ -20,10 +20,10 @@
         
         /* RECITATION */
         .q-card { width: 100%; max-width: 420px; background: var(--glass); border: 1px solid rgba(194, 178, 128, 0.2); border-radius: 35px; padding: 35px; text-align: center; min-height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .q-ara { font-family: serif; font-size: 2.4rem; color: var(--white); direction: rtl; line-height: 1.9; font-weight: 500; }
+        .q-ara { font-family: "Amiri", serif; font-size: 2.4rem; color: var(--white); direction: rtl; line-height: 1.9; font-weight: 500; }
         .q-tra { font-size: 1.2rem; line-height: 1.6; opacity: 1; color: var(--gold); margin-top: 25px; font-weight: 400; }
 
-        /* TASBIH (Circle Reset & Sound) */
+        /* TASBIH */
         .tasbih-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin: 10px auto; cursor: pointer; }
         #t-num { font-size: 7rem; color: var(--white); font-weight: 200; z-index: 10; }
         .ring-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -40,7 +40,7 @@
         .nav-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px; }
 
         select { background: #1a1a1e; color: var(--white); border: 2px solid var(--glass); padding: 12px; border-radius: 15px; font-size: 0.95rem; font-weight: 700; }
-        .particle { position: absolute; pointer-events: none; animation: pop 1.2s forwards; font-size: 1.5rem; z-index: 999; }
+        .particle { position: absolute; pointer-events: none; animation: pop 1.2s forwards; font-size: 1.5rem; z-index: 9999; }
         @keyframes pop { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
     </style>
 </head>
@@ -147,15 +147,25 @@
             async updateContent() {
                 const lang = document.getElementById('s-lang').value;
                 const bisBox = document.getElementById('bis-prefix');
+                
+                // 1. Show Bismillah Prefix only on Verse 1 (except Surah 9)
                 if (this.ayah == 1 && this.surah != 9) {
                     bisBox.style.display = 'block';
                     document.getElementById('bis-tra').textContent = (lang !== 'none') ? this.bisMap[lang] : "";
                 } else { bisBox.style.display = 'none'; }
+
+                // 2. Fetch Text Data
                 let url = `https://api.alquran.cloud/v1/ayah/${this.surah}:${this.ayah}/editions/quran-uthmani${lang !== 'none' ? ','+lang : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 let ar = data.data[0].text;
-                if (this.ayah == 1 && ar.includes(this.bis)) { ar = ar.replace(this.bis, "").trim(); }
+
+                // 3. REMOVE Bismillah from Verse 1 of ANY Surah (Including Fatiha)
+                // This ensures Fatiha starts with Alhamdulillah.
+                if (this.ayah == 1 && ar.includes(this.bis)) {
+                    ar = ar.replace(this.bis, "").trim();
+                }
+
                 document.getElementById('q-ara').textContent = ar;
                 document.getElementById('q-tra').textContent = lang === 'none' ? "" : data.data[1].text;
                 document.getElementById('q-tag').textContent = `VERSE ${this.ayah}`;
@@ -170,7 +180,7 @@
 
         const Salah = {
             offset: 0,
-            db: JSON.parse(localStorage.getItem('s_db_v36')) || {},
+            db: JSON.parse(localStorage.getItem('s_db_v37')) || {},
             move(dir) { let n = this.offset + dir; if(n <= 0 && n >= -7) { this.offset = n; this.render(); } },
             render() {
                 const date = new Date(); date.setDate(date.getDate() + this.offset);
@@ -187,7 +197,7 @@
                     orb.onclick = () => {
                         if(!this.db[ds]) this.db[ds] = {};
                         this.db[ds][p] = !this.db[ds][p];
-                        localStorage.setItem('s_db_v36', JSON.stringify(this.db));
+                        localStorage.setItem('s_db_v37', JSON.stringify(this.db));
                         if(this.offset === 0 && Object.values(this.db[ds]).filter(v=>v).length === 5) Core.celebrate();
                         this.render();
                     };
@@ -201,7 +211,7 @@
             today: parseInt(localStorage.getItem('t_today')) || 0,
             life: parseInt(localStorage.getItem('t_life')) || 0,
             hit() {
-                // Audio warm up & play
+                // Play tap sound
                 Core.tapSfx.currentTime = 0;
                 Core.tapSfx.play().catch(()=>{});
 
@@ -215,7 +225,7 @@
             updateUI() {
                 document.getElementById('t-num').textContent = this.session;
                 document.getElementById('today-val').textContent = this.today;
-                const offset = 754 - (this.session / 10 * 754); // Math for 10
+                const offset = 754 - (this.session / 10 * 754);
                 document.getElementById('t-ring').style.strokeDashoffset = offset;
             }
         };
