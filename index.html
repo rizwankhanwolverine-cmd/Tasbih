@@ -11,108 +11,128 @@
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* VIEWS */
+        /* THEME & LAYOUT */
         .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; overflow-y: auto; padding-bottom: 100px; }
         .view.active { display: flex; }
         .header { letter-spacing: 5px; font-weight: 700; text-transform: uppercase; margin: 10px 0; font-size: 1rem; opacity: 0.8; }
 
-        /* TASBIH UI */
-        .tasbih-display { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 20px; cursor: pointer; }
-        #t-num { font-size: 6rem; color: var(--white); font-weight: 200; }
-
-        /* RECITATION UI */
+        /* MODULAR COMPONENTS */
         .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid var(--border); border-radius: 25px; padding: 30px; min-height: 300px; display: flex; flex-direction: column; justify-content: center; margin-top: 15px; }
-        .ara-txt { font-family: 'Amiri', serif; font-size: 1.8rem; color: var(--white); direction: rtl; line-height: 1.8; text-align: center; }
-        select { background: #121216; color: var(--white); border: 1px solid var(--border); padding: 10px; border-radius: 10px; width: 100%; margin-bottom: 10px; }
+        .ara-txt { font-family: 'Amiri', serif; font-size: 1.8rem; color: var(--white); direction: rtl; line-height: 2; text-align: center; }
+        .tasbih-display { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 20px; cursor: pointer; }
+        
+        select { background: #121216; color: var(--white); border: 1px solid var(--border); padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; font-size: 0.9rem; }
 
         /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: #08080a; border-top: 1px solid var(--glass); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; transition: 0.2s; cursor: pointer; }
         .nav-btn.active { opacity: 1; }
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
-<body onclick="App.unlock()">
+<body onclick="Vault.unlockAudio()">
 
-    <audio id="tap-sound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+    <audio id="sfx-tap" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
-    <div id="v-tasbih" class="view">
-        <h1 class="header">Tasbih</h1>
-        <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px;">DAILY TOTAL: <span id="t-today" style="color:var(--white)">0</span></div>
-        <div class="tasbih-display" onclick="Tasbih.hit()">
-            <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 260 260">
-                <circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="6" cx="130" cy="130" r="115"></circle>
-                <circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="6" stroke-dasharray="722" stroke-dashoffset="722" cx="130" cy="130" r="115" style="transition:0.2s; stroke-linecap:round;"></circle>
-            </svg>
-            <div id="t-num">0</div>
+    <div class="content">
+        <div id="v-journey" class="view">
+            <h1 class="header">Journey</h1>
+            <p style="opacity:0.5">Your spiritual progress will appear here.</p>
         </div>
-        <button onclick="Tasbih.reset()" style="margin-top:30px; background:none; border:1px solid var(--border); color:var(--gold); padding:10px 20px; border-radius:10px; font-size:0.6rem;">RESET CYCLE</button>
+
+        <div id="v-recite" class="view">
+            <h1 class="header">Recitation</h1>
+            <div style="width:100%; max-width:400px;">
+                <select id="s-surah" onchange="ModuleRecite.changeSurah()"></select>
+                <select id="s-verse" onchange="ModuleRecite.changeVerse()"></select>
+            </div>
+            <div class="q-card">
+                <div id="q-ara" class="ara-txt">Syncing Scripture...</div>
+                <div id="q-tra" style="margin-top:20px; font-size:0.9rem; opacity:0.6; text-align:center;"></div>
+            </div>
+            <div style="display:flex; gap:30px; margin-top:20px; align-items:center;">
+                <button onclick="ModuleRecite.prev()" style="background:none; border:none; color:var(--gold); font-size:1.5rem; cursor:pointer;">⏮</button>
+                <button id="q-play-btn" onclick="ModuleRecite.toggle()" style="background:var(--gold); color:var(--vanta); border:none; width:55px; height:55px; border-radius:50%; font-size:1.2rem; cursor:pointer;">▶</button>
+                <button onclick="ModuleRecite.next()" style="background:none; border:none; color:var(--gold); font-size:1.5rem; cursor:pointer;">⏭</button>
+            </div>
+        </div>
+
+        <div id="v-tasbih" class="view">
+            <h1 class="header">Tasbih</h1>
+            <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px;">DAILY TOTAL: <span id="t-today" style="color:var(--white)">0</span></div>
+            <div class="tasbih-display" onclick="ModuleTasbih.hit()">
+                <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 260 260">
+                    <circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="6" cx="130" cy="130" r="115"></circle>
+                    <circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="6" stroke-dasharray="722" stroke-dashoffset="722" cx="130" cy="130" r="115" style="transition:0.2s; stroke-linecap:round;"></circle>
+                </svg>
+                <div id="t-num" style="font-size:6rem; color:var(--white); font-weight:200;">0</div>
+            </div>
+            <button onclick="ModuleTasbih.reset()" style="margin-top:30px; background:none; border:1px solid var(--border); color:var(--gold); padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer;">RESET CYCLE</button>
+        </div>
+
+        <div id="v-salah" class="view">
+            <h1 class="header">Salah</h1>
+            <p style="opacity:0.5">Prayer times and guidance.</p>
+        </div>
     </div>
-
-    <div id="v-recite" class="view">
-        <h1 class="header">Recitation</h1>
-        <div style="width:100%; max-width:400px;">
-            <select id="s-surah" onchange="QPlayer.changeSurah()"></select>
-            <select id="s-verse" onchange="QPlayer.changeVerse()"></select>
-        </div>
-        <div class="q-card">
-            <div id="q-ara" class="ara-txt">Select a Surah</div>
-            <div id="q-tra" style="margin-top:20px; font-size:0.9rem; opacity:0.6; text-align:center;"></div>
-        </div>
-        <div style="display:flex; gap:30px; margin-top:20px; align-items:center;">
-            <button onclick="QPlayer.prev()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">⏮</button>
-            <button id="q-play-btn" onclick="QPlayer.toggle()" style="background:var(--gold); color:var(--vanta); border:none; width:50px; height:50px; border-radius:50%; font-size:1.2rem;">▶</button>
-            <button onclick="QPlayer.next()" style="background:none; border:none; color:var(--gold); font-size:1.5rem;">⏭</button>
-        </div>
-    </div>
-
-    <div id="v-salah" class="view"><h1 class="header">Salah</h1><p style="opacity:0.5">Coming Soon...</p></div>
-    <div id="v-journey" class="view"><h1 class="header">Journey</h1><p style="opacity:0.5">Coming Soon...</p></div>
 
     <nav class="nav">
-        <div class="nav-btn" onclick="App.show('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
-        <div class="nav-btn" onclick="App.show('recite')" id="n-recite"><span class="nav-label">Recite</span></div>
-        <div class="nav-btn" onclick="App.show('tasbih')" id="n-tasbih"><span class="nav-label">Tasbih</span></div>
-        <div class="nav-btn" onclick="App.show('salah')" id="n-salah"><span class="nav-label">Salah</span></div>
+        <div class="nav-btn" onclick="Vault.switch('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
+        <div class="nav-btn" onclick="Vault.switch('recite')" id="n-recite"><span class="nav-label">Recite</span></div>
+        <div class="nav-btn" onclick="Vault.switch('tasbih')" id="n-tasbih"><span class="nav-label">Tasbih</span></div>
+        <div class="nav-btn" onclick="Vault.switch('salah')" id="n-salah"><span class="nav-label">Salah</span></div>
     </nav>
 
     <script>
-        const App = {
-            unlocked: false,
-            unlock() {
-                if(!this.unlocked) {
-                    const snd = document.getElementById('tap-sound');
-                    snd.play().then(() => { snd.pause(); this.unlocked = true; });
+        /**
+         * 1. THE LOGIC VAULT (Permanent Rules)
+         */
+        const Vault = {
+            audioUnlocked: false,
+            rules: {
+                fatihaCap: 6,
+                bismillahRegex: /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/
+            },
+            unlockAudio() {
+                if(!this.audioUnlocked) {
+                    const a = document.getElementById('sfx-tap');
+                    a.play().then(() => { a.pause(); this.audioUnlocked = true; });
                 }
             },
-            show(id) {
+            switch(id) {
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.getElementById('v-'+id).classList.add('active');
                 document.getElementById('n-'+id).classList.add('active');
             }
         };
 
-        const Tasbih = {
+        /**
+         * 2. MODULAR TASBIH ENGINE
+         */
+        const ModuleTasbih = {
             count: parseInt(localStorage.getItem('t_cur')) || 0,
             today: parseInt(localStorage.getItem('t_today')) || 0,
             hit() {
                 this.count++; this.today++;
-                document.getElementById('tap-sound').currentTime = 0;
-                document.getElementById('tap-sound').play();
+                const snd = document.getElementById('sfx-tap');
+                snd.currentTime = 0; snd.play();
                 if(this.count >= 10) { confetti({particleCount:40, colors:['#C2B280']}); this.count = 0; }
-                this.update();
+                this.save();
             },
-            update() {
+            save() {
                 document.getElementById('t-num').textContent = this.count;
                 document.getElementById('t-today').textContent = this.today;
                 document.getElementById('t-ring').style.strokeDashoffset = 722 - (this.count / 10 * 722);
                 localStorage.setItem('t_cur', this.count);
                 localStorage.setItem('t_today', this.today);
             },
-            reset() { this.count = 0; this.update(); }
+            reset() { this.count = 0; this.save(); }
         };
 
-        const QPlayer = {
+        /**
+         * 3. MODULAR RECITATION ENGINE
+         */
+        const ModuleRecite = {
             surah: 1, verse: 1, playing: false, audio: new Audio(), surahData: [],
             async init() {
                 try {
@@ -121,27 +141,30 @@
                     this.surahData = d.data;
                     const sSel = document.getElementById('s-surah');
                     this.surahData.forEach(s => { sSel.innerHTML += `<option value="${s.number}">${s.number}. ${s.englishName}</option>`; });
-                    this.load();
-                } catch(e) { document.getElementById('q-ara').textContent = "Connection Error"; }
+                    this.refresh();
+                } catch(e) { document.getElementById('q-ara').textContent = "Offline Mode"; }
             },
-            load() {
-                const maxVerses = (this.surah == 1) ? 6 : this.surahData[this.surah-1].numberOfAyahs;
+            refresh() {
+                let max = (this.surah == 1) ? Vault.rules.fatihaCap : this.surahData[this.surah-1].numberOfAyahs;
                 const vSel = document.getElementById('s-verse');
                 vSel.innerHTML = '';
-                for(let i=1; i<=maxVerses; i++) { vSel.innerHTML += `<option value="${i}">Verse ${i}</option>`; }
+                for(let i=1; i<=max; i++) { vSel.innerHTML += `<option value="${i}">Verse ${i}</option>`; }
                 vSel.value = this.verse;
-                this.fetchVerse();
+                this.fetch();
             },
-            async fetchVerse() {
-                document.getElementById('q-ara').textContent = "Reading...";
+            async fetch() {
+                document.getElementById('q-ara').textContent = "Loading...";
                 let apiV = (this.surah == 1) ? parseInt(this.verse) + 1 : this.verse;
                 const res = await fetch(`https://api.alquran.cloud/v1/ayah/${this.surah}:${apiV}/editions/quran-uthmani,en.sahih`);
                 const d = await res.json();
-                let txt = d.data[0].text;
+                
+                let text = d.data[0].text;
+                // Applying Vault Gatekeeper Logic
                 if(this.verse == 1 && this.surah != 1 && this.surah != 9) {
-                    txt = txt.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/, "").trim();
+                    text = text.replace(Vault.rules.bismillahRegex, "").trim();
                 }
-                document.getElementById('q-ara').textContent = txt;
+
+                document.getElementById('q-ara').textContent = text;
                 document.getElementById('q-tra').textContent = d.data[1].text;
                 this.audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${d.data[0].number}.mp3`;
                 if(this.playing) this.audio.play();
@@ -149,16 +172,21 @@
             },
             toggle() { this.playing = !this.playing; this.playing ? this.audio.play() : this.audio.pause(); document.getElementById('q-play-btn').textContent = this.playing ? '⏸' : '▶'; },
             next() { 
-                let max = (this.surah == 1) ? 6 : this.surahData[this.surah-1].numberOfAyahs;
-                if(this.verse < max) this.verse++; else { this.surah++; this.verse=1; }
-                this.load();
+                let max = (this.surah == 1) ? Vault.rules.fatihaCap : this.surahData[this.surah-1].numberOfAyahs;
+                if(this.verse < max) this.verse++; else { this.surah = parseInt(this.surah)+1; this.verse=1; }
+                this.refresh();
             },
-            prev() { if(this.verse > 1) { this.verse--; this.load(); } },
-            changeSurah() { this.surah = document.getElementById('s-surah').value; this.verse = 1; this.load(); },
-            changeVerse() { this.verse = document.getElementById('s-verse').value; this.fetchVerse(); }
+            prev() { if(this.verse > 1) { this.verse--; this.refresh(); } },
+            changeSurah() { this.surah = document.getElementById('s-surah').value; this.verse = 1; this.refresh(); },
+            changeVerse() { this.verse = document.getElementById('s-verse').value; this.fetch(); }
         };
 
-        window.onload = () => { App.show('tasbih'); QPlayer.init(); Tasbih.update(); };
+        // Standard Launch Protocol
+        window.onload = () => { 
+            Vault.switch('tasbih'); 
+            ModuleRecite.init(); 
+            ModuleTasbih.save(); 
+        };
     </script>
 </body>
 </html>
