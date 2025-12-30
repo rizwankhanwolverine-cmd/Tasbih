@@ -59,19 +59,16 @@
                 <div id="q-ara" class="ara-txt">...</div>
                 <div id="q-tra" style="margin-top:25px; font-size:0.95rem; opacity:0.6; text-align:center; line-height:1.6; font-weight:300;"></div>
             </div>
-            
             <div class="hifz-container" onclick="QPlayer.toggleHifz()">
                 <div id="hifz-switch" class="hifz-toggle"></div>
                 <span class="hifz-label">HIFZ MODE (LOOP VERSE)</span>
             </div>
-
             <div style="display:flex; gap:40px; margin-top:25px; align-items:center;">
                 <div class="p-btn" onclick="QPlayer.prev()" style="font-size:1.5rem;">⏮</div>
-                <div class="p-btn" id="q-play" onclick="QPlayer.togglePlay()" style="font-size:1.8rem; background:var(--gold); color:var(--vanta); width:65px; height:65px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 20px rgba(0,0,0,0.3);">▶</div>
+                <div class="p-btn" id="q-play" onclick="QPlayer.togglePlay()" style="font-size:1.8rem; background:var(--gold); color:var(--vanta); width:65px; height:65px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div>
                 <div class="p-btn" onclick="QPlayer.next()" style="font-size:1.5rem;">⏭</div>
             </div>
         </div>
-
         <div id="v-tasbih" class="view"><h1 class="header">Tasbih</h1></div>
         <div id="v-salah" class="view"><h1 class="header">Salah</h1></div>
         <div id="v-journey" class="view"><h1 class="header">Journey</h1></div>
@@ -108,17 +105,14 @@
                 this.updateVerseCount();
                 this.loadVerse();
                 
-                this.audio.onended = () => {
-                    if(this.isHifz) {
-                        this.audio.play(); // Infinite loop for Hifz
-                    } else {
-                        this.next();
-                    }
-                };
+                this.audio.onended = () => { if(this.isHifz) { this.audio.play(); } else { this.next(); } };
             },
 
             updateVerseCount() {
-                const count = this.data[this.surah - 1].numberOfAyahs;
+                let count = this.data[this.surah - 1].numberOfAyahs;
+                // BOARD RULE: If Fatiha (Surah 1), cap at 6 because Bismillah is verse 1 and we exclude it
+                if(this.surah == 1) count = 6;
+                
                 const vSel = document.getElementById('s-verse');
                 vSel.innerHTML = '';
                 for(let i=1; i<=count; i++) {
@@ -127,9 +121,19 @@
             },
 
             async loadVerse() {
-                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${this.surah}:${this.verse}/editions/quran-uthmani,en.sahih`);
+                // Correct for API offset: if Surah 1, we pull i+1
+                let apiVerse = (this.surah == 1) ? parseInt(this.verse) + 1 : this.verse;
+                
+                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${this.surah}:${apiVerse}/editions/quran-uthmani,en.sahih`);
                 const d = await res.json();
-                document.getElementById('q-ara').textContent = d.data[0].text;
+                
+                let arabicText = d.data[0].text;
+                // Clean Bismillah if it's start of other Surahs
+                if(this.verse == 1 && this.surah != 1 && this.surah != 9) {
+                    arabicText = arabicText.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s?/, "");
+                }
+
+                document.getElementById('q-ara').textContent = arabicText;
                 document.getElementById('q-tra').textContent = d.data[1].text;
                 document.getElementById('s-verse').value = this.verse;
                 
@@ -161,15 +165,21 @@
             },
 
             next() {
-                const total = this.data[this.surah - 1].numberOfAyahs;
-                if(this.verse < total) { this.verse++; } 
+                let max = this.data[this.surah - 1].numberOfAyahs;
+                if(this.surah == 1) max = 6;
+
+                if(this.verse < max) { this.verse++; } 
                 else { this.surah = this.surah < 114 ? parseInt(this.surah)+1 : 1; this.verse = 1; this.updateVerseCount(); }
                 this.loadVerse();
             },
 
             prev() {
                 if(this.verse > 1) { this.verse--; } 
-                else { this.surah = this.surah > 1 ? parseInt(this.surah)-1 : 114; this.updateVerseCount(); this.verse = this.data[this.surah-1].numberOfAyahs; }
+                else { 
+                    this.surah = this.surah > 1 ? parseInt(this.surah)-1 : 114; 
+                    this.updateVerseCount(); 
+                    this.verse = (this.surah == 1) ? 6 : this.data[this.surah-1].numberOfAyahs;
+                }
                 this.loadVerse();
             }
         };
