@@ -19,7 +19,7 @@
         .label-text { font-size: 0.75rem; font-weight: 800; opacity: 0.9; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
         
         /* RECITATION */
-        .q-card { width: 100%; max-width: 420px; background: var(--glass); border: 1px solid rgba(194, 178, 128, 0.2); border-radius: 35px; padding: 35px; text-align: center; min-height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .q-card { width: 100%; max-width: 420px; background: var(--glass); border: 1px solid rgba(194, 178, 128, 0.2); border-radius: 35px; padding: 35px; text-align: center; min-height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .q-ara { font-family: serif; font-size: 2.4rem; color: var(--white); direction: rtl; line-height: 1.9; font-weight: 500; }
         .q-tra { font-size: 1.2rem; line-height: 1.6; opacity: 1; color: var(--gold); margin-top: 25px; font-weight: 400; }
 
@@ -28,20 +28,9 @@
         #t-num { font-size: 7rem; color: var(--white); font-weight: 200; z-index: 10; }
         .ring-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
 
-        /* SALAH LOG UI (RESTORED) */
+        /* SALAH LOG UI */
         .salah-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 350px; }
-        .orb { 
-            height: 75px; 
-            border-radius: 20px; 
-            background: rgba(255,255,255,0.03); 
-            border: 1px solid var(--glass); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 25px; 
-            cursor: pointer; 
-            transition: 0.3s;
-        }
+        .orb { height: 75px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; cursor: pointer; transition: 0.3s; }
         .orb span { font-size: 1rem; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
         .orb.lit { border-color: var(--gold); background: var(--glass); }
         .orb.lit span { color: var(--white); }
@@ -170,6 +159,7 @@
                 const lang = document.getElementById('s-lang').value;
                 const bisBox = document.getElementById('bis-prefix');
                 
+                // Show Prefix Box for Verse 1 (Except Surah 9 - At-Tawbah)
                 if (this.ayah == 1 && this.surah != 9) {
                     bisBox.style.display = 'block';
                     document.getElementById('bis-tra').textContent = (lang !== 'none') ? this.bisMap[lang] : "";
@@ -182,7 +172,7 @@
                 let ar = data.data[0].text;
                 let tr = lang === 'none' ? "" : data.data[1].text;
 
-                // FIX: SURAH FATIHA VERSE OVERLAP
+                // 1. SPECIFIC FATIHA OVERRIDE (To prevent overlap/repeats)
                 if (this.surah == 1) {
                     if (this.ayah == 1) {
                         ar = "ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ";
@@ -192,8 +182,14 @@
                         ar = "ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
                         if (lang == 'en.sahih') tr = "The Entirely Merciful, the Especially Merciful,";
                         if (lang == 'ur.jalandhry') tr = "جو بڑا مہربان نہایت رحم والا ہے";
+                    } else if (this.ayah == 3) {
+                        ar = "مَٰلِكِ يَوْمِ ٱلدِّينِ";
+                        if (lang == 'en.sahih') tr = "Sovereign of the Day of Recompense.";
+                        if (lang == 'ur.jalandhry') tr = "انصاف کے دن کا حاکم";
                     }
-                } else if (this.ayah == 1 && ar.includes(this.bis)) {
+                } 
+                // 2. GLOBAL BISMILLAH STRIP (Excluding Surah 9)
+                else if (this.ayah == 1 && this.surah != 9 && ar.includes(this.bis)) {
                     ar = ar.replace(this.bis, "").trim();
                 }
 
@@ -211,7 +207,7 @@
 
         const Salah = {
             offset: 0,
-            db: JSON.parse(localStorage.getItem('s_db_v39')) || {},
+            db: JSON.parse(localStorage.getItem('s_db_v40')) || {},
             move(dir) { let n = this.offset + dir; if(n <= 0 && n >= -7) { this.offset = n; this.render(); } },
             render() {
                 const date = new Date(); date.setDate(date.getDate() + this.offset);
@@ -228,7 +224,7 @@
                     orb.onclick = () => {
                         if(!this.db[ds]) this.db[ds] = {};
                         this.db[ds][p] = !this.db[ds][p];
-                        localStorage.setItem('s_db_v39', JSON.stringify(this.db));
+                        localStorage.setItem('s_db_v40', JSON.stringify(this.db));
                         if(this.offset === 0 && Object.values(this.db[ds]).filter(v=>v).length === 5) Core.celebrate();
                         this.render();
                     };
