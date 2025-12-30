@@ -25,32 +25,34 @@
     <div id="status-hint">TAP SCREEN OR PRESS SPACEBAR</div>
 
     <script>
-        // Use a standard WAV sound for immediate laptop response
         const localSfx = new Audio("https://cdn.freesound.org/previews/256/256113_3263901-lq.wav");
         
-        // Persistent Data Loading
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
 
         function handleTap() {
-            // 1. Play Sound (Local & Parent Bridge)
-            localSfx.currentTime = 0;
-            localSfx.play().catch(() => {}); 
+            // 1. Play local tap sound
+            if(localSfx) {
+                localSfx.currentTime = 0;
+                localSfx.play().catch(() => {});
+            }
+
+            // 2. Send message to parent shell to play master SFX
             window.parent.postMessage('play_beed', '*');
-            
-            // 2. Increment Logic
-            count++; 
+
+            // 3. Increment logic
+            count++;
             today++;
-            
-            // 3. Celebration Logic (Every 10 counts)
+
+            // 4. Celebration every 10 taps
             if(count >= 10) {
                 window.parent.postMessage('celebrate', '*');
                 count = 0;
             }
+
             save();
         }
 
-        // Laptop Keyboard Support
         window.addEventListener('keydown', (e) => {
             if (e.code === "Space" || e.code === "Enter") {
                 e.preventDefault();
@@ -66,16 +68,13 @@
         function save() {
             document.getElementById('t-num').textContent = count;
             document.getElementById('t-today').textContent = today;
-            // Update the gold ring (722 is the circumference)
             const offset = 722 - (count / 10 * 722);
             document.getElementById('ring').style.strokeDashoffset = offset;
-            
-            // Persistent Storage
+
             localStorage.setItem('t_cur', count);
             localStorage.setItem('t_today', today);
         }
 
-        // Initial render on load
         save();
     </script>
 </body>
