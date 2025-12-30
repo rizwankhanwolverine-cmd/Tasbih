@@ -10,16 +10,14 @@
         body { background: var(--vanta); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-family: sans-serif; }
         #module-container { flex: 1; border: none; width: 100%; height: 100%; }
         .nav { height: 80px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); transition: 0.3s; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); }
         .nav-btn.active { opacity: 1; }
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
-<body onclick="wakeAudio()">
+<body onclick="unlockAllAudio()">
 
-    <audio id="global-sfx" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="master-sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
     <iframe id="module-container" src=""></iframe>
 
@@ -31,49 +29,47 @@
     </nav>
 
     <script>
-        const sfx = document.getElementById('global-sfx');
-        let isUnlocked = false;
+        const masterAudio = document.getElementById('master-sfx');
+        let unlocked = false;
 
-        // Forced Audio Wake-up
-        function wakeAudio() {
-            if (!isUnlocked) {
-                sfx.play().then(() => {
-                    sfx.pause();
-                    sfx.currentTime = 0;
-                    isUnlocked = true;
-                    console.log("Audio Engine Authorized");
-                }).catch(err => console.log("Waiting for user gesture..."));
+        // This is the "Magic" function from our earlier version
+        // It must be triggered by a real click on the main screen
+        function unlockAllAudio() {
+            if (!unlocked) {
+                masterAudio.play().then(() => {
+                    masterAudio.pause();
+                    masterAudio.currentTime = 0;
+                    unlocked = true;
+                    console.log("Shell Audio Unlocked");
+                }).catch(e => console.log("Waiting for click..."));
             }
         }
 
-        function loadModule(name, btnEl) {
-            wakeAudio(); // Try to unlock on every nav click
-            localStorage.setItem('active_tab', name);
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            if(btnEl) btnEl.classList.add('active'); 
-            else document.getElementById('btn-'+name).classList.add('active');
-            document.getElementById('module-container').src = name + ".html";
-        }
-
-        // Handle Tap Message from Tasbih Module
-        window.addEventListener('message', (e) => {
-            if (e.data === 'playTap') {
-                if (isUnlocked) {
-                    sfx.currentTime = 0;
-                    sfx.play();
-                } else {
-                    // Fallback try
-                    sfx.play();
+        // LISTEN FOR THE "PING" FROM THE BEEDS PAGE
+        window.addEventListener('message', (event) => {
+            if (event.data === 'triggerBeedSound') {
+                if (unlocked) {
+                    masterAudio.currentTime = 0;
+                    masterAudio.play();
                 }
             }
-            if (e.data === 'celebrate') {
+            if (event.data === 'celebrate') {
                 confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280'] });
             }
         });
 
+        function loadModule(name, btnEl) {
+            unlockAllAudio(); // Unlock whenever a tab is switched
+            localStorage.setItem('active_tab', name);
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            if(btnEl) btnEl.classList.add('active'); 
+            else document.getElementById('btn-' + name).classList.add('active');
+            document.getElementById('module-container').src = name + ".html";
+        }
+
         window.onload = () => {
-            const lastTab = localStorage.getItem('active_tab') || 'tasbih';
-            loadModule(lastTab);
+            const saved = localStorage.getItem('active_tab') || 'tasbih';
+            loadModule(saved);
         };
     </script>
 </body>
