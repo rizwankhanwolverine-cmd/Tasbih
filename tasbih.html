@@ -3,13 +3,23 @@
 <head>
     <style>
         body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; -webkit-user-select: none; user-select: none; }
-        .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; }
+        .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         #t-num { font-size: 7rem; color: white; font-weight: 200; pointer-events: none; }
         circle { transition: 0.1s; stroke-linecap: round; }
         .sub-text { font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px; }
+        
+        /* The Unlock Button - Crucial for Laptops & iOS */
+        #sound-status { 
+            margin-bottom: 20px; padding: 8px 15px; border-radius: 20px; 
+            font-size: 0.6rem; border: 1px solid #C2B280; cursor: pointer;
+            transition: 0.3s; background: rgba(194,178,128,0.1);
+        }
+        #sound-status.active { border-color: #4CAF50; color: #4CAF50; background: none; }
     </style>
 </head>
 <body onclick="triggerBeed()">
+    <div id="sound-status" onclick="initAudio(event)">TAP TO ENABLE SOUND 🔊</div>
+
     <div class="sub-text">DAILY BEEDS: <span id="t-today" style="color:white">0</span></div>
     
     <div class="tasbih-display">
@@ -20,15 +30,39 @@
         <div id="t-num">0</div>
     </div>
     
-    <button onclick="event.stopPropagation(); doReset();" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.2); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer; text-transform:uppercase; letter-spacing:1px;">Reset Cycle</button>
+    <button onclick="event.stopPropagation(); doReset();" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.2); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer;">RESET CYCLE</button>
 
     <script>
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
+        
+        // 1. Create a local audio object inside the iframe
+        const tapSfx = new Audio("https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3");
+        let audioUnlocked = false;
+
+        // 2. This function MUST be called by a direct click inside THIS window
+        function initAudio(e) {
+            if(e) e.stopPropagation();
+            tapSfx.play().then(() => {
+                tapSfx.pause();
+                tapSfx.currentTime = 0;
+                audioUnlocked = true;
+                const btn = document.getElementById('sound-status');
+                btn.textContent = "SOUND ENABLED ✓";
+                btn.classList.add('active');
+                setTimeout(() => { btn.style.opacity = '0'; }, 2000);
+            }).catch(err => {
+                console.error("Audio unlock failed:", err);
+            });
+        }
 
         function triggerBeed() {
-            // Send signal to Parent Shell (index.html)
-            window.parent.postMessage('play_beed', '*');
+            if (!audioUnlocked) {
+                initAudio(); // Attempt auto-unlock on first tap
+            } else {
+                tapSfx.currentTime = 0;
+                tapSfx.play().catch(e => console.log("Play failed"));
+            }
             
             count++; today++;
             if(count >= 10) {
@@ -38,7 +72,7 @@
             save();
         }
 
-        // LAPTOP SUPPORT: Press Space or Enter to count
+        // Spacebar support
         window.addEventListener('keydown', (e) => {
             if (e.code === "Space" || e.code === "Enter") {
                 e.preventDefault();
@@ -47,7 +81,6 @@
         });
 
         function doReset() { count = 0; save(); }
-        
         function save() {
             document.getElementById('t-num').textContent = count;
             document.getElementById('t-today').textContent = today;
