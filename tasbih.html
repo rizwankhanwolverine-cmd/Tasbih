@@ -2,14 +2,14 @@
 <html>
 <head>
     <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
         .tasbih-display { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         #t-num { font-size: 6rem; color: white; font-weight: 200; }
-        circle { transition: 0.3s; stroke-linecap: round; }
-        .btn-reset { margin-top: 40px; background: none; border: 1px solid rgba(194,178,128,0.3); color: #C2B280; padding: 12px 25px; border-radius: 12px; font-size: 0.7rem; letter-spacing: 1px; cursor: pointer; }
+        circle { transition: 0.2s; stroke-linecap: round; }
+        .btn-reset { margin-top: 30px; background: none; border: 1px solid rgba(194,178,128,0.2); color: #C2B280; padding: 10px 20px; border-radius: 10px; font-size: 0.6rem; cursor: pointer; }
     </style>
 </head>
-<body onclick="hit()">
+<body onclick="handleTap()">
     <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px;">DAILY TOTAL: <span id="t-today" style="color:white">0</span></div>
     
     <div class="tasbih-display">
@@ -20,37 +20,37 @@
         <div id="t-num">0</div>
     </div>
 
-    <button class="btn-reset" onclick="resetCount(event)">RESET CYCLE</button>
+    <button class="btn-reset" onclick="doReset(event)">RESET CYCLE</button>
 
     <script>
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
 
-        function hit() {
-            count++; today++;
-            window.parent.postMessage('playTap', '*'); // Call sound from shell
+        function handleTap() {
+            // Signal sound to Shell
+            window.parent.postMessage('playTap', '*');
             
-            if(count >= 33) { // Adjusted to 33 as a standard cycle, change to 10 if you prefer
-                window.parent.postMessage('celebrate', '*'); // Call confetti from shell
+            count++; today++;
+            if(count >= 10) {
+                window.parent.postMessage('celebrate', '*');
                 count = 0;
             }
-            update();
+            save();
         }
 
-        function resetCount(e) {
-            e.stopPropagation(); // Stop the 'hit' from firing
-            count = 0;
-            update();
+        function doReset(e) {
+            e.stopPropagation();
+            count = 0; save();
         }
 
-        function update() {
+        function save() {
             document.getElementById('t-num').textContent = count;
             document.getElementById('t-today').textContent = today;
-            document.getElementById('ring').style.strokeDashoffset = 722 - (count / 33 * 722);
+            document.getElementById('ring').style.strokeDashoffset = 722 - (count / 10 * 722);
             localStorage.setItem('t_cur', count);
             localStorage.setItem('t_today', today);
         }
-        update();
+        save();
     </script>
 </body>
 </html>
