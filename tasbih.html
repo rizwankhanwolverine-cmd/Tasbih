@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .tasbih-circle { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        #t-num { font-size: 6rem; color: white; font-weight: 200; }
+        circle { transition: 0.2s; stroke-linecap: round; }
+    </style>
+</head>
+<body onclick="hit()">
+    <audio id="sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    
+    <div class="tasbih-circle">
+        <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 260 260">
+            <circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="6" cx="130" cy="130" r="115"></circle>
+            <circle id="ring" fill="none" stroke="#C2B280" stroke-width="6" stroke-dasharray="722" stroke-dashoffset="722" cx="130" cy="130" r="115"></circle>
+        </svg>
+        <div id="t-num">0</div>
+    </div>
+
+    <script>
+        let count = parseInt(localStorage.getItem('t_cur')) || 0;
+        function hit() {
+            count++;
+            const sfx = document.getElementById('sfx');
+            sfx.currentTime = 0; sfx.play();
+            if(count >= 10) count = 0;
+            update();
+        }
+        function update() {
+            document.getElementById('t-num').textContent = count;
+            document.getElementById('ring').style.strokeDashoffset = 722 - (count / 10 * 722);
+            localStorage.setItem('t_cur', count);
+        }
+        update();
+    </script>
+</body>
+</html>

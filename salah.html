@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; }
+        body { background: var(--vanta); color: var(--gold); font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        
+        .salah-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .salah-card { background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.2); border-radius: 15px; padding: 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .salah-card.active { border-color: var(--gold); background: rgba(194, 178, 128, 0.15); box-shadow: 0 0 15px rgba(194, 178, 128, 0.1); }
+        
+        .name { font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; }
+        .time { color: var(--white); font-weight: 300; opacity: 0.8; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #222; }
+        .active .status-dot { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+    </style>
+</head>
+<body>
+    <h1 style="letter-spacing: 5px; font-weight: 700; text-transform: uppercase; font-size: 1rem; opacity: 0.8;">Salah Times</h1>
+    
+    <div class="salah-container" id="salah-list">
+        </div>
+
+    <script>
+        const prayers = [
+            { name: "Fajr", time: "05:42" },
+            { name: "Dhuhr", time: "12:30" },
+            { name: "Asr", time: "15:15" },
+            { name: "Maghrib", time: "17:50" },
+            { name: "Isha", time: "19:10" }
+        ];
+
+        function initSalah() {
+            const list = document.getElementById('salah-list');
+            list.innerHTML = prayers.map(p => `
+                <div class="salah-card">
+                    <div>
+                        <div class="name">${p.name}</div>
+                        <div class="time">${p.time}</div>
+                    </div>
+                    <div class="status-dot"></div>
+                </div>
+            `).join('');
+            
+            // Highlight the "Next" prayer logic could go here
+            list.children[0].classList.add('active'); 
+        }
+
+        initSalah();
+    </script>
+</body>
+</html>

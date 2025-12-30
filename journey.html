@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .dua-card { width: 100%; max-width: 400px; background: rgba(194,178,128,0.05); border: 1px solid rgba(194,178,128,0.2); border-radius: 20px; padding: 25px; margin-top: 20px; }
+        .day-badge { font-size: 0.7rem; font-weight: 800; letter-spacing: 2px; color: #C2B280; margin-bottom: 10px; opacity: 0.6; }
+        .dua-text { color: white; font-size: 1.1rem; line-height: 1.6; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h2 style="letter-spacing:4px; text-transform:uppercase; font-size:1rem;">Daily Scholar's Dua</h2>
+    <div id="dua-container"></div>
+
+    <script>
+        const DUAS = [
+            "O Allah, I seek refuge in You from knowledge that does not benefit.",
+            "O Allah, increase me in knowledge and join me with the righteous.",
+            "O Allah, make the Quran the spring of my heart and the light of my chest."
+            // We will add all 15 days here
+        ];
+
+        function loadToday() {
+            // Logic to cycle every 15 days based on date
+            const dayIndex = new Date().getDate() % 15; 
+            const container = document.getElementById('dua-container');
+            container.innerHTML = `
+                <div class="dua-card">
+                    <div class="day-badge">DAY ${dayIndex + 1} OF 15</div>
+                    <div class="dua-text">"${DUAS[dayIndex % DUAS.length]}"</div>
+                </div>
+            `;
+        }
+        loadToday();
+    </script>
+</body>
+</html>

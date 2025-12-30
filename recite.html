@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+    <style>
+        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        select { background: #121216; color: white; border: 1px solid rgba(194,178,128,0.25); padding: 12px; border-radius: 12px; width: 100%; max-width: 400px; margin-bottom: 10px; }
+        .q-card { width: 100%; max-width: 400px; background: rgba(194,178,128,0.1); border: 1px solid rgba(194,178,128,0.25); border-radius: 25px; padding: 30px; min-height: 300px; display: flex; flex-direction: column; justify-content: center; margin-top: 15px; }
+        .ara { font-family: 'Amiri', serif; font-size: 1.8rem; color: white; direction: rtl; line-height: 2; text-align: center; }
+        .btn-row { display: flex; gap: 30px; margin-top: 20px; align-items: center; }
+        button { background: none; border: none; color: #C2B280; font-size: 1.5rem; cursor: pointer; }
+        #play-btn { background: #C2B280; color: #050508; width: 55px; height: 55px; border-radius: 50%; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <select id="s-surah" onchange="changeSurah()"></select>
+    <select id="s-verse" onchange="changeVerse()"></select>
+    
+    <div class="q-card">
+        <div id="q-ara" class="ara">Connecting...</div>
+        <div id="q-tra" style="margin-top:20px; font-size:0.9rem; opacity:0.6; text-align:center;"></div>
+    </div>
+
+    <div class="btn-row">
+        <button onclick="prev()">⏮</button>
+        <button id="play-btn" onclick="toggle()">▶</button>
+        <button onclick="next()">⏭</button>
+    </div>
+
+    <script>
+        const RULES = { fatihaCap: 6, bismillah: /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/ };
+        let surah = 1, verse = 1, playing = false, audio = new Audio(), data = [];
+
+        async function init() {
+            const res = await fetch('https://api.alquran.cloud/v1/surah');
+            const d = await res.json(); data = d.data;
+            const sSel = document.getElementById('s-surah');
+            data.forEach(s => { sSel.innerHTML += `<option value="${s.number}">${s.number}. ${s.englishName}</option>`; });
+            refresh();
+        }
+
+        function refresh() {
+            let max = (surah == 1) ? RULES.fatihaCap : data[surah-1].numberOfAyahs;
+            const vSel = document.getElementById('s-verse'); vSel.innerHTML = '';
+            for(let i=1; i<=max; i++) { vSel.innerHTML += `<option value="${i}">Verse ${i}</option>`; }
+            vSel.value = verse; fetchVerse();
+        }
+
+        async function fetchVerse() {
+            document.getElementById('q-ara').textContent = "Reading...";
+            let apiV = (surah == 1) ? parseInt(verse) + 1 : verse;
+            const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${apiV}/editions/quran-uthmani,en.sahih`);
+            const d = await res.json();
+            let text = d.data[0].text;
+            if(verse == 1 && surah != 1 && surah != 9) text = text.replace(RULES.bismillah, "").trim();
+            document.getElementById('q-ara').textContent = text;
+            document.getElementById('q-tra').textContent = d.data[1].text;
+            audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${d.data[0].number}.mp3`;
+            if(playing) audio.play();
+            audio.onended = () => next();
+        }
+
+        function toggle() { playing = !playing; playing ? audio.play() : audio.pause(); document.getElementById('play-btn').textContent = playing ? '⏸' : '▶'; }
+        function next() { 
+            let max = (surah == 1) ? RULES.fatihaCap : data[surah-1].numberOfAyahs;
+            if(verse < max) verse++; else { surah = parseInt(surah)+1; verse=1; }
+            refresh();
+        }
+        function prev() { if(verse > 1) { verse--; refresh(); } }
+        function changeSurah() { surah = document.getElementById('s-surah').value; verse = 1; refresh(); }
+        function changeVerse() { verse = document.getElementById('s-verse').value; fetchVerse(); }
+        init();
+    </script>
+</body>
+</html>
