@@ -1,168 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
     <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
-        .controls { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        :root { --gold: #C2B280; --bg: #050508; --card: rgba(194, 178, 128, 0.05); }
         
-        .filter-group { display: flex; flex-direction: column; gap: 5px; }
-        .filter-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.6; font-weight: 700; margin-left: 2px; }
-        
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        select, input { background: #121216; color: white; border: 1px solid rgba(194,178,128,0.2); padding: 12px; border-radius: 10px; font-size: 0.85rem; width: 100%; box-sizing: border-box; }
-        
-        .hifz-settings { display: none; background: rgba(194,178,128,0.05); padding: 15px; border-radius: 15px; margin-top: 5px; border: 1px dashed rgba(194,178,128,0.3); }
-        .hifz-active .hifz-settings { display: block; }
+        body { 
+            background: var(--bg); color: white; font-family: 'serif', 'Georgia', serif; 
+            margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh; overflow-x: hidden;
+        }
 
-        .q-card { width: 100%; max-width: 400px; background: rgba(194,178,128,0.05); border: 1px solid rgba(194,178,128,0.15); border-radius: 25px; padding: 30px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; position: relative; cursor: pointer; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .ara { font-family: 'Amiri', serif; font-size: 1.8rem; color: white; direction: rtl; line-height: 2.2; transition: 0.4s ease; }
-        
-        /* Hifz Obscure Logic */
-        .hifz-active .ara { background: #C2B280; color: #C2B280; border-radius: 8px; filter: blur(2px); }
-        .hifz-active .ara.revealed { background: transparent; color: white; filter: blur(0); }
-        
-        .tra { margin-top: 20px; font-size: 0.9rem; opacity: 0.7; color: #CCC; line-height: 1.5; }
-        .hifz-btn { background: none; border: 1px solid #C2B280; color: #C2B280; border-radius: 10px; font-size: 0.7rem; font-weight: 800; cursor: pointer; padding: 10px; height: 100%; }
-        .apply-btn { background: #C2B280; color: #050508; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Header Styling */
+        .recite-header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        .surah-title { font-size: 1.8rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin: 0; }
+        .surah-subtitle { font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px; }
+
+        /* Hifz Mode Toggle */
+        .mode-selector {
+            display: flex; background: var(--card); border-radius: 25px; 
+            padding: 5px; margin-bottom: 30px; border: 1px solid rgba(194,178,128,0.1);
+        }
+        .mode-btn {
+            padding: 8px 20px; border-radius: 20px; font-size: 0.7rem; 
+            cursor: pointer; border: none; background: none; color: white; 
+            opacity: 0.4; transition: 0.3s; font-weight: bold;
+        }
+        .mode-btn.active { background: var(--gold); color: var(--bg); opacity: 1; }
+
+        /* Reading Container */
+        .verse-container {
+            width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .verse-card {
+            background: var(--card); border: 1px solid rgba(194, 178, 128, 0.1);
+            border-radius: 20px; padding: 25px; transition: 0.5s;
+            position: relative; overflow: hidden;
+        }
+
+        /* The Glow effect for the active verse */
+        .verse-card.active {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(194, 178, 128, 0.15);
+            transform: scale(1.02);
+        }
+
+        .arabic-text {
+            font-size: 1.8rem; text-align: right; line-height: 2.2;
+            margin-bottom: 15px; font-family: 'me_quran', serif;
+        }
+
+        .translation {
+            font-size: 0.9rem; line-height: 1.6; opacity: 0.7; font-style: italic;
+        }
+
+        /* Hifz Mode Styling */
+        .hifz-active .verse-card:not(.active) { opacity: 0.1; filter: blur(2px); transform: scale(0.95); }
+
+        /* Floating Audio Bar */
+        .audio-bar {
+            position: fixed; bottom: 30px; background: rgba(8, 8, 10, 0.95);
+            backdrop-filter: blur(10px); border: 1px solid var(--gold);
+            padding: 15px 30px; border-radius: 50px; display: flex; 
+            align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .play-btn {
+            background: var(--gold); border: none; width: 40px; height: 40px;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
     </style>
 </head>
-<body id="main-body">
+<body>
 
-    <div class="controls">
-        <div class="row">
-            <div class="filter-group">
-                <span class="filter-label">Select Surah</span>
-                <select id="s-surah" onchange="changeSurah()"></select>
-            </div>
-            <div class="filter-group">
-                <span class="filter-label">Study Mode</span>
-                <button id="hifz-toggle" class="hifz-btn" onclick="toggleHifz()">HIFZ: OFF</button>
-            </div>
-        </div>
+    <div class="recite-header">
+        <h1 class="surah-title">Al-Fatihah</h1>
+        <div class="surah-subtitle">THE OPENING • 7 VERSES</div>
+    </div>
 
-        <div class="hifz-settings">
-            <div class="row">
-                <div class="filter-group">
-                    <span class="filter-label">From Verse</span>
-                    <input type="number" id="hifz-from" value="1" min="1">
-                </div>
-                <div class="filter-group">
-                    <span class="filter-label">To Verse</span>
-                    <input type="number" id="hifz-to" value="6" min="1">
-                </div>
-            </div>
-            <button class="apply-btn" onclick="applyHifzRange()">Apply Loop Range</button>
+    <div class="mode-selector">
+        <button class="mode-btn active" onclick="setMode('read', this)">READING</button>
+        <button class="mode-btn" onclick="setMode('hifz', this)">HIFZ FOCUS</button>
+    </div>
+
+    <div class="verse-container" id="verses">
+        <div class="verse-card active" id="v1" onclick="focusVerse(1)">
+            <div class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <div class="translation">In the name of Allah, the Entirely Merciful, the Especially Merciful.</div>
         </div>
         
-        <div class="filter-group">
-            <span class="filter-label">Translation Language</span>
-            <select id="s-lang" onchange="fetchVerse()">
-                <option value="none">No Translation</option>
-                <option value="en.sahih">English (Sahih Intl)</option>
-                <option value="ur.ahmedali">Urdu (Ahmed Ali)</option>
-                <option value="fr.hamidullah">French (Hamidullah)</option>
-            </select>
+        <div class="verse-card" id="v2" onclick="focusVerse(2)">
+            <div class="arabic-text">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</div>
+            <div class="translation">All praise is [due] to Allah, Lord of the worlds.</div>
+        </div>
+
+        <div class="verse-card" id="v3" onclick="focusVerse(3)">
+            <div class="arabic-text">الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <div class="translation">The Entirely Merciful, the Especially Merciful.</div>
         </div>
     </div>
 
-    <div class="q-card" onclick="revealText()">
-        <div id="q-ara" class="ara">Connecting to Sanctuary...</div>
-        <div id="q-tra" class="tra"></div>
-    </div>
-
-    <div style="display:flex; gap:40px; margin-top:30px; align-items:center;">
-        <button onclick="prev()" style="background:none; border:none; color:#C2B280; font-size:1.8rem; cursor:pointer;">⏮</button>
-        <button id="p-btn" onclick="togglePlay()" style="background:#C2B280; color:#050508; width:60px; height:60px; border-radius:50%; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 15px rgba(194,178,128,0.3);">▶</button>
-        <button onclick="next()" style="background:none; border:none; color:#C2B280; font-size:1.8rem; cursor:pointer;">⏭</button>
+    <div class="audio-bar">
+        <button class="play-btn" onclick="togglePlay()">
+            <svg id="play-icon" width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div style="font-size: 0.7rem; letter-spacing: 1px; font-weight: bold;">MISHARY RASHID ALAFASY</div>
     </div>
 
     <script>
-        const RULES = { fatihaCap: 6, bismillah: /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/ };
-        let surah = 1, verse = 1, playing = false, hifzMode = false, audio = new Audio(), data = [];
-        let hifzFrom = 1, hifzTo = 1;
+        let isPlaying = false;
+        let currentVerse = 1;
 
-        async function init() {
-            try {
-                const res = await fetch('https://api.alquran.cloud/v1/surah');
-                const d = await res.json(); data = d.data;
-                const sSel = document.getElementById('s-surah');
-                data.forEach(s => { sSel.innerHTML += `<option value="${s.number}">${s.number}. ${s.englishName}</option>`; });
-                refresh();
-            } catch(e) { document.getElementById('q-ara').textContent = "Offline"; }
+        function setMode(mode, btn) {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if(mode === 'hifz') {
+                document.body.classList.add('hifz-active');
+            } else {
+                document.body.classList.remove('hifz-active');
+            }
         }
 
-        function toggleHifz() {
-            hifzMode = !hifzMode;
-            document.getElementById('main-body').classList.toggle('hifz-active', hifzMode);
-            document.getElementById('hifz-toggle').textContent = hifzMode ? "HIFZ: ON" : "HIFZ: OFF";
-            if(!hifzMode) document.getElementById('q-ara').classList.remove('revealed');
-        }
-
-        function applyHifzRange() {
-            hifzFrom = parseInt(document.getElementById('hifz-from').value);
-            hifzTo = parseInt(document.getElementById('hifz-to').value);
-            verse = hifzFrom;
-            fetchVerse();
-        }
-
-        function revealText() {
-            if(hifzMode) document.getElementById('q-ara').classList.toggle('revealed');
-        }
-
-        function refresh() { fetchVerse(); }
-
-        async function fetchVerse() {
-            document.getElementById('q-ara').classList.remove('revealed');
-            const lang = document.getElementById('s-lang').value;
-            let apiV = (surah == 1) ? parseInt(verse) + 1 : verse;
-            let url = `https://api.alquran.cloud/v1/ayah/${surah}:${apiV}/editions/quran-uthmani`;
-            if(lang !== "none") url += `,${lang}`;
+        function focusVerse(num) {
+            document.querySelectorAll('.verse-card').forEach(v => v.classList.remove('active'));
+            document.getElementById('v' + num).classList.add('active');
+            currentVerse = num;
             
-            const res = await fetch(url);
-            const d = await res.json();
-            let text = d.data[0].text;
-            if(verse == 1 && surah != 1 && surah != 9) text = text.replace(RULES.bismillah, "").trim();
-            
-            document.getElementById('q-ara').textContent = text;
-            document.getElementById('q-tra').textContent = (lang !== "none") ? d.data[1].text : "";
-            audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${d.data[0].number}.mp3`;
-            if(playing) audio.play();
-            
-            audio.onended = () => {
-                if(hifzMode && verse >= hifzTo) {
-                    verse = hifzFrom;
-                } else {
-                    let max = (surah == 1) ? RULES.fatihaCap : data[surah-1].numberOfAyahs;
-                    if(verse < max) verse++; else { surah++; verse=1; }
-                }
-                fetchVerse();
-            };
+            // Trigger the "Tap Sound" in the shell for tactile feedback
+            window.parent.postMessage('play_beed', '*');
         }
 
-        function togglePlay() { 
-            playing = !playing; 
-            playing ? audio.play() : audio.pause(); 
-            document.getElementById('p-btn').textContent = playing ? '⏸' : '▶'; 
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            const icon = document.getElementById('play-icon');
+            if(isPlaying) {
+                icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // Pause icon
+                // Logic for real audio streaming would go here
+            } else {
+                icon.innerHTML = '<path d="M8 5v14l11-7z"/>'; // Play icon
+            }
         }
-
-        function next() { 
-            let max = (surah == 1) ? RULES.fatihaCap : data[surah-1].numberOfAyahs;
-            if(verse < max) verse++; else { surah++; verse=1; }
-            fetchVerse();
-        }
-
-        function prev() { if(verse > 1) { verse--; fetchVerse(); } }
-
-        function changeSurah() { 
-            surah = document.getElementById('s-surah').value; 
-            verse = 1; 
-            document.getElementById('hifz-from').value = 1;
-            document.getElementById('hifz-to').value = (surah == 1) ? 6 : data[surah-1].numberOfAyahs;
-            refresh(); 
-        }
-
-        init();
     </script>
 </body>
 </html>
