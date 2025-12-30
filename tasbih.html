@@ -6,9 +6,29 @@
         .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         #t-num { font-size: 7rem; color: white; font-weight: 200; }
         circle { transition: 0.15s; stroke-linecap: round; }
+        
+        /* The Unlock Overlay */
+        #audio-unlocker { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(5,5,8,0.95); z-index: 999; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            cursor: pointer;
+        }
+        .unlock-icon { font-size: 3rem; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body onclick="beedHit()">
+
+    <audio id="beed-sfx" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="audio-unlocker" onclick="initAudio(event)">
+        <div class="unlock-icon">🔔</div>
+        <div style="letter-spacing:3px; font-weight:bold; font-size:0.8rem;">TAP TO ACTIVATE SOUND</div>
+    </div>
+
     <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px;">DAILY BEEDS: <span id="t-today" style="color:white">0</span></div>
     
     <div class="tasbih-display">
@@ -24,10 +44,27 @@
     <script>
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
+        const sfx = document.getElementById('beed-sfx');
+        let isUnlocked = false;
+
+        // CRITICAL: This function runs on the first click and "blesses" the audio
+        function initAudio(e) {
+            e.stopPropagation();
+            sfx.play().then(() => {
+                sfx.pause();
+                sfx.currentTime = 0;
+                isUnlocked = true;
+                document.getElementById('audio-unlocker').style.display = 'none';
+            }).catch(err => {
+                console.log("Audio still locked by browser");
+            });
+        }
 
         function beedHit() {
-            // THE HANDSHAKE: Send message to index.html to play the sound
-            window.parent.postMessage('triggerBeedSound', '*');
+            if (isUnlocked) {
+                sfx.currentTime = 0;
+                sfx.play();
+            }
             
             count++; today++;
             if(count >= 10) {
