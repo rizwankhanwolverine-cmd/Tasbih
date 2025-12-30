@@ -7,28 +7,18 @@
     <style>
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --glass: rgba(194, 178, 128, 0.15); }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
-        
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
         .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; overflow-y: auto; padding-bottom: 140px; }
         .view.active { display: flex; }
-        
-        /* TYPOGRAPHY STANDARDS */
         .header { letter-spacing: 12px; font-weight: 700; text-transform: uppercase; margin: 25px 0; font-size: 1.5rem; color: var(--gold); border-bottom: 2px solid var(--glass); padding-bottom: 15px; width: 85%; text-align: center; }
         .label-text { font-size: 0.75rem; font-weight: 800; opacity: 0.9; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
-        
-        /* RECITATION */
         .q-card { width: 100%; max-width: 420px; background: var(--glass); border: 1px solid rgba(194, 178, 128, 0.2); border-radius: 35px; padding: 35px; text-align: center; min-height: 380px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .q-ara { font-family: serif; font-size: 2.4rem; color: var(--white); direction: rtl; line-height: 1.9; font-weight: 500; }
-        .q-tra { font-size: 1.2rem; line-height: 1.6; opacity: 1; color: var(--gold); margin-top: 25px; font-weight: 400; }
-
-        /* TASBIH */
+        .q-ara { font-family: serif; font-size: 2.2rem; color: var(--white); direction: rtl; line-height: 2.1; font-weight: 500; }
+        .q-tra { font-size: 1.1rem; line-height: 1.6; opacity: 1; color: var(--gold); margin-top: 25px; font-weight: 400; }
         .tasbih-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin: 10px auto; cursor: pointer; }
         #t-num { font-size: 7rem; color: var(--white); font-weight: 200; z-index: 10; }
         .ring-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
-
-        /* SALAH LOG */
         .salah-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; max-width: 350px; }
         .orb { height: 75px; border-radius: 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; cursor: pointer; transition: 0.3s; }
         .orb span { font-size: 1rem; font-weight: 800; letter-spacing: 2px; color: var(--gold); }
@@ -36,23 +26,16 @@
         .orb.lit span { color: var(--white); }
         .orb .status-dot { width: 12px; height: 12px; border-radius: 50%; background: #222; border: 1px solid var(--glass); }
         .orb.lit .status-dot { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
-
-        /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #08080a; border-top: 1px solid var(--glass); display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; transition: 0.3s; }
         .nav-btn.active { opacity: 1; border-top: 4px solid var(--gold); margin-top: -4px; }
         .nav-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px; }
-
         select { background: #1a1a1e; color: var(--white); border: 2px solid var(--glass); padding: 12px; border-radius: 15px; font-size: 0.95rem; font-weight: 700; }
-        .particle { position: absolute; pointer-events: none; animation: pop 1.2s forwards; font-size: 1.5rem; z-index: 9999; }
-        @keyframes pop { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
     </style>
 </head>
 <body onclick="Core.initAudio()">
-
     <div class="content">
         <div id="v-journey" class="view"><h1 class="header">Journey</h1><p id="life-val" style="font-size:7rem; color:var(--white); font-weight:100;">0</p></div>
-
         <div id="v-recitation" class="view">
             <h1 class="header">Recitation</h1>
             <div style="width:100%; max-width:420px; margin-bottom:20px; display:flex; gap:12px;">
@@ -74,24 +57,15 @@
                 <div onclick="QPlayer.next()" style="font-size:2.8rem; cursor:pointer;">⏭</div>
             </div>
         </div>
-
         <div id="v-reading" class="view"><h1 class="header">Reading</h1></div>
-
         <div id="v-tasbih" class="view">
             <h1 class="header">Tasbih</h1>
             <div class="tasbih-container" onclick="Tasbih.hit()">
-                <svg class="ring-svg" viewBox="0 0 280 280">
-                    <circle fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" cx="140" cy="140" r="120"></circle>
-                    <circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="12" stroke-dasharray="754" stroke-dashoffset="754" cx="140" cy="140" r="120" style="transition:0.2s"></circle>
-                </svg>
+                <svg class="ring-svg" viewBox="0 0 280 280"><circle fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" cx="140" cy="140" r="120"></circle><circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="12" stroke-dasharray="754" stroke-dashoffset="754" cx="140" cy="140" r="120" style="transition:0.2s"></circle></svg>
                 <div id="t-num">0</div>
             </div>
-            <div style="margin-top:30px; text-align:center;">
-                <span class="label-text" style="display:block; margin-bottom:5px;">Daily Total</span>
-                <span id="today-val" style="font-size:2.2rem; color:var(--white); font-weight:300;">0</span>
-            </div>
+            <div style="margin-top:30px; text-align:center;"><span class="label-text" style="display:block; margin-bottom:5px;">Daily Total</span><span id="today-val" style="font-size:2.2rem; color:var(--white); font-weight:300;">0</span></div>
         </div>
-
         <div id="v-prayer" class="view">
             <h1 class="header">Prayer Log</h1>
             <div style="display:flex; justify-content:space-between; width:100%; max-width:350px; margin-bottom:25px; align-items:center;">
@@ -102,7 +76,6 @@
             <div class="salah-grid" id="salah-grid"></div>
         </div>
     </div>
-
     <nav class="nav">
         <div class="nav-btn" onclick="Core.show('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
         <div class="nav-btn" onclick="Core.show('recitation')" id="n-recitation"><span class="nav-label">Recite</span></div>
@@ -113,15 +86,8 @@
 
     <script>
         const Core = {
-            audioInited: false,
-            tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3'),
-            doneSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
-            initAudio() {
-                if (!this.audioInited) {
-                    this.tapSfx.play().then(() => { this.tapSfx.pause(); this.tapSfx.currentTime = 0; });
-                    this.audioInited = true;
-                }
-            },
+            audioInited: false, tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3'),
+            initAudio() { if (!this.audioInited) { this.tapSfx.play().then(() => { this.tapSfx.pause(); this.tapSfx.currentTime = 0; }); this.audioInited = true; } },
             show(id) {
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.getElementById('v-'+id).classList.add('active');
@@ -129,23 +95,11 @@
                 localStorage.setItem('last_view', id);
                 if(id === 'prayer') Salah.render();
                 if(id === 'journey') document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
-            },
-            celebrate() {
-                this.doneSfx.play().catch(()=>{});
-                for(let i=0; i<30; i++) {
-                    const p = document.createElement('div'); p.className = 'particle';
-                    p.innerHTML = ['✨','⭐','✦'][Math.floor(Math.random()*3)];
-                    p.style.left = '50%'; p.style.top = '45%';
-                    p.style.setProperty('--x', (Math.random()-0.5)*400+'px');
-                    p.style.setProperty('--y', (Math.random()-0.5)*400+'px');
-                    document.body.appendChild(p); setTimeout(()=>p.remove(), 1200);
-                }
             }
         };
 
         const QPlayer = {
             surah: 1, ayah: 1, isPlaying: false, audio: new Audio(),
-            bis: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
             bisMap: { "en.sahih": "In the name of Allah, the Entirely Merciful, the Especially Merciful.", "ur.jalandhry": "شروع اللہ کا نام لے کر جو بڑا مہربان نہایت رحم والا ہے" },
             async init() {
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
@@ -159,8 +113,12 @@
                 const lang = document.getElementById('s-lang').value;
                 const bisBox = document.getElementById('bis-prefix');
                 
-                // Prefix Box handling (Never for Surah 9)
-                if (this.ayah == 1 && this.surah != 9) {
+                // Rule 1: Always skip Verse 1 for Surah 1 (Fatiha)
+                if (this.surah == 1 && this.ayah == 1) { this.ayah = 2; return this.updateContent(); }
+
+                // Rule 2: Logic for Gold Prefix Box
+                const firstDisplayAyah = (this.surah == 1) ? 2 : 1;
+                if (this.ayah == firstDisplayAyah && this.surah != 9) {
                     bisBox.style.display = 'block';
                     document.getElementById('bis-tra').textContent = (lang !== 'none') ? this.bisMap[lang] : "";
                 } else { bisBox.style.display = 'none'; }
@@ -168,34 +126,30 @@
                 let url = `https://api.alquran.cloud/v1/ayah/${this.surah}:${this.ayah}/editions/quran-uthmani${lang !== 'none' ? ','+lang : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
-                
                 let ar = data.data[0].text;
                 let tr = lang === 'none' ? "" : data.data[1].text;
 
-                // PRECISION LOGIC: 
-                // Only act if it is VERSE 1 and NOT Surah 9
+                // Rule 3: Surgical Strip for Other Surahs (Verse 1 only)
                 if (this.ayah == 1 && this.surah != 9) {
-                    // Check if text starts with Bismillah (including common variants)
-                    if (ar.startsWith(this.bis)) {
-                        ar = ar.replace(this.bis, "").trim();
-                    }
+                    // This Regex targets the Uthmani Bismillah including the specific ligatures seen in your screenshots
+                    const uthmaniBis = /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s?|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ\s?/;
+                    ar = ar.replace(uthmaniBis, "").trim();
                 }
 
                 document.getElementById('q-ara').textContent = ar;
                 document.getElementById('q-tra').textContent = tr;
-                document.getElementById('q-tag').textContent = `VERSE ${this.ayah}`;
+                document.getElementById('q-tag').textContent = `VERSE ${this.surah == 1 ? this.ayah - 1 : this.ayah}`;
                 this.audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${data.data[0].number}.mp3`;
                 if(this.isPlaying) this.audio.play();
             },
             toggle() { this.isPlaying ? this.audio.pause() : this.audio.play(); this.isPlaying = !this.isPlaying; document.getElementById('q-play').textContent = this.isPlaying ? '⏸' : '▶'; },
             next() { this.ayah++; this.updateContent(); },
-            prev() { if(this.ayah > 1) { this.ayah--; this.updateContent(); } },
+            prev() { const min = (this.surah == 1) ? 2 : 1; if(this.ayah > min) { this.ayah--; this.updateContent(); } },
             initSurah() { this.surah = document.getElementById('s-surah').value; this.ayah = 1; this.updateContent(); }
         };
 
         const Salah = {
-            offset: 0,
-            db: JSON.parse(localStorage.getItem('s_db_v42')) || {},
+            offset: 0, db: JSON.parse(localStorage.getItem('s_db_v45')) || {},
             move(dir) { let n = this.offset + dir; if(n <= 0 && n >= -7) { this.offset = n; this.render(); } },
             render() {
                 const date = new Date(); date.setDate(date.getDate() + this.offset);
@@ -203,19 +157,12 @@
                 document.getElementById('d-label').textContent = (this.offset === 0) ? "TODAY" : ds.split(' ')[0].toUpperCase();
                 document.getElementById('d-num').textContent = ds.split(' ')[1] + ' ' + ds.split(' ')[2];
                 const grid = document.getElementById('salah-grid'); grid.innerHTML = '';
-                const prayers = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
-                prayers.forEach(p => {
+                ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
                     const orb = document.createElement('div');
                     const isLit = this.db[ds]?.[p];
                     orb.className = `orb ${isLit ? 'lit' : ''}`;
                     orb.innerHTML = `<span>${p.toUpperCase()}</span><div class="status-dot"></div>`;
-                    orb.onclick = () => {
-                        if(!this.db[ds]) this.db[ds] = {};
-                        this.db[ds][p] = !this.db[ds][p];
-                        localStorage.setItem('s_db_v42', JSON.stringify(this.db));
-                        if(this.offset === 0 && Object.values(this.db[ds]).filter(v=>v).length === 5) Core.celebrate();
-                        this.render();
-                    };
+                    orb.onclick = () => { if(!this.db[ds]) this.db[ds] = {}; this.db[ds][p] = !this.db[ds][p]; localStorage.setItem('s_db_v45', JSON.stringify(this.db)); this.render(); };
                     grid.appendChild(orb);
                 });
             }
@@ -226,10 +173,9 @@
             today: parseInt(localStorage.getItem('t_today')) || 0,
             life: parseInt(localStorage.getItem('t_life')) || 0,
             hit() {
-                Core.tapSfx.currentTime = 0;
-                Core.tapSfx.play().catch(()=>{});
+                Core.tapSfx.currentTime = 0; Core.tapSfx.play().catch(()=>{});
                 this.session++; this.today++; this.life++;
-                if(this.session >= 10) { Core.celebrate(); this.session = 0; }
+                if(this.session >= 10) this.session = 0;
                 localStorage.setItem('t_cur', this.session);
                 localStorage.setItem('t_today', this.today);
                 localStorage.setItem('t_life', this.life);
@@ -238,17 +184,11 @@
             updateUI() {
                 document.getElementById('t-num').textContent = this.session;
                 document.getElementById('today-val').textContent = this.today;
-                const offset = 754 - (this.session / 10 * 754);
-                document.getElementById('t-ring').style.strokeDashoffset = offset;
+                document.getElementById('t-ring').style.strokeDashoffset = 754 - (this.session / 10 * 754);
             }
         };
 
-        window.onload = () => { 
-            const lastView = localStorage.getItem('last_view') || 'journey';
-            Core.show(lastView);
-            Tasbih.updateUI(); 
-            QPlayer.init(); 
-        };
+        window.onload = () => { Core.show(localStorage.getItem('last_view') || 'journey'); Tasbih.updateUI(); QPlayer.init(); };
     </script>
 </body>
 </html>
