@@ -18,9 +18,9 @@
         /* RECITATION UI */
         .ctrl-tray { width: 100%; max-width: 400px; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 20px; border: 1px solid var(--glass); margin-bottom: 15px; }
         .label-text { font-size: 0.55rem; opacity: 0.5; margin-bottom: 5px; text-transform: uppercase; display: block; }
-        select { background: #111; color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 12px; font-size: 0.8rem; outline: none; }
+        select { background: #111; color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 12px; font-size: 0.8rem; outline: none; width: 100%; }
 
-        /* BISMILLAH PREFIX */
+        /* BISMILLAH PREFIX BOX */
         .bis-box { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(194,178,128,0.1); width: 100%; text-align: center; }
         .bis-ara { font-family: serif; font-size: 1.5rem; color: var(--gold); direction: rtl; }
         .bis-tra { font-size: 0.75rem; opacity: 0.5; font-style: italic; margin-top: 5px; }
@@ -29,13 +29,8 @@
         .q-ara { font-family: serif; font-size: 1.8rem; color: var(--white); direction: rtl; line-height: 2.2; width: 100%; }
         .q-tra { font-size: 0.95rem; line-height: 1.6; opacity: 0.7; color: var(--gold); margin-top: 15px; }
         
-        /* PRAYER LOG */
-        .day-navigator { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 320px; margin-bottom: 30px; }
-        .nav-btn-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--glass); display: flex; align-items: center; justify-content: center; }
-        .nav-btn-icon svg { width: 20px; stroke: var(--gold); stroke-width: 2.5; fill: none; }
-        .salah-galaxy { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 340px; }
-        .orb { height: 100px; border-radius: 50px; background: #0c0c0e; border: 1px solid var(--glass); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
-        .orb.lit { border-color: var(--gold); background: radial-gradient(circle, rgba(194,178,128,0.2) 0%, #0c0c0e 100%); }
+        .play-grid { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 25px; }
+        .p-btn { width: 65px; height: 65px; background: var(--gold); color: var(--vanta); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; }
 
         /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; z-index: 1000; }
@@ -53,8 +48,8 @@
             <h1 class="header">Recitation</h1>
             <div class="ctrl-tray">
                 <div style="display:flex; gap:15px;">
-                    <div style="flex:2"><span class="label-text">Chapter Name</span><select id="s-surah" style="width:100%" onchange="QPlayer.initSurah()"></select></div>
-                    <div style="flex:1"><span class="label-text">Translation</span><select id="s-lang" style="width:100%" onchange="QPlayer.updateContent()"><option value="none">None</option><option value="ur.jalandhry">Urdu</option><option value="en.sahih">English</option></select></div>
+                    <div style="flex:2"><span class="label-text">Chapter Name</span><select id="s-surah" onchange="QPlayer.initSurah()"></select></div>
+                    <div style="flex:1"><span class="label-text">Translation</span><select id="s-lang" onchange="QPlayer.updateContent()"><option value="none">None</option><option value="ur.jalandhry">Urdu</option><option value="en.sahih">English</option></select></div>
                 </div>
             </div>
 
@@ -68,33 +63,16 @@
                 <div id="q-tag" style="margin-top:20px; font-size:0.6rem; opacity:0.3; letter-spacing:2px;">VERSE 1</div>
             </div>
 
-            <div style="display:flex; align-items:center; gap:40px; margin-top:25px;">
+            <div class="play-grid">
                 <div onclick="QPlayer.prev()" style="font-size:1.8rem; opacity:0.5; cursor:pointer;">⏮</div>
-                <div id="q-play" onclick="QPlayer.toggle()" style="width:65px; height:65px; background:var(--gold); color:var(--vanta); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; cursor:pointer;">▶</div>
+                <div id="q-play" class="p-btn" onclick="QPlayer.toggle()">▶</div>
                 <div onclick="QPlayer.next()" style="font-size:1.8rem; opacity:0.5; cursor:pointer;">⏭</div>
             </div>
         </div>
 
         <div id="v-reading" class="view"><h1 class="header">Reading</h1></div>
-
-        <div id="v-tasbih" class="view">
-            <h1 class="header">Tasbih</h1>
-            <div id="t-trigger" style="position:relative; width:260px; height:260px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-                <svg style="position:absolute; transform:rotate(-90deg); width:100%; height:100%;" viewBox="0 0 280 280"><circle fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8" cx="140" cy="140" r="130"></circle><circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="8" stroke-dasharray="816" cx="140" cy="140" r="130"></circle></svg>
-                <div id="t-num" style="font-size:6rem; color:var(--white); font-weight:100;">0</div>
-            </div>
-            <p style="opacity:0.5; font-size:0.7rem; letter-spacing:2px;">TODAY: <span id="today-val">0</span></p>
-        </div>
-
-        <div id="v-prayer" class="view">
-            <h1 class="header">Prayer Log</h1>
-            <div class="day-navigator">
-                <div class="nav-btn-icon" onclick="Salah.move(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
-                <div style="text-align:center"><div id="d-label" style="font-size:0.6rem; opacity:0.5;">TODAY</div><div id="d-num" style="font-size:1.5rem; color:var(--white);">...</div></div>
-                <div class="nav-btn-icon" onclick="Salah.move(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-            </div>
-            <div class="salah-galaxy" id="salah-grid"></div>
-        </div>
+        <div id="v-tasbih" class="view"><h1 class="header">Tasbih</h1></div>
+        <div id="v-prayer" class="view"><h1 class="header">Prayer Log</h1></div>
     </div>
 
     <nav class="nav">
@@ -107,19 +85,17 @@
 
     <script>
         const Core = {
-            tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3'),
-            doneSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
             show(id) {
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.getElementById('v-'+id).classList.add('active');
                 document.getElementById('n-'+id).classList.add('active');
-                if(id === 'prayer') Salah.render();
             }
         };
 
         const QPlayer = {
             surah: 1, ayah: 1, isPlaying: false, audio: new Audio(),
-            bis: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+            // The exact Bismillah string found in Verse 1 of most Surahs in the API
+            apiBis: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
             bisMap: { "en.sahih": "In the name of Allah, the Entirely Merciful, the Especially Merciful.", "ur.jalandhry": "شروع اللہ کا نام لے کر جو بڑا مہربان نہایت رحم والا ہے" },
 
             async init() {
@@ -135,23 +111,28 @@
                 const lang = document.getElementById('s-lang').value;
                 const bisBox = document.getElementById('bis-prefix');
                 
-                // 1. Handle Bismillah Prefix Visibility
-                if (this.surah == 9) bisBox.style.display = 'none';
-                else {
+                // Logic 1: Prefix visibility (Only on Verse 1 & Not Surah 9)
+                if (this.ayah == 1 && this.surah != 9) {
                     bisBox.style.display = 'block';
                     document.getElementById('bis-tra').textContent = (lang !== 'none') ? this.bisMap[lang] : "";
+                } else {
+                    bisBox.style.display = 'none';
                 }
 
-                // 2. Fetch Verse Data
+                // Fetch Data
                 let url = `https://api.alquran.cloud/v1/ayah/${this.surah}:${this.ayah}/editions/quran-uthmani${lang !== 'none' ? ','+lang : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 
                 let arabicText = data.data[0].text;
                 
-                // 3. REMOVE Bismillah from Verse 1 strictly
-                if (this.surah != 1 && this.ayah == 1 && arabicText.includes(this.bis)) {
-                    arabicText = arabicText.replace(this.bis, "").trim();
+                // Logic 2: Clean the source text of Verse 1
+                // We strip the Bismillah if it exists at the start of Verse 1 
+                // Note: Surah Fatiha (1) keeps its Bismillah as it is literally Verse 1.
+                if (this.surah != 1 && this.ayah == 1) {
+                    if (arabicText.startsWith(this.apiBis)) {
+                        arabicText = arabicText.replace(this.apiBis, "").trim();
+                    }
                 }
 
                 document.getElementById('q-ara').textContent = arabicText;
@@ -168,51 +149,7 @@
             initSurah() { this.surah = document.getElementById('s-surah').value; this.ayah = 1; this.updateContent(); }
         };
 
-        const Salah = {
-            offset: 0,
-            db: JSON.parse(localStorage.getItem('s_db_v30')) || {},
-            move(dir) { let n = this.offset + dir; if(n <= 0 && n >= -7) { this.offset = n; this.render(); } },
-            render() {
-                const date = new Date(); date.setDate(date.getDate() + this.offset);
-                const ds = date.toDateString();
-                document.getElementById('d-label').textContent = (this.offset === 0) ? "TODAY" : ds.split(' ')[0].toUpperCase();
-                document.getElementById('d-num').textContent = ds.split(' ')[1] + ' ' + ds.split(' ')[2];
-                const grid = document.getElementById('salah-grid'); grid.innerHTML = '';
-                ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
-                    const orb = document.createElement('div');
-                    orb.className = `orb ${this.db[ds]?.[p] ? 'lit' : ''}`;
-                    orb.innerHTML = `<span style="font-size:0.65rem; opacity:0.6;">${p.toUpperCase()}</span>`;
-                    orb.onclick = () => {
-                        if(!this.db[ds]) this.db[ds] = {};
-                        this.db[ds][p] = !this.db[ds][p];
-                        localStorage.setItem('s_db_v30', JSON.stringify(this.db));
-                        this.render();
-                    };
-                    grid.appendChild(orb);
-                });
-            }
-        };
-
-        const Tasbih = {
-            session: parseInt(localStorage.getItem('t_cur')) || 0,
-            today: parseInt(localStorage.getItem('t_today')) || 0,
-            hit() {
-                this.session++; this.today++;
-                Core.tapSfx.currentTime = 0; Core.tapSfx.play().catch(()=>{});
-                if(this.session >= 10) { this.session = 0; }
-                localStorage.setItem('t_cur', this.session);
-                localStorage.setItem('t_today', this.today);
-                this.updateUI();
-            },
-            updateUI() {
-                document.getElementById('t-num').textContent = this.session;
-                document.getElementById('today-val').textContent = this.today;
-                document.getElementById('t-ring').style.strokeDashoffset = 816 - (this.session/10*816);
-            }
-        };
-
-        document.getElementById('t-trigger').onclick = () => Tasbih.hit();
-        window.onload = () => { Tasbih.updateUI(); QPlayer.init(); Salah.render(); };
+        window.onload = () => { QPlayer.init(); };
     </script>
 </body>
 </html>
