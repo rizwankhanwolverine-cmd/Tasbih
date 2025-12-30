@@ -15,33 +15,38 @@
         
         .header { letter-spacing: 12px; font-weight: 200; text-transform: uppercase; margin: 25px 0; font-size: 1.2rem; color: var(--gold); border-bottom: 1px solid rgba(194, 178, 128, 0.1); padding-bottom: 10px; width: 85%; text-align: center; }
 
-        /* RECITATION UI - REFINED ALIGNMENT (Point 1 & 3) */
+        /* RECITATION UI */
         .ctrl-tray { width: 100%; max-width: 400px; background: rgba(255,255,255,0.03); padding: 18px; border-radius: 20px; border: 1px solid var(--glass); margin-bottom: 15px; }
         .label-text { font-size: 0.55rem; letter-spacing: 2px; opacity: 0.5; margin-bottom: 5px; text-transform: uppercase; display: block; }
         .hifz-row { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(194,178,128,0.05); }
-        
         select, input { background: #111; color: var(--gold); border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 12px; font-size: 0.8rem; outline: none; width: 100%; }
-
         .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid rgba(194,178,128,0.1); border-radius: 25px; padding: 30px 20px; text-align: center; margin-top: 10px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; }
         .q-ara { font-family: serif; font-size: 1.8rem; color: var(--white); direction: rtl; line-height: 2.2; margin-bottom: 15px; }
-        .q-tra { font-size: 0.95rem; line-height: 1.6; opacity: 0.7; color: var(--gold); }
-        
-        /* FIXED PLAYER ALIGNMENT */
         .play-grid { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 25px; width: 100%; }
-        .p-btn { width: 65px; height: 65px; background: var(--gold); color: var(--vanta); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; flex-shrink: 0; }
-        .step-btn { font-size: 1.8rem; opacity: 0.5; cursor: pointer; width: 40px; text-align: center; }
+        .p-btn { width: 65px; height: 65px; background: var(--gold); color: var(--vanta); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; }
+        .step-btn { font-size: 1.8rem; opacity: 0.5; cursor: pointer; }
 
-        /* TASBIH & SALAH LOGIC */
-        .tasbih-area { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin: 20px 0; touch-action: none; }
-        .ring-fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-dasharray: 816; transition: 0.1s; }
+        /* TASBIH (Point 2: Fixed Overflow) */
+        .tasbih-area { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin: 20px 0; touch-action: none; }
+        .ring-svg { position: absolute; transform: rotate(-90deg); width: 100%; height: 100%; }
+        .ring-fill { fill: none; stroke: var(--gold); stroke-width: 8; stroke-dasharray: 816; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        #t-num { font-size: 6rem; color: var(--white); font-weight: 100; z-index: 5; position: relative; }
+
+        /* PRAYER LOG (Point 1: Restored) */
+        .day-navigator { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 320px; margin-bottom: 30px; }
+        .nav-btn-icon { width: 50px; height: 50px; border-radius: 50%; background: var(--glass); border: 1px solid var(--glass); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .nav-btn-icon svg { width: 20px; stroke: var(--gold); stroke-width: 2.5; fill: none; }
+        .salah-galaxy { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 340px; }
+        .orb { height: 100px; border-radius: 50px; background: #0c0c0e; border: 1px solid var(--glass); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .orb.lit { border-color: var(--gold); background: radial-gradient(circle, rgba(194,178,128,0.2) 0%, #0c0c0e 100%); }
+
         .particle { position: absolute; pointer-events: none; animation: pop 1.5s ease-out forwards; z-index: 2000; }
         @keyframes pop { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
 
-        /* NAV STABLE */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
         .nav-btn.active { opacity: 1; }
-        .nav-label { font-size: 0.55rem; text-transform: uppercase; margin-top: 6px; letter-spacing: 1px; }
+        .nav-label { font-size: 0.55rem; text-transform: uppercase; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -66,52 +71,44 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="hifz-row">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="h-toggle" onchange="QPlayer.toggleHifz()" style="width:20px; height:20px;">
-                        <label style="font-size:0.7rem; font-weight:bold;">HIFZ MODE</label>
-                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;"><input type="checkbox" id="h-toggle" onchange="QPlayer.toggleHifz()"><label style="font-size:0.7rem;">HIFZ MODE</label></div>
                     <div id="h-range" style="display:none; align-items:center; gap:8px;">
-                        <span style="font-size:0.6rem; opacity:0.5">FROM</span>
-                        <input type="number" id="h-from" value="1" style="width:50px">
-                        <span style="font-size:0.6rem; opacity:0.5">TO</span>
-                        <input type="number" id="h-to" value="7" style="width:50px">
+                        <span>FROM</span><input type="number" id="h-from" value="1" style="width:50px">
+                        <span>TO</span><input type="number" id="h-to" value="7" style="width:50px">
                     </div>
                 </div>
             </div>
-
-            <div class="q-card">
-                <div class="q-ara" id="q-ara">...</div>
-                <div class="q-tra" id="q-tra"></div>
-                <div id="q-tag" style="margin-top:20px; font-size:0.6rem; opacity:0.3; letter-spacing:2px;">VERSE 1</div>
-            </div>
-
-            <div class="play-grid">
-                <div onclick="QPlayer.prev()" class="step-btn">⏮</div>
-                <div id="q-play" class="p-btn" onclick="QPlayer.toggle()">▶</div>
-                <div onclick="QPlayer.next()" class="step-btn">⏭</div>
-            </div>
+            <div class="q-card"><div class="q-ara" id="q-ara">...</div><div class="q-tra" id="q-tra"></div><div id="q-tag" style="margin-top:20px; font-size:0.6rem; opacity:0.3; letter-spacing:2px;">VERSE 1</div></div>
+            <div class="play-grid"><div onclick="QPlayer.prev()" class="step-btn">⏮</div><div id="q-play" class="p-btn" onclick="QPlayer.toggle()">▶</div><div onclick="QPlayer.next()" class="step-btn">⏭</div></div>
         </div>
 
         <div id="v-reading" class="view"><h1 class="header">Reading</h1></div>
 
         <div id="v-tasbih" class="view">
             <h1 class="header">Tasbih</h1>
-            <div style="background:var(--glass); padding:10px 25px; border-radius:20px; border:1px solid var(--glass); margin-bottom:20px;">
+            <div style="background:var(--glass); padding:10px 25px; border-radius:20px; border:1px solid var(--glass); margin-bottom:10px;">
                 <span style="font-size:0.8rem; letter-spacing:2px;">TODAY: </span><span id="today-val" style="color:var(--white);">0</span>
             </div>
             <div class="tasbih-area" id="t-trigger">
                 <svg class="ring-svg" viewBox="0 0 280 280">
                     <circle fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8" cx="140" cy="140" r="130"></circle>
-                    <circle id="t-ring" class="ring-fill" cx="140" cy="140" r="130"></circle>
+                    <circle id="t-ring" class="ring-fill" cx="140" cy="140" r="130" style="stroke-dashoffset:816;"></circle>
                 </svg>
-                <div id="t-num" style="font-size:8rem; color:var(--white); font-weight:100;">0</div>
+                <div id="t-num">0</div>
             </div>
             <button onclick="Tasbih.reset()" style="background:none; border:1px solid var(--glass); color:var(--gold); padding:12px 35px; border-radius:25px; font-size:0.7rem; letter-spacing:2px;">RESET SESSION</button>
         </div>
 
-        <div id="v-prayer" class="view"><h1 class="header">Prayer Log</h1><div class="salah-galaxy" id="salah-grid"></div></div>
+        <div id="v-prayer" class="view">
+            <h1 class="header">Prayer Log</h1>
+            <div class="day-navigator">
+                <div class="nav-btn-icon" id="prev-btn" onclick="Salah.move(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
+                <div style="text-align:center"><div id="d-label" style="font-size:0.6rem; opacity:0.5; text-transform:uppercase;">Today</div><div id="d-num" style="font-size:1.6rem; color:var(--white); font-weight:200;">...</div></div>
+                <div class="nav-btn-icon" id="next-btn" onclick="Salah.move(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+            </div>
+            <div class="salah-galaxy" id="salah-grid"></div>
+        </div>
     </div>
 
     <nav class="nav">
@@ -131,10 +128,11 @@
                 document.getElementById('v-'+id).classList.add('active');
                 document.getElementById('n-'+id).classList.add('active');
                 if(id === 'journey') document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
+                if(id === 'prayer') Salah.render();
             },
             celebrate() {
                 this.doneSfx.play().catch(()=>{});
-                for(let i=0; i<40; i++) {
+                for(let i=0; i<35; i++) {
                     const p = document.createElement('div'); p.className = 'particle';
                     p.innerHTML = ['✦','✧','★'][Math.floor(Math.random()*3)];
                     p.style.color = Math.random() > 0.5 ? 'var(--gold)' : '#fff';
@@ -150,35 +148,48 @@
             session: parseInt(localStorage.getItem('t_cur')) || 0,
             today: parseInt(localStorage.getItem('t_today')) || 0,
             life: parseInt(localStorage.getItem('t_life')) || 0,
-            lastDate: localStorage.getItem('t_date'),
-
-            checkMidnight() {
-                const todayStr = new Date().toDateString();
-                if (this.lastDate !== todayStr) {
-                    this.today = 0;
-                    this.lastDate = todayStr;
-                    localStorage.setItem('t_today', 0);
-                    localStorage.setItem('t_date', todayStr);
-                }
-            },
-
             hit() {
-                this.checkMidnight();
                 this.session++; this.today++; this.life++;
                 Core.tapSfx.currentTime = 0; Core.tapSfx.play().catch(()=>{});
-                if(this.session >= 100) { Core.celebrate(); this.session = 0; }
+                // Point 3: Celebration and ring completion at 10
+                if(this.session >= 10) { Core.celebrate(); this.session = 0; }
                 localStorage.setItem('t_cur', this.session);
                 localStorage.setItem('t_today', this.today);
                 localStorage.setItem('t_life', this.life);
                 this.updateUI();
             },
             updateUI() {
-                this.checkMidnight();
                 document.getElementById('t-num').textContent = this.session;
                 document.getElementById('today-val').textContent = this.today;
-                document.getElementById('t-ring').style.strokeDashoffset = 816 - (this.session/100*816);
+                // Ring completion logic based on 10 taps
+                document.getElementById('t-ring').style.strokeDashoffset = 816 - (this.session/10*816);
             },
             reset() { this.session = 0; localStorage.setItem('t_cur', 0); this.updateUI(); }
+        };
+
+        const Salah = {
+            offset: 0,
+            db: JSON.parse(localStorage.getItem('s_db_v27')) || {},
+            move(dir) { let n = this.offset + dir; if(n <= 0 && n >= -2) { this.offset = n; this.render(); } },
+            render() {
+                const date = new Date(); date.setDate(date.getDate() + this.offset);
+                const ds = date.toDateString();
+                document.getElementById('d-label').textContent = (this.offset === 0) ? "Today" : ds.split(' ')[0];
+                document.getElementById('d-num').textContent = ds.split(' ')[1] + ' ' + ds.split(' ')[2];
+                const grid = document.getElementById('salah-grid'); grid.innerHTML = '';
+                ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
+                    const orb = document.createElement('div');
+                    orb.className = `orb ${(this.db[ds] && this.db[ds][p]) ? 'lit' : ''}`;
+                    orb.innerHTML = `<span style="font-size:0.65rem; letter-spacing:2px; opacity:0.6;">${p.toUpperCase()}</span>`;
+                    orb.onclick = () => {
+                        if(!this.db[ds]) this.db[ds] = {};
+                        this.db[ds][p] = !this.db[ds][p];
+                        localStorage.setItem('s_db_v27', JSON.stringify(this.db));
+                        this.render();
+                    };
+                    grid.appendChild(orb);
+                });
+            }
         };
 
         const QPlayer = {
@@ -235,7 +246,7 @@
         trigger.addEventListener('touchstart', (e) => { e.preventDefault(); Tasbih.hit(); }, { passive: false });
         trigger.addEventListener('click', () => { Tasbih.hit(); });
 
-        window.onload = () => { Tasbih.updateUI(); QPlayer.init(); };
+        window.onload = () => { Tasbih.updateUI(); QPlayer.init(); Salah.render(); };
     </script>
 </body>
 </html>
