@@ -3,33 +3,46 @@
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
     <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        select { background: #121216; color: white; border: 1px solid rgba(194,178,128,0.25); padding: 12px; border-radius: 12px; width: 100%; max-width: 400px; margin-bottom: 10px; }
-        .q-card { width: 100%; max-width: 400px; background: rgba(194,178,128,0.1); border: 1px solid rgba(194,178,128,0.25); border-radius: 25px; padding: 30px; min-height: 300px; display: flex; flex-direction: column; justify-content: center; margin-top: 15px; }
-        .ara { font-family: 'Amiri', serif; font-size: 1.8rem; color: white; direction: rtl; line-height: 2; text-align: center; }
-        .btn-row { display: flex; gap: 30px; margin-top: 20px; align-items: center; }
-        button { background: none; border: none; color: #C2B280; font-size: 1.5rem; cursor: pointer; }
-        #play-btn { background: #C2B280; color: #050508; width: 55px; height: 55px; border-radius: 50%; font-size: 1.2rem; }
+        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .controls { width: 100%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        select { background: #121216; color: white; border: 1px solid rgba(194,178,128,0.2); padding: 10px; border-radius: 8px; font-size: 0.8rem; }
+        .q-card { width: 100%; max-width: 400px; background: rgba(194,178,128,0.05); border: 1px solid rgba(194,178,128,0.15); border-radius: 25px; padding: 30px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .ara { font-family: 'Amiri', serif; font-size: 1.8rem; color: white; direction: rtl; line-height: 2.2; text-align: center; transition: 0.3s; }
+        .hifz-active .ara { filter: blur(8px); opacity: 0.3; }
+        .hifz-active .ara:active { filter: blur(0); opacity: 1; }
+        .tra { margin-top: 20px; font-size: 0.9rem; opacity: 0.6; text-align: center; color: #CCC; }
+        .hifz-badge { position: absolute; top: 15px; left: 15px; font-size: 0.6rem; letter-spacing: 1px; border: 1px solid #C2B280; padding: 2px 8px; border-radius: 4px; display: none; }
+        .hifz-active .hifz-badge { display: block; }
     </style>
 </head>
 <body>
-    <select id="s-surah" onchange="changeSurah()"></select>
-    <select id="s-verse" onchange="changeVerse()"></select>
-    
-    <div class="q-card">
-        <div id="q-ara" class="ara">Connecting...</div>
-        <div id="q-tra" style="margin-top:20px; font-size:0.9rem; opacity:0.6; text-align:center;"></div>
+    <div class="controls">
+        <select id="s-surah" onchange="changeSurah()"></select>
+        <select id="s-verse" onchange="changeVerse()"></select>
+        <select id="s-lang" onchange="fetchVerse()">
+            <option value="none">No Translation</option>
+            <option value="en.sahih">English</option>
+            <option value="ur.ahmedali">Urdu</option>
+            <option value="fr.hamidullah">French</option>
+        </select>
+        <button id="hifz-btn" onclick="toggleHifz()" style="background:none; border:1px solid #C2B280; color:#C2B280; border-radius:8px; font-size:0.7rem; cursor:pointer;">Hifz: OFF</button>
     </div>
 
-    <div class="btn-row">
-        <button onclick="prev()">⏮</button>
-        <button id="play-btn" onclick="toggle()">▶</button>
-        <button onclick="next()">⏭</button>
+    <div class="q-card" id="q-card">
+        <div class="hifz-badge">TAP TO REVEAL</div>
+        <div id="q-ara" class="ara">Loading...</div>
+        <div id="q-tra" class="tra"></div>
+    </div>
+
+    <div style="display:flex; gap:30px; margin-top:25px; align-items:center;">
+        <button onclick="prev()" style="background:none; border:none; color:#C2B280; font-size:1.5rem;">⏮</button>
+        <button id="p-btn" onclick="togglePlay()" style="background:#C2B280; color:#050508; width:50px; height:50px; border-radius:50%; font-size:1.2rem;">▶</button>
+        <button onclick="next()" style="background:none; border:none; color:#C2B280; font-size:1.5rem;">⏭</button>
     </div>
 
     <script>
         const RULES = { fatihaCap: 6, bismillah: /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/ };
-        let surah = 1, verse = 1, playing = false, audio = new Audio(), data = [];
+        let surah = 1, verse = 1, playing = false, hifz = false, audio = new Audio(), data = [];
 
         async function init() {
             const res = await fetch('https://api.alquran.cloud/v1/surah');
@@ -37,6 +50,12 @@
             const sSel = document.getElementById('s-surah');
             data.forEach(s => { sSel.innerHTML += `<option value="${s.number}">${s.number}. ${s.englishName}</option>`; });
             refresh();
+        }
+
+        function toggleHifz() {
+            hifz = !hifz;
+            document.getElementById('q-card').classList.toggle('hifz-active', hifz);
+            document.getElementById('hifz-btn').textContent = hifz ? "Hifz: ON" : "Hifz: OFF";
         }
 
         function refresh() {
@@ -47,23 +66,26 @@
         }
 
         async function fetchVerse() {
-            document.getElementById('q-ara').textContent = "Reading...";
+            const lang = document.getElementById('s-lang').value;
             let apiV = (surah == 1) ? parseInt(verse) + 1 : verse;
-            const res = await fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${apiV}/editions/quran-uthmani,en.sahih`);
+            let url = `https://api.alquran.cloud/v1/ayah/${surah}:${apiV}/editions/quran-uthmani`;
+            if(lang !== "none") url += `,${lang}`;
+            
+            const res = await fetch(url);
             const d = await res.json();
             let text = d.data[0].text;
             if(verse == 1 && surah != 1 && surah != 9) text = text.replace(RULES.bismillah, "").trim();
+            
             document.getElementById('q-ara').textContent = text;
-            document.getElementById('q-tra').textContent = d.data[1].text;
+            document.getElementById('q-tra').textContent = (lang !== "none") ? d.data[1].text : "";
             audio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${d.data[0].number}.mp3`;
             if(playing) audio.play();
-            audio.onended = () => next();
         }
 
-        function toggle() { playing = !playing; playing ? audio.play() : audio.pause(); document.getElementById('play-btn').textContent = playing ? '⏸' : '▶'; }
+        function togglePlay() { playing = !playing; playing ? audio.play() : audio.pause(); document.getElementById('p-btn').textContent = playing ? '⏸' : '▶'; }
         function next() { 
             let max = (surah == 1) ? RULES.fatihaCap : data[surah-1].numberOfAyahs;
-            if(verse < max) verse++; else { surah = parseInt(surah)+1; verse=1; }
+            if(verse < max) verse++; else { surah++; verse=1; }
             refresh();
         }
         function prev() { if(verse > 1) { verse--; refresh(); } }
