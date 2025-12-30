@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sanctuary Infinity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { 
@@ -11,7 +12,7 @@
             --glass: rgba(194, 178, 128, 0.1); --border: rgba(194, 178, 128, 0.25);
         }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; cursor: default; }
-        .nav-btn, button, .tasbih-main, .salah-node, .stat-card { cursor: pointer; }
+        .nav-btn, button, .tasbih-main, .salah-node, select, .p-btn { cursor: pointer; }
 
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
@@ -19,22 +20,20 @@
         .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; overflow-y: auto; padding-bottom: 120px; }
         .view.active { display: flex; }
         
-        .header { letter-spacing: 6px; font-weight: 700; text-transform: uppercase; margin: 10px 0 25px 0; font-size: 1.1rem; opacity: 0.8; }
+        .header { letter-spacing: 6px; font-weight: 700; text-transform: uppercase; margin: 10px 0 20px 0; font-size: 1.1rem; opacity: 0.8; }
 
-        /* JOURNEY STICKY COMPONENTS */
-        .journey-grid { width: 100%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .stat-card { background: var(--glass); border: 1px solid var(--border); padding: 15px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .stat-val { font-size: 1.8rem; color: var(--white); font-weight: 200; margin: 5px 0; }
-        .stat-label { font-size: 0.6rem; letter-spacing: 1px; opacity: 0.6; text-transform: uppercase; }
-        .pulse-row { grid-column: span 2; padding: 20px; background: linear-gradient(to right, rgba(194, 178, 128, 0.05), transparent); }
-        .streak-dots { display: flex; gap: 8px; margin-top: 10px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid var(--border); }
-        .dot.active { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        /* RECITATION UI */
+        .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid var(--border); border-radius: 30px; padding: 30px 20px; min-height: 350px; text-align: center; }
+        .ara-txt { font-family: 'Amiri', serif; font-size: 1.8rem; color: var(--white); direction: rtl; line-height: 1.8; }
 
         /* TASBIH UI */
-        .tasbih-main { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 10px; transition: transform 0.05s; }
-        .tasbih-main:active { transform: scale(0.95); }
+        .tasbih-main { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-top: 10px; }
         #t-num { font-size: 6rem; color: var(--white); font-weight: 200; }
+
+        /* SALAH UI */
+        .salah-node { width: 100%; max-width: 380px; height: 65px; background: rgba(255,255,255,0.02); border: 1px solid var(--glass); border-radius: 15px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; margin-bottom: 10px; }
+        .salah-node.done { border-color: var(--gold); background: var(--glass); }
+        .nav-arr.disabled { opacity: 0.1; cursor: not-allowed; }
 
         /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid var(--glass); display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
@@ -47,36 +46,37 @@
 
     <div class="content">
         <div id="v-journey" class="view">
-            <h1 class="header">Your Legacy</h1>
-            <div class="journey-grid">
-                <div class="stat-card pulse-row">
-                    <span class="stat-label">Salah Consistency (7 Days)</span>
-                    <div class="streak-dots" id="streak-dots"></div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Total Tasbih</span>
-                    <div class="stat-val" id="j-tasbih">0</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Quran Progress</span>
-                    <div class="stat-val">0%</div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Memorization</span>
-                    <div class="stat-val">0 <small style="font-size:0.8rem">Surahs</small></div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-label">Daily Rank</span>
-                    <div class="stat-val" style="font-size:1.2rem; color:var(--gold)">SEEKER</div>
-                </div>
+            <h1 class="header">Journey</h1>
+            <div style="background:var(--glass); width:100%; max-width:400px; border-radius:20px; padding:20px; text-align:center;">
+                <span style="font-size:0.7rem; opacity:0.6; letter-spacing:2px;">LIFETIME TASBIH</span>
+                <div id="j-life" style="font-size:3rem; color:var(--white); font-weight:100;">0</div>
             </div>
+        </div>
+
+        <div id="v-recite" class="view">
+            <h1 class="header">Recitation</h1>
+            <select id="s-surah" onchange="QPlayer.change()" style="width:100%; max-width:400px; padding:12px; background:#121216; color:var(--white); border-radius:10px; margin-bottom:15px;"></select>
+            <div class="q-card">
+                <div id="q-ara" class="ara-txt">Loading...</div>
+                <div id="q-tra" style="margin-top:20px; font-size:0.9rem; opacity:0.7;"></div>
+            </div>
+            <div style="display:flex; gap:40px; margin-top:25px;">
+                <div class="p-btn" onclick="QPlayer.prev()" style="font-size:1.5rem;">⏮</div>
+                <div class="p-btn" id="q-play" onclick="QPlayer.toggle()" style="font-size:2rem; background:var(--gold); color:var(--vanta); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div>
+                <div class="p-btn" onclick="QPlayer.next()" style="font-size:1.5rem;">⏭</div>
+            </div>
+        </div>
+
+        <div id="v-read" class="view">
+            <h1 class="header">Quran Reading</h1>
+            <div style="opacity:0.4; margin-top:50px;">Continuous Scroll Mode Entering Final Prep...</div>
         </div>
 
         <div id="v-tasbih" class="view">
             <h1 class="header">Tasbih</h1>
             <div style="text-align:center; margin-bottom:10px;">
-                <span style="font-size:0.6rem; letter-spacing:2px; opacity:0.6;">TODAY'S COUNT</span>
-                <div id="today-val" style="font-size:1.4rem; color:var(--white); font-weight:300;">0</div>
+                <span style="font-size:0.6rem; letter-spacing:2px; opacity:0.6;">TODAY</span>
+                <div id="t-today" style="font-size:1.4rem; color:var(--white);">0</div>
             </div>
             <div class="tasbih-main" onmousedown="Tasbih.hit()" ontouchstart="Tasbih.hit()">
                 <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 280 280">
@@ -85,14 +85,24 @@
                 </svg>
                 <div id="t-num">0</div>
             </div>
-            <button style="margin-top:40px; background:none; border:1px solid var(--border); color:var(--gold); padding:10px 25px; border-radius:15px; font-size:0.6rem; letter-spacing:2px;" onclick="Tasbih.reset()">RESET CYCLE</button>
+            <button style="margin-top:40px; background:none; border:1px solid var(--border); color:var(--gold); padding:8px 20px; border-radius:12px; font-size:0.6rem; letter-spacing:2px;" onclick="Tasbih.reset()">RESET CYCLE</button>
         </div>
 
-        <div id="v-salah" class="view"><h1 class="header">Salah</h1><div id="salah-ui-placeholder"></div></div>
+        <div id="v-salah" class="view">
+            <h1 class="header">Salah</h1>
+            <div style="display:flex; justify-content:space-between; width:100%; max-width:350px; align-items:center; margin-bottom:20px;">
+                <div id="s-prev" class="nav-arr" onclick="Salah.move(-1)" style="font-size:1.5rem;">❮</div>
+                <div style="text-align:center;"><div id="d-lab" style="font-size:0.6rem; letter-spacing:2px;">TODAY</div><div id="d-val" style="font-size:1.1rem; color:var(--white);">...</div></div>
+                <div id="s-next" class="nav-arr" onclick="Salah.move(1)" style="font-size:1.5rem;">❯</div>
+            </div>
+            <div id="salah-list" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+        </div>
     </div>
 
     <nav class="nav">
         <div class="nav-btn" onclick="Core.show('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
+        <div class="nav-btn" onclick="Core.show('recite')" id="n-recite"><span class="nav-label">Recite</span></div>
+        <div class="nav-btn" onclick="Core.show('read')" id="n-read"><span class="nav-label">Read</span></div>
         <div class="nav-btn" onclick="Core.show('tasbih')" id="n-tasbih"><span class="nav-label">Tasbih</span></div>
         <div class="nav-btn" onclick="Core.show('salah')" id="n-salah"><span class="nav-label">Salah</span></div>
     </nav>
@@ -100,35 +110,21 @@
     <script>
         const Core = {
             audioInited: false,
-            // Board-approved sophisticated sounds
             tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
-            salahSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
-
-            initAudio() { 
-                if(!this.audioInited) { 
-                    // Create a silent buffer to keep audio alive
-                    [this.tapSfx, this.salahSfx].forEach(a => { 
-                        a.volume = 0.5; a.play().then(() => { a.pause(); a.currentTime = 0; });
-                    });
-                    this.audioInited = true; 
-                } 
+            tickSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+            initAudio() {
+                if(!this.audioInited) {
+                    [this.tapSfx, this.tickSfx].forEach(a => { a.volume=0.5; a.play().then(()=>{a.pause(); a.currentTime=0;}); });
+                    this.audioInited = true;
+                }
             },
             show(id) {
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.getElementById('v-'+id).classList.add('active');
                 document.getElementById('n-'+id).classList.add('active');
-                if(id === 'journey') this.updateJourney();
-            },
-            updateJourney() {
-                document.getElementById('j-tasbih').textContent = localStorage.getItem('t_life') || 0;
-                const dots = document.getElementById('streak-dots');
-                dots.innerHTML = '';
-                // Placeholder for 7-day consistency visualization
-                for(let i=0; i<7; i++) {
-                    const d = document.createElement('div');
-                    d.className = `dot ${i > 4 ? 'active' : ''}`; // Mock data
-                    dots.appendChild(d);
-                }
+                if(id === 'salah') Salah.render();
+                if(id === 'journey') document.getElementById('j-life').textContent = localStorage.getItem('t_life') || 0;
+                localStorage.setItem('last_view', id);
             }
         };
 
@@ -137,33 +133,75 @@
             life: parseInt(localStorage.getItem('t_life')) || 0,
             today: parseInt(localStorage.getItem('t_today')) || 0,
             hit(e) {
-                if(e) e.preventDefault();
+                if(e) { e.preventDefault(); e.stopPropagation(); }
                 Core.initAudio();
-                
-                // Audio persistence fix: play immediately on interaction
-                Core.tapSfx.currentTime = 0;
-                const playPromise = Core.tapSfx.play();
-                
+                Core.tapSfx.currentTime = 0; Core.tapSfx.play();
                 this.session++; this.life++; this.today++;
-                if(this.session === 10) confetti({ particleCount: 60, spread: 40, colors: ['#C2B280'] });
+                if(this.session === 10) confetti({ particleCount: 60, spread: 50, colors: ['#C2B280'] });
                 if(this.session > 10) this.session = 1;
-
+                this.updateUI();
                 localStorage.setItem('t_cur', this.session);
                 localStorage.setItem('t_life', this.life);
                 localStorage.setItem('t_today', this.today);
-                this.updateUI();
             },
-            reset() { if(confirm("Clear current cycle?")) { this.session = 0; localStorage.setItem('t_cur', 0); this.updateUI(); } },
             updateUI() {
                 document.getElementById('t-num').textContent = this.session;
-                document.getElementById('today-val').textContent = this.today;
+                document.getElementById('t-today').textContent = this.today;
                 document.getElementById('t-ring').style.strokeDashoffset = 754 - (this.session / 10 * 754);
+            },
+            reset() { if(confirm("Reset cycle?")) { this.session=0; this.updateUI(); localStorage.setItem('t_cur', 0); } }
+        };
+
+        const Salah = {
+            off: 0, db: JSON.parse(localStorage.getItem('s_db_v55')) || {},
+            move(d) { let t = this.off + d; if(t <= 0 && t >= -2) { this.off = t; this.render(); } },
+            render() {
+                const date = new Date(); date.setDate(date.getDate() + this.off);
+                const ds = date.toDateString();
+                document.getElementById('d-lab').textContent = this.off === 0 ? "TODAY" : this.off === -1 ? "YESTERDAY" : "PREVIOUS";
+                document.getElementById('d-val').textContent = ds.split(' ')[1] + ' ' + ds.split(' ')[2];
+                document.getElementById('s-prev').className = `nav-arr ${this.off <= -2 ? 'disabled' : ''}`;
+                document.getElementById('s-next').className = `nav-arr ${this.off >= 0 ? 'disabled' : ''}`;
+                const list = document.getElementById('salah-list'); list.innerHTML = '';
+                ['Fajr','Dhuhr','Asr','Maghrib','Isha'].forEach(p => {
+                    const done = this.db[ds]?.[p];
+                    const div = document.createElement('div');
+                    div.className = `salah-node ${done ? 'done' : ''}`;
+                    div.innerHTML = `<span>${p.toUpperCase()}</span><span>${done ? '✓' : ''}</span>`;
+                    div.onclick = () => {
+                        Core.initAudio(); Core.tickSfx.currentTime=0; Core.tickSfx.play();
+                        if(!this.db[ds]) this.db[ds] = {}; this.db[ds][p] = !this.db[ds][p];
+                        if(Object.values(this.db[ds]).filter(v=>v===true).length === 5) confetti({particleCount:100});
+                        localStorage.setItem('s_db_v55', JSON.stringify(this.db)); this.render();
+                    };
+                    list.appendChild(div);
+                });
             }
         };
 
+        const QPlayer = {
+            s: 1, a: 1, data: [],
+            async init() {
+                const res = await fetch('https://api.alquran.cloud/v1/surah');
+                const d = await res.json(); this.data = d.data;
+                const sel = document.getElementById('s-surah');
+                this.data.forEach(x => { sel.innerHTML += `<option value="${x.number}">${x.number}. ${x.englishName}</option>`; });
+                this.load();
+            },
+            async load() {
+                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${this.s}:${this.a}/editions/quran-uthmani,en.sahih`);
+                const d = await res.json();
+                document.getElementById('q-ara').textContent = d.data[0].text;
+                document.getElementById('q-tra').textContent = d.data[1].text;
+            },
+            next() { this.a++; this.load(); },
+            prev() { if(this.a > 1) this.a--; this.load(); },
+            change() { this.s = document.getElementById('s-surah').value; this.a = 1; this.load(); }
+        };
+
         window.onload = () => { 
-            Core.show('tasbih');
-            // Keep the tab count alive from saved data
+            Core.show(localStorage.getItem('last_view') || 'tasbih'); 
+            QPlayer.init();
             Tasbih.updateUI();
         };
     </script>
