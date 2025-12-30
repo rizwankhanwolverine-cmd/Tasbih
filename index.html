@@ -7,18 +7,16 @@
     <style>
         :root { --vanta: #050508; --gold: #C2B280; }
         body { background: var(--vanta); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-family: sans-serif; }
-        
-        /* The Module Container */
         #module-container { flex: 1; border: none; width: 100%; height: 100%; }
-
-        /* Navigation */
         .nav { height: 80px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); }
         .nav-btn.active { opacity: 1; }
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
-<body>
+<body onclick="unlockAudio()">
+
+    <audio id="global-sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
     <iframe id="module-container" src="tasbih.html"></iframe>
 
@@ -30,11 +28,22 @@
     </nav>
 
     <script>
-        // LOGIC VAULT (Global Rules)
-        const VAULT_RULES = {
-            fatihaCap: 6,
-            bismillahRegex: /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/
-        };
+        const audio = document.getElementById('global-sfx');
+        let audioUnlocked = false;
+
+        function unlockAudio() {
+            if(!audioUnlocked) {
+                audio.play().then(() => { audio.pause(); audioUnlocked = true; });
+            }
+        }
+
+        // LISTEN FOR COMMANDS FROM MODULES
+        window.addEventListener('message', (event) => {
+            if (event.data === 'playTap') {
+                audio.currentTime = 0;
+                audio.play();
+            }
+        });
 
         function loadModule(name, btn) {
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
