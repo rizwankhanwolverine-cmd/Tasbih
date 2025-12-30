@@ -8,57 +8,38 @@
         :root { --gold: #C2B280; --vanta: #050508; --white: #FFFFFF; --glass: rgba(194, 178, 128, 0.15); }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; }
         
-        body { 
-            background: var(--vanta); 
-            color: var(--gold); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            margin: 0; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        body { background: var(--vanta); color: var(--gold); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; overflow-y: auto; padding-bottom: 140px; }
         .view.active { display: flex; }
         
-        /* BOARD STANDARDIZED TYPOGRAPHY */
+        /* TYPOGRAPHY STANDARDS */
         .header { letter-spacing: 12px; font-weight: 700; text-transform: uppercase; margin: 25px 0; font-size: 1.5rem; color: var(--gold); border-bottom: 2px solid var(--glass); padding-bottom: 15px; width: 85%; text-align: center; }
         .label-text { font-size: 0.75rem; font-weight: 800; opacity: 0.9; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
         
-        /* RECITATION CARD */
+        /* RECITATION */
         .q-card { width: 100%; max-width: 420px; background: var(--glass); border: 1px solid rgba(194, 178, 128, 0.2); border-radius: 35px; padding: 35px; text-align: center; min-height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .q-ara { font-family: "Amiri", serif; font-size: 2.4rem; color: var(--white); direction: rtl; line-height: 1.9; font-weight: 500; }
+        .q-ara { font-family: serif; font-size: 2.4rem; color: var(--white); direction: rtl; line-height: 1.9; font-weight: 500; }
         .q-tra { font-size: 1.2rem; line-height: 1.6; opacity: 1; color: var(--gold); margin-top: 25px; font-weight: 400; }
-        .bis-ara { font-family: serif; font-size: 2rem; color: var(--gold); direction: rtl; font-weight: 700; }
 
-        /* TASBIH (Responsive Fit) */
-        .tasbih-container { 
-            position: relative; 
-            width: 280px; /* Reduced from 350px to ensure screen fit */
-            height: 280px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            margin: 10px auto; 
-        }
-        #t-num { font-size: 6.5rem; color: var(--white); font-weight: 200; z-index: 10; }
+        /* TASBIH (Circle Reset & Sound) */
+        .tasbih-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin: 10px auto; cursor: pointer; }
+        #t-num { font-size: 7rem; color: var(--white); font-weight: 200; z-index: 10; }
         .ring-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
 
-        /* PRAYER ORBS */
+        /* PRAYER */
         .orb { height: 110px; border-radius: 30px; background: #111; border: 2px solid var(--glass); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.4s; }
         .orb span { font-size: 0.9rem; font-weight: 800; letter-spacing: 2px; color: var(--white); }
         .orb.lit { border-color: var(--gold); background: radial-gradient(circle, rgba(194, 178, 128, 0.3) 0%, #0c0c0e 100%); }
 
-        /* NAVIGATION */
+        /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 95px; background: #08080a; border-top: 1px solid var(--glass); display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; transition: 0.3s; }
         .nav-btn.active { opacity: 1; border-top: 4px solid var(--gold); margin-top: -4px; }
         .nav-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 10px; letter-spacing: 1px; }
 
         select { background: #1a1a1e; color: var(--white); border: 2px solid var(--glass); padding: 12px; border-radius: 15px; font-size: 0.95rem; font-weight: 700; }
-
         .particle { position: absolute; pointer-events: none; animation: pop 1.2s forwards; font-size: 1.5rem; z-index: 999; }
         @keyframes pop { 0% { transform: translate(0,0) scale(1); opacity: 1; } 100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; } }
     </style>
@@ -76,7 +57,7 @@
             </div>
             <div class="q-card">
                 <div id="bis-prefix" style="display:none; margin-bottom:25px; border-bottom:1px solid var(--glass); width:100%; padding-bottom:20px;">
-                    <div class="bis-ara">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+                    <div style="font-family:serif; font-size:2rem; color:var(--gold); direction:rtl; font-weight:700;">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
                     <div id="bis-tra" style="font-size:1rem; opacity:0.8; font-style:italic; margin-top:10px;"></div>
                 </div>
                 <div class="q-ara" id="q-ara">...</div>
@@ -97,7 +78,7 @@
             <div class="tasbih-container" onclick="Tasbih.hit()">
                 <svg class="ring-svg" viewBox="0 0 280 280">
                     <circle fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12" cx="140" cy="140" r="120"></circle>
-                    <circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="12" stroke-dasharray="754" stroke-dashoffset="754" cx="140" cy="140" r="120" style="transition:0.3s cubic-bezier(0.4, 0, 0.2, 1)"></circle>
+                    <circle id="t-ring" fill="none" stroke="var(--gold)" stroke-width="12" stroke-dasharray="754" stroke-dashoffset="754" cx="140" cy="140" r="120" style="transition:0.2s"></circle>
                 </svg>
                 <div id="t-num">0</div>
             </div>
@@ -128,13 +109,12 @@
 
     <script>
         const Core = {
+            tapSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/701/701-preview.mp3'),
             doneSfx: new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'),
             show(id) {
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
-                const target = document.getElementById('v-'+id);
-                if(target) target.classList.add('active');
-                const btn = document.getElementById('n-'+id);
-                if(btn) btn.classList.add('active');
+                document.getElementById('v-'+id).classList.add('active');
+                document.getElementById('n-'+id).classList.add('active');
                 localStorage.setItem('last_view', id);
                 if(id === 'prayer') Salah.render();
                 if(id === 'journey') document.getElementById('life-val').textContent = localStorage.getItem('t_life') || 0;
@@ -171,7 +151,6 @@
                     bisBox.style.display = 'block';
                     document.getElementById('bis-tra').textContent = (lang !== 'none') ? this.bisMap[lang] : "";
                 } else { bisBox.style.display = 'none'; }
-
                 let url = `https://api.alquran.cloud/v1/ayah/${this.surah}:${this.ayah}/editions/quran-uthmani${lang !== 'none' ? ','+lang : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -191,7 +170,7 @@
 
         const Salah = {
             offset: 0,
-            db: JSON.parse(localStorage.getItem('s_db_v35')) || {},
+            db: JSON.parse(localStorage.getItem('s_db_v36')) || {},
             move(dir) { let n = this.offset + dir; if(n <= 0 && n >= -7) { this.offset = n; this.render(); } },
             render() {
                 const date = new Date(); date.setDate(date.getDate() + this.offset);
@@ -208,7 +187,7 @@
                     orb.onclick = () => {
                         if(!this.db[ds]) this.db[ds] = {};
                         this.db[ds][p] = !this.db[ds][p];
-                        localStorage.setItem('s_db_v35', JSON.stringify(this.db));
+                        localStorage.setItem('s_db_v36', JSON.stringify(this.db));
                         if(this.offset === 0 && Object.values(this.db[ds]).filter(v=>v).length === 5) Core.celebrate();
                         this.render();
                     };
@@ -222,8 +201,12 @@
             today: parseInt(localStorage.getItem('t_today')) || 0,
             life: parseInt(localStorage.getItem('t_life')) || 0,
             hit() {
+                // Audio warm up & play
+                Core.tapSfx.currentTime = 0;
+                Core.tapSfx.play().catch(()=>{});
+
                 this.session++; this.today++; this.life++;
-                if(this.session >= 100) { Core.celebrate(); this.session = 0; }
+                if(this.session >= 10) { Core.celebrate(); this.session = 0; }
                 localStorage.setItem('t_cur', this.session);
                 localStorage.setItem('t_today', this.today);
                 localStorage.setItem('t_life', this.life);
@@ -232,7 +215,7 @@
             updateUI() {
                 document.getElementById('t-num').textContent = this.session;
                 document.getElementById('today-val').textContent = this.today;
-                const offset = 754 - (this.session / 100 * 754);
+                const offset = 754 - (this.session / 10 * 754); // Math for 10
                 document.getElementById('t-ring').style.strokeDashoffset = offset;
             }
         };
