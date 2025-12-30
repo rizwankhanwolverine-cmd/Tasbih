@@ -22,17 +22,16 @@
 
         /* BISMILLAH PREFIX BOX */
         .bis-box { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(194,178,128,0.1); width: 100%; text-align: center; }
-        .bis-ara { font-family: serif; font-size: 1.5rem; color: var(--gold); direction: rtl; }
+        .bis-ara { font-family: serif; font-size: 1.6rem; color: var(--gold); direction: rtl; }
         .bis-tra { font-size: 0.75rem; opacity: 0.5; font-style: italic; margin-top: 5px; }
 
-        .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid rgba(194,178,128,0.1); border-radius: 25px; padding: 25px; text-align: center; min-height: 280px; display: flex; flex-direction: column; align-items: center; }
-        .q-ara { font-family: serif; font-size: 1.8rem; color: var(--white); direction: rtl; line-height: 2.2; width: 100%; }
+        .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid rgba(194,178,128,0.1); border-radius: 25px; padding: 25px; text-align: center; min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .q-ara { font-family: serif; font-size: 1.9rem; color: var(--white); direction: rtl; line-height: 2.2; width: 100%; }
         .q-tra { font-size: 0.95rem; line-height: 1.6; opacity: 0.7; color: var(--gold); margin-top: 15px; }
         
         .play-grid { display: flex; align-items: center; justify-content: center; gap: 40px; margin-top: 25px; }
         .p-btn { width: 65px; height: 65px; background: var(--gold); color: var(--vanta); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; }
 
-        /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; z-index: 1000; }
         .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; }
         .nav-btn.active { opacity: 1; }
@@ -58,6 +57,7 @@
                     <div class="bis-ara">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
                     <div id="bis-tra" class="bis-tra"></div>
                 </div>
+                
                 <div class="q-ara" id="q-ara">...</div>
                 <div class="q-tra" id="q-tra"></div>
                 <div id="q-tag" style="margin-top:20px; font-size:0.6rem; opacity:0.3; letter-spacing:2px;">VERSE 1</div>
@@ -76,27 +76,32 @@
     </div>
 
     <nav class="nav">
-        <div class="nav-btn active" onclick="Core.show('journey')" id="n-journey"><span class="nav-label">Journey</span></div>
-        <div class="nav-btn" onclick="Core.show('recitation')" id="n-recitation"><span class="nav-label">Recite</span></div>
-        <div class="nav-btn" onclick="Core.show('reading')" id="n-reading"><span class="nav-label">Read</span></div>
-        <div class="nav-btn" onclick="Core.show('tasbih')" id="n-tasbih"><span class="nav-label">Tasbih</span></div>
-        <div class="nav-btn" onclick="Core.show('prayer')" id="n-prayer"><span class="nav-label">Prayer</span></div>
+        <div class="nav-btn active" onclick="Core.show('journey')"><span class="nav-label">Journey</span></div>
+        <div class="nav-btn" onclick="Core.show('recitation')"><span class="nav-label">Recite</span></div>
+        <div class="nav-btn" onclick="Core.show('reading')"><span class="nav-label">Read</span></div>
+        <div class="nav-btn" onclick="Core.show('tasbih')"><span class="nav-label">Tasbih</span></div>
+        <div class="nav-btn" onclick="Core.show('prayer')"><span class="nav-label">Prayer</span></div>
     </nav>
 
     <script>
         const Core = {
             show(id) {
-                document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.view, .nav-btn').forEach(el => {
+                    el.classList.remove('active');
+                    if(el.innerText.toLowerCase() === id) el.classList.add('active');
+                });
                 document.getElementById('v-'+id).classList.add('active');
-                document.getElementById('n-'+id).classList.add('active');
             }
         };
 
         const QPlayer = {
             surah: 1, ayah: 1, isPlaying: false, audio: new Audio(),
-            // The exact Bismillah string found in Verse 1 of most Surahs in the API
-            apiBis: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-            bisMap: { "en.sahih": "In the name of Allah, the Entirely Merciful, the Especially Merciful.", "ur.jalandhry": "شروع اللہ کا نام لے کر جو بڑا مہربان نہایت رحم والا ہے" },
+            // Unified Bismillah string for comparison
+            bisStr: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+            bisMap: { 
+                "en.sahih": "In the name of Allah, the Entirely Merciful, the Especially Merciful.", 
+                "ur.jalandhry": "شروع اللہ کا نام لے کر جو بڑا مہربان نہایت رحم والا ہے" 
+            },
 
             async init() {
                 const res = await fetch('https://api.alquran.cloud/v1/surah');
@@ -111,7 +116,7 @@
                 const lang = document.getElementById('s-lang').value;
                 const bisBox = document.getElementById('bis-prefix');
                 
-                // Logic 1: Prefix visibility (Only on Verse 1 & Not Surah 9)
+                // 1. PREFIX LOGIC: Only show on Verse 1, and never for Surah 9
                 if (this.ayah == 1 && this.surah != 9) {
                     bisBox.style.display = 'block';
                     document.getElementById('bis-tra').textContent = (lang !== 'none') ? this.bisMap[lang] : "";
@@ -119,20 +124,17 @@
                     bisBox.style.display = 'none';
                 }
 
-                // Fetch Data
+                // 2. FETCH DATA
                 let url = `https://api.alquran.cloud/v1/ayah/${this.surah}:${this.ayah}/editions/quran-uthmani${lang !== 'none' ? ','+lang : ''}`;
                 const res = await fetch(url);
                 const data = await res.json();
                 
                 let arabicText = data.data[0].text;
                 
-                // Logic 2: Clean the source text of Verse 1
-                // We strip the Bismillah if it exists at the start of Verse 1 
-                // Note: Surah Fatiha (1) keeps its Bismillah as it is literally Verse 1.
-                if (this.surah != 1 && this.ayah == 1) {
-                    if (arabicText.startsWith(this.apiBis)) {
-                        arabicText = arabicText.replace(this.apiBis, "").trim();
-                    }
+                // 3. STRICTION: Remove Bismillah from Verse 1 of ANY Surah
+                // This includes Surah Fatiha, so Verse 1 becomes "Alhamdulillahi..."
+                if (this.ayah == 1 && arabicText.includes(this.bisStr)) {
+                    arabicText = arabicText.replace(this.bisStr, "").trim();
                 }
 
                 document.getElementById('q-ara').textContent = arabicText;
@@ -143,7 +145,11 @@
                 if(this.isPlaying) this.audio.play();
             },
 
-            toggle() { this.isPlaying ? this.audio.pause() : this.audio.play(); this.isPlaying = !this.isPlaying; document.getElementById('q-play').textContent = this.isPlaying ? '⏸' : '▶'; },
+            toggle() { 
+                if(this.isPlaying) { this.audio.pause(); } else { this.audio.play(); }
+                this.isPlaying = !this.isPlaying; 
+                document.getElementById('q-play').textContent = this.isPlaying ? '⏸' : '▶'; 
+            },
             next() { this.ayah++; this.updateContent(); },
             prev() { if(this.ayah > 1) { this.ayah--; this.updateContent(); } },
             initSurah() { this.surah = document.getElementById('s-surah').value; this.ayah = 1; this.updateContent(); }
