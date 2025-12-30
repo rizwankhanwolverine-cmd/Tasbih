@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
         .tasbih-circle { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -9,8 +10,7 @@
     </style>
 </head>
 <body onclick="hit()">
-    <audio id="sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
-    
+    <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px;">DAILY TOTAL: <span id="t-today" style="color:white">0</span></div>
     <div class="tasbih-circle">
         <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 260 260">
             <circle fill="none" stroke="rgba(194,178,128,0.1)" stroke-width="6" cx="130" cy="130" r="115"></circle>
@@ -18,20 +18,35 @@
         </svg>
         <div id="t-num">0</div>
     </div>
+    <button onclick="reset(event)" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.3); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer;">RESET CYCLE</button>
 
     <script>
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
+        let today = parseInt(localStorage.getItem('t_today')) || 0;
+
         function hit() {
-            count++;
-            const sfx = document.getElementById('sfx');
-            sfx.currentTime = 0; sfx.play();
-            if(count >= 10) count = 0;
+            count++; today++;
+            // TELL THE HOST (index.html) TO PLAY SOUND
+            window.parent.postMessage('playTap', '*');
+            
+            if(count >= 10) {
+                confetti({particleCount:40, colors:['#C2B280']});
+                count = 0;
+            }
             update();
         }
+
         function update() {
             document.getElementById('t-num').textContent = count;
+            document.getElementById('t-today').textContent = today;
             document.getElementById('ring').style.strokeDashoffset = 722 - (count / 10 * 722);
             localStorage.setItem('t_cur', count);
+            localStorage.setItem('t_today', today);
+        }
+
+        function reset(e) {
+            e.stopPropagation(); // Prevents a 'hit' when clicking reset
+            count = 0; update();
         }
         update();
     </script>
