@@ -6,39 +6,61 @@
         .salah-list { width: 100%; max-width: 400px; margin-top: 20px; }
         .salah-item { 
             background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.1); 
-            border-radius: 15px; padding: 22px; margin-bottom: 15px;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            border-radius: 15px; padding: 20px; margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s; cursor: pointer;
         }
-        .salah-item.done { border-color: #C2B280; background: rgba(194, 178, 128, 0.1); }
-        .name { font-weight: 700; letter-spacing: 3px; text-transform: uppercase; font-size: 0.9rem; }
-        .check { width: 24px; height: 24px; border: 1px solid #C2B280; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .done .check { background: #C2B280; }
-        .done .check::after { content: '✓'; color: #050508; font-weight: bold; font-size: 14px; }
+        .salah-item.done { border-color: #C2B280; background: rgba(194, 178, 128, 0.15); }
+        .name { font-size: 1.1rem; letter-spacing: 1px; color: white; }
+        .check { width: 25px; height: 25px; border: 2px solid #C2B280; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .done .check { background: #C2B280; color: #050508; }
+        .title { font-size: 0.7rem; opacity: 0.5; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h2 style="letter-spacing:5px; text-transform:uppercase; font-size:1rem; margin-top:10px;">Daily Prayers</h2>
-    <div class="salah-list" id="box"></div>
+    <div class="title">Daily Prayers</div>
+    <div class="salah-list" id="salah-list">
+        </div>
 
     <script>
         const prayers = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
-        let state = JSON.parse(localStorage.getItem('salah_v2')) || {};
+        // Load data from localStorage (v2 ensures it matches Journey sync)
+        let state = JSON.parse(localStorage.getItem('salah_v2')) || {
+            Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false
+        };
 
         function render() {
-            const container = document.getElementById('box');
-            container.innerHTML = prayers.map(p => `
-                <div class="salah-item ${state[p] ? 'done' : ''}" onclick="toggle('${p}')">
-                    <div class="name">${p}</div>
-                    <div class="check"></div>
-                </div>
-            `).join('');
+            const container = document.getElementById('salah-list');
+            container.innerHTML = '';
+            prayers.forEach(p => {
+                const isDone = state[p];
+                const div = document.createElement('div');
+                div.className = `salah-item ${isDone ? 'done' : ''}`;
+                div.onclick = () => toggle(p);
+                div.innerHTML = `
+                    <span class="name">${p}</span>
+                    <div class="check">${isDone ? '✓' : ''}</div>
+                `;
+                container.appendChild(div);
+            });
         }
 
         function toggle(p) {
             state[p] = !state[p];
             localStorage.setItem('salah_v2', JSON.stringify(state));
+            
+            // 1. Trigger individual "Beed-like" tap sound (via Shell)
+            window.parent.postMessage('play_beed', '*');
+
+            // 2. Check if all prayers are finished for Big Celebration
+            const allDone = Object.values(state).every(val => val === true);
+            if (allDone) {
+                window.parent.postMessage('celebrate', '*');
+            }
+
             render();
         }
+
         render();
     </script>
 </body>
