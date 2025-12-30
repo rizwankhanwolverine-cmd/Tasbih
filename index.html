@@ -7,16 +7,76 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --vanta: #050508; --gold: #C2B280; }
-        body { background: #000; margin: 0; height: 100vh; display: flex; justify-content: center; font-family: sans-serif; overflow: hidden; }
-        #app-shell { width: 100%; max-width: 500px; height: 100vh; background: var(--vanta); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        #module-container { flex: 1; border: none; width: 100%; height: 100%; }
-        .nav { height: 80px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); }
-        .nav-btn.active { opacity: 1; }
-        .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
+        
+        body { 
+            background: #000; 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            overflow: hidden; 
+        }
+        
+        /* App Shell - Optimized for Mobile & Laptop Centering */
+        #app-shell { 
+            width: 100%; 
+            max-width: 500px; 
+            height: 100vh; 
+            background: var(--vanta); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.9); 
+        }
+
+        #module-container { 
+            flex: 1; 
+            border: none; 
+            width: 100%; 
+            height: 100%; 
+        }
+
+        /* Navigation Bar */
+        .nav { 
+            height: 85px; 
+            background: #08080a; 
+            border-top: 1px solid rgba(194,178,128,0.1); 
+            display: flex; 
+            padding-bottom: env(safe-area-inset-bottom); 
+        }
+
+        .nav-btn { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0.3; 
+            cursor: pointer; 
+            color: var(--gold); 
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active { 
+            opacity: 1; 
+        }
+
+        .nav-label { 
+            font-size: 0.65rem; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            margin-top: 6px; 
+            letter-spacing: 1px;
+        }
+
+        /* Active Glow Effect */
+        .nav-btn.active .nav-label {
+            text-shadow: 0 0 10px rgba(194,178,128,0.5);
+        }
     </style>
 </head>
-<body onclick="wakeUpAudio()">
+<body onclick="unlockHardware()">
 
     <div id="app-shell">
         <audio id="master-sfx" preload="auto">
@@ -26,58 +86,84 @@
         <iframe id="module-container" src=""></iframe>
 
         <nav class="nav">
-            <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><span class="nav-label">Journey</span></div>
-            <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><span class="nav-label">Recite</span></div>
-            <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih"><span class="nav-label">Beeds</span></div>
-            <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><span class="nav-label">Salah</span></div>
+            <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey">
+                <div class="nav-label">Journey</div>
+            </div>
+            <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite">
+                <div class="nav-label">Recite</div>
+            </div>
+            <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih">
+                <div class="nav-label">Beeds</div>
+            </div>
+            <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah">
+                <div class="nav-label">Salah</div>
+            </div>
         </nav>
     </div>
 
     <script>
         const sfx = document.getElementById('master-sfx');
-        let audioContext;
+        let audioCtx;
 
-        // FORCED WAKE UP FOR LAPTOPS & PHONES
-        function wakeUpAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // 1. HARDWARE UNLOCKER
+        // This runs whenever the user clicks the screen or nav to authorize sound
+        function unlockHardware() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
             }
-            // Prime the audio element with a silent play
+            // Prime the audio element for iOS/Safari
             sfx.play().then(() => {
                 sfx.pause();
                 sfx.currentTime = 0;
-            }).catch(e => console.log("Audio unlock pending click..."));
+            }).catch(() => {});
         }
 
+        // 2. GLOBAL MESSAGE LISTENER
+        // Receives "pings" from Beeds, Salah, or Recite
         window.addEventListener('message', (e) => {
+            // Play Tap Sound (Triggered by Beeds or Salah)
             if (e.data === 'play_beed') {
-                // The laptop needs a fresh interaction signal
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
                 sfx.currentTime = 0;
-                sfx.play().catch(err => console.log("Playback blocked: Click the page once first."));
+                sfx.play().catch(err => console.log("Sound interaction required."));
             }
+            
+            // Trigger Confetti Celebration (Triggered by 10th Beed or 5th Salah)
             if (e.data === 'celebrate') {
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280'] });
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.7 },
+                    colors: ['#C2B280', '#FFFFFF', '#E6E6E6'],
+                    disableForReducedMotion: true
+                });
             }
         });
 
+        // 3. MODULE LOADER
         function loadModule(name, btnEl) {
-            wakeUpAudio();
+            unlockHardware(); // Unlock sound on every tab switch
             localStorage.setItem('active_tab', name);
+            
+            // Update UI
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            if(btnEl) btnEl.classList.add('active'); 
-            else document.getElementById('btn-' + name).classList.add('active');
+            if(btnEl) {
+                btnEl.classList.add('active');
+            } else {
+                const target = document.getElementById('btn-' + name);
+                if(target) target.classList.add('active');
+            }
+            
+            // Switch Iframe Source
             document.getElementById('module-container').src = name + ".html";
         }
 
+        // 4. INITIALIZATION
         window.onload = () => {
-            const saved = localStorage.getItem('active_tab') || 'tasbih';
-            loadModule(saved);
+            const savedTab = localStorage.getItem('active_tab') || 'tasbih';
+            loadModule(savedTab);
         };
     </script>
 </body>
