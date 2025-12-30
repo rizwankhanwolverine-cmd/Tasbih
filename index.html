@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sanctuary Infinity</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --vanta: #050508; --gold: #C2B280; }
         body { background: var(--vanta); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-family: sans-serif; }
@@ -37,11 +38,13 @@
             }
         }
 
-        // LISTEN FOR COMMANDS FROM MODULES
-        window.addEventListener('message', (event) => {
-            if (event.data === 'playTap') {
-                audio.currentTime = 0;
-                audio.play();
+        // The "Bridge": Listens for commands from inside the tabs
+        window.addEventListener('message', (e) => {
+            if (e.data === 'playTap') {
+                audio.currentTime = 0; audio.play();
+            }
+            if (e.data === 'celebrate') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280', '#FFFFFF'] });
             }
         });
 
