@@ -15,44 +15,60 @@
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
-<body onclick="unlockAudio()">
+<body onclick="forceUnlock()">
 
     <audio id="global-sfx" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 
-    <iframe id="module-container" src="tasbih.html"></iframe>
+    <iframe id="module-container" src=""></iframe>
 
     <nav class="nav">
-        <div class="nav-btn" onclick="loadModule('journey', this)"><span class="nav-label">Journey</span></div>
-        <div class="nav-btn" onclick="loadModule('recite', this)"><span class="nav-label">Recite</span></div>
-        <div class="nav-btn active" onclick="loadModule('tasbih', this)"><span class="nav-label">Tasbih</span></div>
-        <div class="nav-btn" onclick="loadModule('salah', this)"><span class="nav-label">Salah</span></div>
+        <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><span class="nav-label">Journey</span></div>
+        <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><span class="nav-label">Recite</span></div>
+        <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih"><span class="nav-label">Tasbih</span></div>
+        <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><span class="nav-label">Salah</span></div>
     </nav>
 
     <script>
         const audio = document.getElementById('global-sfx');
-        let audioUnlocked = false;
-
-        function unlockAudio() {
-            if(!audioUnlocked) {
-                audio.play().then(() => { audio.pause(); audioUnlocked = true; });
-            }
+        
+        // FORCED AUDIO UNLOCK
+        function forceUnlock() {
+            audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(e => console.log(e));
         }
 
-        // The "Bridge": Listens for commands from inside the tabs
+        // TAB PERSISTENCE LOGIC
+        function loadModule(name, btnEl) {
+            // Save choice to localStorage
+            localStorage.setItem('active_tab', name);
+            
+            // UI Update
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            if(btnEl) {
+                btnEl.classList.add('active');
+            } else {
+                document.getElementById('btn-' + name).classList.add('active');
+            }
+            
+            // Load file
+            document.getElementById('module-container').src = name + ".html";
+        }
+
+        // MESSAGE BRIDGE
         window.addEventListener('message', (e) => {
             if (e.data === 'playTap') {
-                audio.currentTime = 0; audio.play();
+                audio.currentTime = 0;
+                audio.play();
             }
             if (e.data === 'celebrate') {
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280', '#FFFFFF'] });
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#C2B280'] });
             }
         });
 
-        function loadModule(name, btn) {
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('module-container').src = name + ".html";
-        }
+        // ON LOAD: Restore Tab
+        window.onload = () => {
+            const savedTab = localStorage.getItem('active_tab') || 'tasbih';
+            loadModule(savedTab);
+        };
     </script>
 </body>
 </html>
