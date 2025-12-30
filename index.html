@@ -12,10 +12,9 @@
             --glass: rgba(194, 178, 128, 0.1); --border: rgba(194, 178, 128, 0.25);
         }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; outline: none; cursor: default; }
-        .nav-btn, button, .tasbih-main, .salah-node, select, .p-btn, .hifz-toggle { cursor: pointer; }
+        .nav-btn, button, select, .p-btn, .hifz-toggle { cursor: pointer; }
 
         body { background: var(--vanta); color: var(--gold); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
         .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         .view { display: none; flex-direction: column; align-items: center; padding: 20px; height: 100%; overflow-y: auto; padding-bottom: 120px; }
         .view.active { display: flex; }
@@ -23,20 +22,20 @@
         .header { letter-spacing: 6px; font-weight: 700; text-transform: uppercase; margin: 10px 0 20px 0; font-size: 1.1rem; opacity: 0.8; }
 
         /* RECITATION UI */
-        .recitation-title { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; margin-bottom: 10px; opacity: 0.5; width: 100%; max-width: 400px; }
-        .control-grid { width: 100%; max-width: 400px; display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 15px; }
-        select { background: #121216; color: var(--white); border: 1px solid var(--border); padding: 12px; border-radius: 12px; font-size: 0.85rem; }
+        .recitation-title { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; margin-bottom: 10px; opacity: 0.5; width: 100%; max-width: 400px; text-align: left; }
+        .control-grid { width: 100%; max-width: 400px; display: grid; grid-template-columns: 2.5fr 1fr; gap: 10px; margin-bottom: 15px; }
+        select { background: #121216; color: var(--white); border: 1px solid var(--border); padding: 12px; border-radius: 12px; font-size: 0.85rem; appearance: none; }
         
-        .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid var(--border); border-radius: 30px; padding: 35px 20px; min-height: 380px; display: flex; flex-direction: column; justify-content: center; }
-        .ara-txt { font-family: 'Amiri', serif; font-size: 1.9rem; color: var(--white); direction: rtl; line-height: 1.9; text-align: center; }
+        .q-card { width: 100%; max-width: 400px; background: var(--glass); border: 1px solid var(--border); border-radius: 30px; padding: 35px 25px; min-height: 380px; display: flex; flex-direction: column; justify-content: center; }
+        .ara-txt { font-family: 'Amiri', serif; font-size: 1.95rem; color: var(--white); direction: rtl; line-height: 2.1; text-align: center; }
         
-        /* HIFZ MODE TOGGLE */
-        .hifz-container { margin-top: 20px; display: flex; align-items: center; gap: 10px; background: rgba(194, 178, 128, 0.05); padding: 8px 15px; border-radius: 20px; border: 1px solid var(--glass); }
-        .hifz-toggle { width: 40px; height: 20px; background: #222; border-radius: 20px; position: relative; transition: 0.3s; }
+        /* HIFZ UI */
+        .hifz-container { margin-top: 20px; display: flex; align-items: center; gap: 12px; background: rgba(194, 178, 128, 0.05); padding: 10px 20px; border-radius: 25px; border: 1px solid var(--glass); }
+        .hifz-toggle { width: 44px; height: 22px; background: #222; border-radius: 20px; position: relative; transition: 0.3s; }
         .hifz-toggle.on { background: var(--gold); }
-        .hifz-toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
-        .hifz-toggle.on::after { left: 22px; }
-        .hifz-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; }
+        .hifz-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
+        .hifz-toggle.on::after { left: 24px; }
+        .hifz-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.5px; }
 
         /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: #08080a; border-top: 1px solid var(--glass); display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
@@ -56,22 +55,20 @@
                 <select id="s-verse" onchange="QPlayer.onVerseChange()"></select>
             </div>
             <div class="q-card">
-                <div id="q-ara" class="ara-txt">...</div>
-                <div id="q-tra" style="margin-top:25px; font-size:0.95rem; opacity:0.6; text-align:center; line-height:1.6; font-weight:300;"></div>
+                <div id="q-ara" class="ara-txt">Loading...</div>
+                <div id="q-tra" style="margin-top:25px; font-size:0.95rem; opacity:0.6; text-align:center; line-height:1.6;"></div>
             </div>
             <div class="hifz-container" onclick="QPlayer.toggleHifz()">
                 <div id="hifz-switch" class="hifz-toggle"></div>
                 <span class="hifz-label">HIFZ MODE (LOOP VERSE)</span>
             </div>
-            <div style="display:flex; gap:40px; margin-top:25px; align-items:center;">
+            <div style="display:flex; gap:40px; margin-top:30px; align-items:center;">
                 <div class="p-btn" onclick="QPlayer.prev()" style="font-size:1.5rem;">⏮</div>
-                <div class="p-btn" id="q-play" onclick="QPlayer.togglePlay()" style="font-size:1.8rem; background:var(--gold); color:var(--vanta); width:65px; height:65px; border-radius:50%; display:flex; align-items:center; justify-content:center;">▶</div>
+                <div class="p-btn" id="q-play" onclick="QPlayer.togglePlay()" style="font-size:1.8rem; background:var(--gold); color:var(--vanta); width:65px; height:65px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 15px rgba(0,0,0,0.4);">▶</div>
                 <div class="p-btn" onclick="QPlayer.next()" style="font-size:1.5rem;">⏭</div>
             </div>
         </div>
-        <div id="v-tasbih" class="view"><h1 class="header">Tasbih</h1></div>
-        <div id="v-salah" class="view"><h1 class="header">Salah</h1></div>
-        <div id="v-journey" class="view"><h1 class="header">Journey</h1></div>
+        <div id="v-tasbih" class="view"></div><div id="v-salah" class="view"></div><div id="v-journey" class="view"></div>
     </div>
 
     <nav class="nav">
@@ -84,7 +81,7 @@
     <script>
         const Core = {
             audioInited: false,
-            initAudio() { if(!this.audioInited) { this.audioInited = true; } },
+            initAudio() { if(!this.audioInited) this.audioInited = true; },
             show(id) {
                 document.querySelectorAll('.view, .nav-btn').forEach(el => el.classList.remove('active'));
                 document.getElementById('v-'+id).classList.add('active');
@@ -104,36 +101,33 @@
                 this.data.forEach(s => { sel.innerHTML += `<option value="${s.number}">${s.number}. ${s.englishName}</option>`; });
                 this.updateVerseCount();
                 this.loadVerse();
-                
-                this.audio.onended = () => { if(this.isHifz) { this.audio.play(); } else { this.next(); } };
+                this.audio.onended = () => { if(this.isHifz) this.audio.play(); else this.next(); };
             },
 
             updateVerseCount() {
                 let count = this.data[this.surah - 1].numberOfAyahs;
-                // BOARD RULE: If Fatiha (Surah 1), cap at 6 because Bismillah is verse 1 and we exclude it
-                if(this.surah == 1) count = 6;
-                
+                if(this.surah == 1) count = 6; // Mandatory 6-verse cap for Fatiha
                 const vSel = document.getElementById('s-verse');
                 vSel.innerHTML = '';
-                for(let i=1; i<=count; i++) {
-                    vSel.innerHTML += `<option value="${i}">Verse ${i}</option>`;
-                }
+                for(let i=1; i<=count; i++) { vSel.innerHTML += `<option value="${i}">Verse ${i}</option>`; }
             },
 
             async loadVerse() {
-                // Correct for API offset: if Surah 1, we pull i+1
+                // FIXED LOGIC: If Fatiha, Verse 1 (Selection) maps to API Verse 2 (Display)
                 let apiVerse = (this.surah == 1) ? parseInt(this.verse) + 1 : this.verse;
                 
                 const res = await fetch(`https://api.alquran.cloud/v1/ayah/${this.surah}:${apiVerse}/editions/quran-uthmani,en.sahih`);
                 const d = await res.json();
                 
-                let arabicText = d.data[0].text;
-                // Clean Bismillah if it's start of other Surahs
-                if(this.verse == 1 && this.surah != 1 && this.surah != 9) {
-                    arabicText = arabicText.replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ\s?/, "");
+                let arabic = d.data[0].text;
+
+                // GLOBAL GATEKEEPER: Scrub Bismillah from Verse 1 of all Surahs (except 1 & 9)
+                if (this.verse == 1 && this.surah != 1 && this.surah != 9) {
+                    const bismillahPattern = /^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ|^بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ/;
+                    arabic = arabic.replace(bismillahPattern, "").trim();
                 }
 
-                document.getElementById('q-ara').textContent = arabicText;
+                document.getElementById('q-ara').textContent = arabic;
                 document.getElementById('q-tra').textContent = d.data[1].text;
                 document.getElementById('s-verse').value = this.verse;
                 
@@ -165,16 +159,14 @@
             },
 
             next() {
-                let max = this.data[this.surah - 1].numberOfAyahs;
-                if(this.surah == 1) max = 6;
-
-                if(this.verse < max) { this.verse++; } 
+                let max = (this.surah == 1) ? 6 : this.data[this.surah - 1].numberOfAyahs;
+                if(this.verse < max) this.verse++;
                 else { this.surah = this.surah < 114 ? parseInt(this.surah)+1 : 1; this.verse = 1; this.updateVerseCount(); }
                 this.loadVerse();
             },
 
             prev() {
-                if(this.verse > 1) { this.verse--; } 
+                if(this.verse > 1) this.verse--;
                 else { 
                     this.surah = this.surah > 1 ? parseInt(this.surah)-1 : 114; 
                     this.updateVerseCount(); 
