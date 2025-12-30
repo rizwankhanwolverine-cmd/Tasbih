@@ -5,15 +5,10 @@
         body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; -webkit-user-select: none; user-select: none; }
         .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         #t-num { font-size: 7rem; color: white; font-weight: 200; }
-        circle { transition: 0.2s; stroke-linecap: round; }
-        #status-msg { font-size: 0.6rem; opacity: 0.4; margin-top: 10px; letter-spacing: 1px; }
+        circle { transition: 0.15s; stroke-linecap: round; }
     </style>
 </head>
-<body onclick="handleTap()">
-    <audio id="local-sfx" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
-    </audio>
-
+<body onclick="beedHit()">
     <div style="font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px;">DAILY BEEDS: <span id="t-today" style="color:white">0</span></div>
     
     <div class="tasbih-display">
@@ -25,32 +20,15 @@
     </div>
     
     <button onclick="event.stopPropagation(); reset();" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.2); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer;">RESET CYCLE</button>
-    <div id="status-msg">TAP TO UNLOCK SOUND</div>
 
     <script>
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
-        const sfx = document.getElementById('local-sfx');
-        let audioUnlocked = false;
 
-        function handleTap() {
-            // 1. Force Unlock on first tap
-            if (!audioUnlocked) {
-                sfx.play().then(() => {
-                    sfx.pause();
-                    sfx.currentTime = 0;
-                    audioUnlocked = true;
-                    document.getElementById('status-msg').style.display = 'none';
-                }).catch(e => console.log("Audio pending..."));
-            }
-
-            // 2. Play Sound
-            if (audioUnlocked) {
-                sfx.currentTime = 0;
-                sfx.play().catch(e => console.log("Playback error"));
-            }
-
-            // 3. Logic
+        function beedHit() {
+            // THE HANDSHAKE: Send message to index.html to play the sound
+            window.parent.postMessage('triggerBeedSound', '*');
+            
             count++; today++;
             if(count >= 10) {
                 window.parent.postMessage('celebrate', '*');
@@ -60,7 +38,6 @@
         }
 
         function reset() { count = 0; save(); }
-
         function save() {
             document.getElementById('t-num').textContent = count;
             document.getElementById('t-today').textContent = today;
