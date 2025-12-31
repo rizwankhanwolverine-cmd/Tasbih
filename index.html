@@ -2,19 +2,63 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Sanctuary Infinity</title>
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 :root { --vanta:#050508; --gold:#C2B280; }
-body { background:#000; margin:0; height:100vh; display:flex; justify-content:center; font-family:sans-serif; overflow:hidden; }
-#app-shell { width:100%; max-width:500px; height:100vh; background:var(--vanta); display:flex; flex-direction:column; }
-#module-container { flex:1; border:none; width:100%; height:100%; }
-.nav { height:85px; background:#08080a; border-top:1px solid rgba(194,178,128,0.1); display:flex; }
-.nav-btn { flex:1; display:flex; align-items:center; justify-content:center; color:var(--gold); opacity:.3; cursor:pointer; }
+body {
+    background:#000;
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    font-family:sans-serif;
+    overflow:hidden;
+}
+#app-shell {
+    width:100%;
+    max-width:500px;
+    height:100vh;
+    background:var(--vanta);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+}
+#module-container {
+    flex:1;
+    width:100%;
+    border:none;
+}
+.nav {
+    height:85px;
+    background:#08080a;
+    border-top:1px solid rgba(194,178,128,0.1);
+    display:flex;
+    padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-btn {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    opacity:0.3;
+    cursor:pointer;
+    color:var(--gold);
+    transition:0.3s;
+}
 .nav-btn.active { opacity:1; }
-.nav-label { font-size:.65rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+.nav-label {
+    font-size:0.65rem;
+    font-weight:800;
+    text-transform:uppercase;
+    margin-top:6px;
+    letter-spacing:1px;
+}
 </style>
 </head>
 
@@ -22,59 +66,95 @@ body { background:#000; margin:0; height:100vh; display:flex; justify-content:ce
 
 <div id="app-shell">
 
-<audio id="tap-sound" preload="auto">
-  <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
-</audio>
+    <!-- 🔊 MASTER TAP SOUND (single source of truth) -->
+    <audio id="tap-sfx" preload="auto">
+        <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
+    </audio>
 
-<iframe id="module-container"></iframe>
+    <iframe id="module-container"></iframe>
 
-<nav class="nav">
-  <div class="nav-btn" onclick="loadModule('journey',this)" id="btn-journey"><div class="nav-label">Journey</div></div>
-  <div class="nav-btn" onclick="loadModule('recite',this)" id="btn-recite"><div class="nav-label">Recite</div></div>
-  <div class="nav-btn" onclick="loadModule('tasbih',this)" id="btn-tasbih"><div class="nav-label">Beeds</div></div>
-  <div class="nav-btn" onclick="loadModule('salah',this)" id="btn-salah"><div class="nav-label">Salah</div></div>
-</nav>
-
+    <nav class="nav">
+        <div class="nav-btn" id="btn-journey" onclick="loadModule('journey', this)">
+            <div class="nav-label">Journey</div>
+        </div>
+        <div class="nav-btn" id="btn-recite" onclick="loadModule('recite', this)">
+            <div class="nav-label">Recite</div>
+        </div>
+        <div class="nav-btn" id="btn-tasbih" onclick="loadModule('tasbih', this)">
+            <div class="nav-label">Beeds</div>
+        </div>
+        <div class="nav-btn" id="btn-salah" onclick="loadModule('salah', this)">
+            <div class="nav-label">Salah</div>
+        </div>
+    </nav>
 </div>
 
 <script>
-const tapSound = document.getElementById('tap-sound');
+/* ======================================================
+   AUDIO UNLOCK — REQUIRED BY MOBILE BROWSERS
+====================================================== */
+const tapSound = document.getElementById('tap-sfx');
 let audioUnlocked = false;
 
-function unlockAudioOnce() {
+function unlockAudio() {
     if (audioUnlocked) return;
-    tapSound.currentTime = 0;
-    tapSound.play().then(() => {
-        tapSound.pause();
-        tapSound.currentTime = 0;
-        audioUnlocked = true;
-    }).catch(()=>{});
+
+    tapSound.play()
+        .then(() => {
+            tapSound.pause();
+            tapSound.currentTime = 0;
+            audioUnlocked = true;
+        })
+        .catch(() => {});
 }
 
-// 🔑 critical: unlock on FIRST real user touch
-document.addEventListener('touchstart', unlockAudioOnce, { once:true });
-document.addEventListener('click', unlockAudioOnce, { once:true });
+// Unlock on FIRST real user interaction
+document.addEventListener('pointerdown', unlockAudio, { once:true });
+document.addEventListener('touchstart', unlockAudio, { once:true });
+document.addEventListener('click', unlockAudio, { once:true });
 
-window.addEventListener('message', e => {
+/* ======================================================
+   MESSAGE BRIDGE — CHILD → SHELL
+====================================================== */
+window.addEventListener('message', (e) => {
     if (e.data === 'play_beed') {
+        if (!audioUnlocked) unlockAudio();
         tapSound.currentTime = 0;
-        tapSound.play().catch(()=>{});
+        tapSound.play().catch(() => {});
     }
+
     if (e.data === 'celebrate') {
-        confetti({ particleCount:150, spread:70, origin:{y:.7}, colors:['#C2B280','#FFF'] });
+        confetti({
+            particleCount: 140,
+            spread: 70,
+            origin: { y: 0.7 },
+            colors: ['#C2B280', '#FFFFFF']
+        });
     }
 });
 
+/* ======================================================
+   MODULE LOADER
+====================================================== */
 function loadModule(name, btn) {
+    unlockAudio();
     localStorage.setItem('active_tab', name);
-    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('module-container').src = name + ".html";
+
+    document.querySelectorAll('.nav-btn')
+        .forEach(b => b.classList.remove('active'));
+
+    if (btn) btn.classList.add('active');
+    else {
+        const savedBtn = document.getElementById('btn-' + name);
+        if (savedBtn) savedBtn.classList.add('active');
+    }
+
+    document.getElementById('module-container').src = name + '.html';
 }
 
 window.onload = () => {
-    const tab = localStorage.getItem('active_tab') || 'tasbih';
-    loadModule(tab, document.getElementById('btn-'+tab));
+    const saved = localStorage.getItem('active_tab') || 'tasbih';
+    loadModule(saved);
 };
 </script>
 
