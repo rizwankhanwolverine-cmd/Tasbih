@@ -1,27 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{background:#050508;color:white;font-family:serif;margin:0;padding:20px;}
-.verse{font-size:1.6rem;margin-bottom:20px;}
-</style>
+    <meta charset="UTF-8">
+    <style>
+        :root { --gold: #C2B280; --bg: #050508; --card: rgba(194, 178, 128, 0.05); }
+        body { background: var(--bg); color: white; font-family: 'serif', 'Georgia', serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .surah-title { font-size: 1.8rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin: 10px 0 0 0; }
+        .surah-subtitle { font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px; margin-bottom: 30px; }
+        .mode-selector { display: flex; background: var(--card); border-radius: 25px; padding: 5px; margin-bottom: 30px; border: 1px solid rgba(194,178,128,0.1); }
+        .mode-btn { padding: 8px 20px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; border: none; background: none; color: white; opacity: 0.4; transition: 0.3s; font-weight: bold; }
+        .mode-btn.active { background: var(--gold); color: var(--bg); opacity: 1; }
+        .verse-container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 100px; }
+        .verse-card { background: var(--card); border: 1px solid rgba(194, 178, 128, 0.1); border-radius: 20px; padding: 25px; transition: 0.5s; cursor: pointer; }
+        .verse-card.active { border-color: var(--gold); box-shadow: 0 0 20px rgba(194, 178, 128, 0.15); transform: scale(1.02); }
+        .arabic-text { font-size: 1.8rem; text-align: right; line-height: 2.2; margin-bottom: 15px; font-family: 'serif'; }
+        .translation { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; font-style: italic; }
+        .hifz-active .verse-card:not(.active) { opacity: 0.15; filter: blur(2px); }
+        .audio-bar { position: fixed; bottom: 30px; background: rgba(8, 8, 10, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--gold); padding: 15px 30px; border-radius: 50px; display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .play-btn { background: var(--gold); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    </style>
 </head>
 <body>
+    <h1 class="surah-title">Al-Fatihah</h1>
+    <div class="surah-subtitle">The Opening • 7 Verses</div>
 
-<div class="verse">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+    <div class="mode-selector">
+        <button class="mode-btn active" onclick="setMode('read', this)">READING</button>
+        <button class="mode-btn" onclick="setMode('hifz', this)">HIFZ FOCUS</button>
+    </div>
 
-<button onclick="play()">▶ Play</button>
+    <div class="verse-container" id="verses">
+        <div class="verse-card active" id="v1" onclick="focusVerse(1)">
+            <div class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+            <div class="translation">In the name of Allah, the Entirely Merciful, the Especially Merciful.</div>
+        </div>
+        <div class="verse-card" id="v2" onclick="focusVerse(2)">
+            <div class="arabic-text">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</div>
+            <div class="translation">All praise is [due] to Allah, Lord of the worlds.</div>
+        </div>
+    </div>
 
-<audio id="quran" controls style="width:100%;margin-top:20px">
-  <source src="https://download.quranicaudio.com/qdc/mishari_al_afasy/murattal/001.mp3">
-</audio>
+    <div class="audio-bar">
+        <button class="play-btn" onclick="togglePlay()">
+            <svg id="play-icon" width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+        <div style="font-size: 0.6rem; letter-spacing: 1px; font-weight: bold; opacity:0.8">MISHARY RASHID ALAFASY</div>
+    </div>
 
-<script>
-function play(){
- const a=document.getElementById('quran');
- a.play().catch(()=>{});
-}
-</script>
+    <script>
+        let isPlaying = false;
+        function setMode(mode, btn) {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.body.classList.toggle('hifz-active', mode === 'hifz');
+        }
+        function focusVerse(num) {
+            document.querySelectorAll('.verse-card').forEach(v => v.classList.remove('active'));
+            document.getElementById('v' + num).classList.add('active');
+            window.parent.postMessage('play_beed', '*');
+        }
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            document.getElementById('play-icon').innerHTML = isPlaying ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+        }
+    </script>
 </body>
 </html>
