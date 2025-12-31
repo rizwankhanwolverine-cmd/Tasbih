@@ -1,67 +1,107 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
-        .salah-list { width: 100%; max-width: 400px; margin-top: 20px; }
-        .salah-item { 
-            background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.1); 
-            border-radius: 15px; padding: 20px; margin-bottom: 12px; 
-            display: flex; justify-content: space-between; align-items: center;
-            transition: 0.3s; cursor: pointer;
-        }
-        .salah-item.done { border-color: #C2B280; background: rgba(194, 178, 128, 0.15); }
-        .name { font-size: 1.1rem; letter-spacing: 1px; color: white; }
-        .check { width: 25px; height: 25px; border: 2px solid #C2B280; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
-        .done .check { background: #C2B280; color: #050508; }
-        .title { font-size: 0.7rem; opacity: 0.5; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
-    </style>
+<style>
+body {
+    background:#050508;
+    color:#C2B280;
+    font-family:sans-serif;
+    margin:0;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+.title {
+    font-size:0.7rem;
+    opacity:0.5;
+    letter-spacing:3px;
+    margin-bottom:12px;
+    text-transform:uppercase;
+}
+.list {
+    width:100%;
+    max-width:400px;
+}
+.item {
+    background:rgba(194,178,128,0.05);
+    border:1px solid rgba(194,178,128,0.1);
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+}
+.item.done {
+    background:rgba(194,178,128,0.15);
+    border-color:#C2B280;
+}
+.name { color:white; }
+.check {
+    width:24px;
+    height:24px;
+    border:2px solid #C2B280;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.8rem;
+}
+.item.done .check {
+    background:#C2B280;
+    color:#050508;
+}
+</style>
 </head>
+
 <body>
-    <div class="title">Daily Prayers</div>
-    <div class="salah-list" id="salah-list">
-        </div>
 
-    <script>
-        const prayers = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
-        // Load data from localStorage (v2 ensures it matches Journey sync)
-        let state = JSON.parse(localStorage.getItem('salah_v2')) || {
-            Fajr: false, Dhuhr: false, Asr: false, Maghrib: false, Isha: false
-        };
+<div class="title">Daily Prayers</div>
+<div class="list" id="list"></div>
 
-        function render() {
-            const container = document.getElementById('salah-list');
-            container.innerHTML = '';
-            prayers.forEach(p => {
-                const isDone = state[p];
-                const div = document.createElement('div');
-                div.className = `salah-item ${isDone ? 'done' : ''}`;
-                div.onclick = () => toggle(p);
-                div.innerHTML = `
-                    <span class="name">${p}</span>
-                    <div class="check">${isDone ? '✓' : ''}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
+<script>
+const prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+let state = JSON.parse(localStorage.getItem('salah_v2')) || {
+    Fajr:false, Dhuhr:false, Asr:false, Maghrib:false, Isha:false
+};
 
-        function toggle(p) {
-            state[p] = !state[p];
-            localStorage.setItem('salah_v2', JSON.stringify(state));
-            
-            // 1. Trigger individual "Beed-like" tap sound (via Shell)
-            window.parent.postMessage('play_beed', '*');
+function render() {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    prayers.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'item' + (state[p] ? ' done' : '');
+        div.innerHTML = `
+            <span class="name">${p}</span>
+            <div class="check">${state[p] ? '✓' : ''}</div>
+        `;
 
-            // 2. Check if all prayers are finished for Big Celebration
-            const allDone = Object.values(state).every(val => val === true);
-            if (allDone) {
-                window.parent.postMessage('celebrate', '*');
-            }
+        // 🔑 FIX: pointerdown instead of click
+        div.addEventListener('pointerdown', () => toggle(p));
 
-            render();
-        }
+        list.appendChild(div);
+    });
+}
 
-        render();
-    </script>
+function toggle(p) {
+    state[p] = !state[p];
+    localStorage.setItem('salah_v2', JSON.stringify(state));
+
+    // 🔊 Tap sound
+    window.parent.postMessage('play_beed', '*');
+
+    // 🎉 Celebrate if all done
+    if (Object.values(state).every(v => v)) {
+        window.parent.postMessage('celebrate', '*');
+    }
+
+    render();
+}
+
+render();
+</script>
+
 </body>
 </html>
