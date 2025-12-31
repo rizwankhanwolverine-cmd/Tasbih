@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sanctuary Infinity</title>
     <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#C2B280">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --vanta: #050508; --gold: #C2B280; }
@@ -18,14 +19,11 @@
     </style>
 </head>
 <body onclick="initAudio()">
-
     <div id="app-shell">
         <audio id="master-click" preload="auto">
             <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
         </audio>
-
         <iframe id="module-container" src="" allow="autoplay"></iframe>
-
         <nav class="nav">
             <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><div class="nav-label">Journey</div></div>
             <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><div class="nav-label">Recite</div></div>
@@ -33,7 +31,6 @@
             <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><div class="nav-label">Salah</div></div>
         </nav>
     </div>
-
     <script>
         const clickSound = document.getElementById('master-click');
         let audioEnabled = false;
@@ -50,7 +47,7 @@
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
                 clickSound.currentTime = 0;
-                clickSound.play().catch(err => console.log("Waiting for user gesture..."));
+                clickSound.play().catch(() => {});
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
@@ -61,19 +58,18 @@
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active'); 
-            else document.getElementById('btn-' + name).classList.add('active');
+            else {
+                const target = document.getElementById('btn-' + name);
+                if(target) target.classList.add('active');
+            }
             document.getElementById('module-container').src = name + ".html";
         }
 
         window.onload = () => {
             const saved = localStorage.getItem('active_tab') || 'tasbih';
             loadModule(saved);
-
-            // --- PWA SERVICE WORKER LOGIC ADDED BY TPM ---
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('Sanctuary SW Active:', reg.scope))
-                    .catch(err => console.log('SW Registration Error:', err));
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
             }
         };
     </script>
