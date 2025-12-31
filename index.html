@@ -17,9 +17,9 @@
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
     </style>
 </head>
-<body onclick="initAudio()">
+<body onclick="unlockAudio()">
     <div id="app-shell">
-        <audio id="master-click" preload="auto">
+        <audio id="master-click" preload="auto" crossorigin="anonymous">
             <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
         </audio>
 
@@ -35,27 +35,27 @@
 
     <script>
         const clickSound = document.getElementById('master-click');
-        let audioCtx;
+        let audioUnlocked = false;
 
-        // TPM Recommendation: Initialize Audio Context on first body click
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            // Prime the audio hardware with a nearly silent play
-            clickSound.volume = 0.01;
+        // Force browser to allow audio on the very first touch
+        function unlockAudio() {
+            if (audioUnlocked) return;
             clickSound.play().then(() => {
                 clickSound.pause();
                 clickSound.currentTime = 0;
-                clickSound.volume = 1.0;
-            }).catch(() => {});
+                audioUnlocked = true;
+                console.log("Hardware Unlocked");
+            }).catch(e => console.error("Hardware Lock active", e));
         }
 
-        // Standardized Listener for all module signals
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
+                clickSound.pause(); // Reset instantly for rapid taps
                 clickSound.currentTime = 0;
-                clickSound.play().catch(err => console.log("Audio waiting for navigation click..."));
+                clickSound.play().catch(err => {
+                    console.log("Audio blocked. Trying to re-unlock...");
+                    unlockAudio();
+                });
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
@@ -63,11 +63,14 @@
         });
 
         function loadModule(name, btnEl) {
-            initAudio(); // Trigger hardware unlock when switching tabs
+            unlockAudio(); // Unlock audio context on every tab change
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active'); 
-            else document.getElementById('btn-' + name).classList.add('active');
+            else {
+                const target = document.getElementById('btn-' + name);
+                if(target) target.classList.add('active');
+            }
             document.getElementById('module-container').src = name + ".html";
         }
 
