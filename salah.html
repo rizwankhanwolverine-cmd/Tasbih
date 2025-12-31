@@ -3,53 +3,93 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{
+body {
     background:#050508;
     color:#C2B280;
     font-family:sans-serif;
-    margin:0;padding:20px;
-}
-.item{
     padding:20px;
-    border:1px solid rgba(194,178,128,0.2);
-    border-radius:15px;
+    margin:0;
+}
+.title {
+    font-size:0.7rem;
+    opacity:0.5;
+    letter-spacing:3px;
+    text-transform:uppercase;
     margin-bottom:10px;
+}
+.item {
+    background:rgba(194,178,128,0.05);
+    border:1px solid rgba(194,178,128,0.1);
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:12px;
     display:flex;
     justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
 }
-.done{background:rgba(194,178,128,0.15);}
+.item.done {
+    background:rgba(194,178,128,0.15);
+    border-color:#C2B280;
+}
+.name {
+    color:white;
+    font-size:1.1rem;
+}
+.check {
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    border:2px solid #C2B280;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.done .check {
+    background:#C2B280;
+    color:#050508;
+}
 </style>
 </head>
+
 <body>
 
+<div class="title">Daily Prayers</div>
 <div id="list"></div>
 
-<audio id="tapSound" preload="auto">
+<audio id="sfx" preload="auto">
   <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg">
 </audio>
 
 <script>
-const prayers=["Fajr","Dhuhr","Asr","Maghrib","Isha"];
-let state=JSON.parse(localStorage.getItem('salah'))||{};
-const sfx=document.getElementById('tapSound');
+const prayers = ["Fajr","Dhuhr","Asr","Maghrib","Isha"];
+const sfx = document.getElementById('sfx');
+
+let state = JSON.parse(localStorage.getItem('salah_v2')) || {
+    Fajr:false,Dhuhr:false,Asr:false,Maghrib:false,Isha:false
+};
 
 function draw(){
- list.innerHTML='';
- prayers.forEach(p=>{
-   const d=document.createElement('div');
-   d.className='item '+(state[p]?'done':'');
-   d.textContent=p;
-   d.onclick=()=>{
-     sfx.currentTime=0;
-     sfx.play().catch(()=>{});
-     state[p]=!state[p];
-     localStorage.setItem('salah',JSON.stringify(state));
-     draw();
-   };
-   list.appendChild(d);
- });
+    list.innerHTML='';
+    prayers.forEach(p=>{
+        const d=document.createElement('div');
+        d.className='item '+(state[p]?'done':'');
+        d.innerHTML = `
+            <span class="name">${p}</span>
+            <div class="check">${state[p]?'✓':''}</div>
+        `;
+        d.addEventListener('pointerdown',()=>{
+            sfx.currentTime=0;
+            sfx.play().catch(()=>{});
+            state[p]=!state[p];
+            localStorage.setItem('salah_v2',JSON.stringify(state));
+            draw();
+        });
+        list.appendChild(d);
+    });
 }
 draw();
 </script>
+
 </body>
 </html>
