@@ -1,35 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root { --gold: #C2B280; --bg: #050508; }
-        body { background: var(--bg); color: white; font-family: sans-serif; padding: 30px; display: flex; flex-direction: column; align-items: center; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 30px; display: flex; flex-direction: column; align-items: center; margin: 0; }
+        .title { font-size: 1.1rem; letter-spacing: 5px; margin-bottom: 40px; color: var(--gold); text-transform: uppercase; font-weight: 300; }
+        .stat-grid { width: 100%; max-width: 400px; display: grid; gap: 20px; }
         .stat-card { 
             background: linear-gradient(145deg, #0a0a0c, #121215); 
-            width: 100%; max-width: 400px; padding: 25px; 
-            border-radius: 20px; border: 1px solid rgba(194,178,128,0.1);
-            margin-bottom: 20px; text-align: center;
+            padding: 30px; border-radius: 24px; 
+            border: 1px solid rgba(194,178,128,0.1);
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .stat-val { font-size: 2.5rem; color: var(--gold); font-weight: 200; margin: 10px 0; }
-        .stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; }
+        .stat-val { font-size: 3rem; color: white; font-weight: 200; margin: 10px 0; font-variant-numeric: tabular-nums; }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); opacity: 0.6; font-weight: 800; }
     </style>
 </head>
 <body>
-    <div style="font-size: 1.2rem; letter-spacing: 4px; margin-bottom: 30px; color: var(--gold);">YOUR JOURNEY</div>
+    <div class="title">The Journey</div>
     
-    <div class="stat-card">
-        <div class="stat-label">Total Tasbih Taps</div>
-        <div id="total-tasbih" class="stat-val">0</div>
-    </div>
+    <div class="stat-grid">
+        <div class="stat-card">
+            <div class="stat-label">Daily Beeds</div>
+            <div id="total-tasbih" class="stat-val">0</div>
+        </div>
 
-    <div class="stat-card">
-        <div class="stat-label">Prayers Completed</div>
-        <div id="total-salah" class="stat-val">0/5</div>
+        <div class="stat-card">
+            <div class="stat-label">Salah Completion</div>
+            <div id="total-salah" class="stat-val">0/5</div>
+        </div>
     </div>
 
     <script>
         function updateStats() {
-            // Pulling from the "Vault"
             const tasbih = localStorage.getItem('t_today') || 0;
             const salah = JSON.parse(localStorage.getItem('salah_status')) || [false, false, false, false, false];
             const salahCount = salah.filter(p => p === true).length;
@@ -38,9 +43,8 @@
             document.getElementById('total-salah').textContent = `${salahCount}/5`;
         }
         
-        // Update on load
         updateStats();
-        // Listen for storage changes in other tabs
+        // TPM Tip: Listen for storage updates in real-time
         window.addEventListener('storage', updateStats);
     </script>
 </body>
