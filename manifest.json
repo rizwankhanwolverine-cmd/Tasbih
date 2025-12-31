@@ -1,21 +1,20 @@
 {
-  "name": "Tasbih Infinity Sanctuary",
-  "short_name": "Tasbih",
-  "description": "A Digital Sanctuary for Tasbih, Quran, and Dua.",
-  "start_url": "index.html",
+  "name": "Sanctuary Infinity",
+  "short_name": "Sanctuary",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#050508",
-  "theme_color": "#050508",
+  "theme_color": "#C2B280",
   "icons": [
     {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "https://via.placeholder.com/192x192/C2B280/050508?text=S",
+      "type": "image/png",
+      "sizes": "192x192"
     },
     {
-      "src": "icon.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "https://via.placeholder.com/512x512/C2B280/050508?text=Sanctuary",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ]
 }
