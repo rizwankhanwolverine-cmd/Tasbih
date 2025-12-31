@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {
+body{
     background:#050508;
     color:#C2B280;
     margin:0;
@@ -12,67 +13,39 @@ body {
     align-items:center;
     justify-content:center;
     font-family:sans-serif;
-    user-select:none;
 }
-.count {
-    font-size:4rem;
-    margin-bottom:20px;
-}
-.tap {
-    width:220px;
-    height:220px;
+#count{font-size:6rem;color:white;}
+#tap{
+    width:220px;height:220px;
     border-radius:50%;
     border:2px solid #C2B280;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:1.1rem;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    cursor:pointer;
-    transition:0.15s;
-}
-.tap:active {
-    background:rgba(194,178,128,0.15);
-    transform:scale(0.97);
-}
-.reset {
-    margin-top:25px;
-    font-size:0.7rem;
-    opacity:0.5;
-    letter-spacing:2px;
-    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    margin-top:20px;
+    user-select:none;
 }
 </style>
 </head>
-
 <body>
 
-<div class="count" id="count">0</div>
-<div class="tap" id="tap">Tap</div>
-<div class="reset" id="reset">Reset</div>
+<div id="count">0</div>
+<div id="tap">TAP</div>
+
+<audio id="tapSound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg">
+</audio>
 
 <script>
-let count = parseInt(localStorage.getItem('tasbih_count')) || 0;
-const countEl = document.getElementById('count');
-countEl.textContent = count;
+let c = Number(localStorage.getItem('t_today'))||0;
+count.textContent=c;
+const sfx=document.getElementById('tapSound');
 
-// 🔑 CRITICAL FIX: pointerdown fires reliably on mobile
-document.getElementById('tap').addEventListener('pointerdown', () => {
-    count++;
-    countEl.textContent = count;
-    localStorage.setItem('tasbih_count', count);
-
-    // 🔊 ALWAYS trigger sound
-    window.parent.postMessage('play_beed', '*');
+tap.addEventListener('pointerdown',()=>{
+    sfx.currentTime=0;
+    sfx.play().catch(()=>{});
+    c++;
+    count.textContent=c;
+    localStorage.setItem('t_today',c);
 });
-
-document.getElementById('reset').onclick = () => {
-    count = 0;
-    countEl.textContent = count;
-    localStorage.setItem('tasbih_count', count);
-};
 </script>
-
 </body>
 </html>
