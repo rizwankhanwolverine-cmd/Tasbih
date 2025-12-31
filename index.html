@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sanctuary Infinity</title>
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#C2B280">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --vanta: #050508; --gold: #C2B280; }
@@ -33,21 +32,23 @@
     </div>
     <script>
         const clickSound = document.getElementById('master-click');
-        let audioEnabled = false;
+        let audioCtx;
 
         function initAudio() {
-            if (audioEnabled) return;
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            clickSound.volume = 0.01;
             clickSound.play().then(() => {
                 clickSound.pause();
                 clickSound.currentTime = 0;
-                audioEnabled = true;
+                clickSound.volume = 1.0;
             }).catch(() => {});
         }
 
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
                 clickSound.currentTime = 0;
-                clickSound.play().catch(() => {});
+                clickSound.play().catch(err => console.log("Audio blocked: tap Nav first."));
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
@@ -55,13 +56,11 @@
         });
 
         function loadModule(name, btnEl) {
+            initAudio(); // Force unlock on every tab switch
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active'); 
-            else {
-                const target = document.getElementById('btn-' + name);
-                if(target) target.classList.add('active');
-            }
+            else document.getElementById('btn-' + name).classList.add('active');
             document.getElementById('module-container').src = name + ".html";
         }
 
@@ -69,7 +68,7 @@
             const saved = localStorage.getItem('active_tab') || 'tasbih';
             loadModule(saved);
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+                navigator.serviceWorker.register('./sw.js');
             }
         };
     </script>
