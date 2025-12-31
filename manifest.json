@@ -5,16 +5,19 @@
   "display": "standalone",
   "background_color": "#050508",
   "theme_color": "#C2B280",
+  "description": "A Modular Spiritual Sanctuary",
   "icons": [
     {
       "src": "https://via.placeholder.com/192x192/C2B280/050508?text=S",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "https://via.placeholder.com/512x512/C2B280/050508?text=Sanctuary",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ]
 }
