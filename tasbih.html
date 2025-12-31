@@ -3,49 +3,122 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body{
+body {
     background:#050508;
     color:#C2B280;
+    font-family:sans-serif;
     margin:0;
     height:100vh;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
-    font-family:sans-serif;
-}
-#count{font-size:6rem;color:white;}
-#tap{
-    width:220px;height:220px;
-    border-radius:50%;
-    border:2px solid #C2B280;
-    display:flex;align-items:center;justify-content:center;
-    margin-top:20px;
     user-select:none;
+}
+.daily-label {
+    font-size:0.7rem;
+    opacity:0.5;
+    letter-spacing:2px;
+    margin-bottom:10px;
+}
+.tasbih-display {
+    position:relative;
+    width:280px;
+    height:280px;
+}
+#count {
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:6rem;
+    color:white;
+    pointer-events:none;
+}
+svg {
+    width:100%;
+    height:100%;
+    transform:rotate(-90deg);
+}
+circle {
+    fill:none;
+    stroke-width:6;
+    stroke-linecap:round;
+}
+#bg { stroke:rgba(194,178,128,0.1); }
+#ring { stroke:#C2B280; transition:0.1s; }
+button {
+    margin-top:25px;
+    background:none;
+    border:1px solid rgba(194,178,128,0.2);
+    color:#C2B280;
+    padding:10px 20px;
+    border-radius:10px;
+    font-size:0.6rem;
+    letter-spacing:2px;
+    cursor:pointer;
 }
 </style>
 </head>
+
 <body>
 
-<div id="count">0</div>
-<div id="tap">TAP</div>
+<div class="daily-label">DAILY BEEDS</div>
 
-<audio id="tapSound" preload="auto">
+<div class="tasbih-display" id="tap">
+    <svg viewBox="0 0 260 260">
+        <circle id="bg" cx="130" cy="130" r="115"></circle>
+        <circle id="ring" cx="130" cy="130" r="115"
+            stroke-dasharray="722"
+            stroke-dashoffset="722"></circle>
+    </svg>
+    <div id="count">0</div>
+</div>
+
+<button onclick="reset()">RESET CYCLE</button>
+
+<audio id="sfx" preload="auto">
   <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg">
 </audio>
 
 <script>
-let c = Number(localStorage.getItem('t_today'))||0;
-count.textContent=c;
-const sfx=document.getElementById('tapSound');
+const ring = document.getElementById('ring');
+const countEl = document.getElementById('count');
+const sfx = document.getElementById('sfx');
 
-tap.addEventListener('pointerdown',()=>{
-    sfx.currentTime=0;
+let count = Number(localStorage.getItem('t_cur')) || 0;
+let today = Number(localStorage.getItem('t_today')) || 0;
+
+function render(){
+    countEl.textContent = count;
+    ring.style.strokeDashoffset = 722 - (count / 10) * 722;
+}
+
+document.getElementById('tap').addEventListener('pointerdown', () => {
+    sfx.currentTime = 0;
     sfx.play().catch(()=>{});
-    c++;
-    count.textContent=c;
-    localStorage.setItem('t_today',c);
+
+    count++;
+    today++;
+
+    if (count >= 10) {
+        count = 0;
+    }
+
+    localStorage.setItem('t_cur', count);
+    localStorage.setItem('t_today', today);
+    render();
 });
+
+function reset(){
+    count = 0;
+    localStorage.setItem('t_cur', 0);
+    render();
+}
+
+render();
 </script>
+
 </body>
 </html>
