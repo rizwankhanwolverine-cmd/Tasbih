@@ -22,7 +22,9 @@
         <audio id="master-click" preload="auto">
             <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
         </audio>
+
         <iframe id="module-container" src="" allow="autoplay"></iframe>
+
         <nav class="nav">
             <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><div class="nav-label">Journey</div></div>
             <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><div class="nav-label">Recite</div></div>
@@ -30,13 +32,17 @@
             <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><div class="nav-label">Salah</div></div>
         </nav>
     </div>
+
     <script>
         const clickSound = document.getElementById('master-click');
         let audioCtx;
 
+        // TPM Recommendation: Initialize Audio Context on first body click
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // Prime the audio hardware with a nearly silent play
             clickSound.volume = 0.01;
             clickSound.play().then(() => {
                 clickSound.pause();
@@ -45,10 +51,11 @@
             }).catch(() => {});
         }
 
+        // Standardized Listener for all module signals
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
                 clickSound.currentTime = 0;
-                clickSound.play().catch(err => console.log("Audio blocked: tap Nav first."));
+                clickSound.play().catch(err => console.log("Audio waiting for navigation click..."));
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
@@ -56,7 +63,7 @@
         });
 
         function loadModule(name, btnEl) {
-            initAudio(); // Force unlock on every tab switch
+            initAudio(); // Trigger hardware unlock when switching tabs
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active'); 
