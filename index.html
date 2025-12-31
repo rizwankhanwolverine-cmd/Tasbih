@@ -1,66 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sanctuary</title>
-
-<style>
-body {
-    margin:0;
-    height:100vh;
-    background:#050508;
-    display:flex;
-    justify-content:center;
-    font-family:sans-serif;
-}
-#app {
-    width:100%;
-    max-width:500px;
-    height:100vh;
-    display:flex;
-    flex-direction:column;
-}
-iframe {
-    flex:1;
-    border:none;
-}
-.nav {
-    height:80px;
-    background:#08080a;
-    display:flex;
-    border-top:1px solid rgba(194,178,128,0.1);
-}
-.nav div {
-    flex:1;
-    color:#C2B280;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    opacity:0.4;
-    cursor:pointer;
-}
-.nav .active { opacity:1; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sanctuary Infinity</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --vanta: #050508; --gold: #C2B280; }
+        body { background: #000; margin: 0; height: 100vh; display: flex; justify-content: center; font-family: sans-serif; overflow: hidden; }
+        #app-shell { width: 100%; max-width: 500px; height: 100vh; background: var(--vanta); display: flex; flex-direction: column; position: relative; }
+        #module-container { flex: 1; border: none; width: 100%; height: 100%; }
+        .nav { height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); transition: 0.3s; }
+        .nav-btn.active { opacity: 1; }
+        .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
+    </style>
 </head>
+<body onclick="warmUp()">
 
-<body>
-<div id="app">
-    <iframe id="frame"></iframe>
-    <div class="nav">
-        <div onclick="go('journey',this)">Journey</div>
-        <div onclick="go('recite',this)">Recite</div>
-        <div onclick="go('tasbih',this)">Tasbih</div>
-        <div onclick="go('salah',this)">Salah</div>
+    <div id="app-shell">
+        <audio id="master-sfx" preload="auto">
+            <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
+        </audio>
+
+        <iframe id="module-container" src=""></iframe>
+
+        <nav class="nav">
+            <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><div class="nav-label">Journey</div></div>
+            <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><div class="nav-label">Recite</div></div>
+            <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih"><div class="nav-label">Beeds</div></div>
+            <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><div class="nav-label">Salah</div></div>
+        </nav>
     </div>
-</div>
 
-<script>
-function go(name, el){
-    document.querySelectorAll('.nav div').forEach(b=>b.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('frame').src = name + '.html';
-}
-go('tasbih', document.querySelectorAll('.nav div')[2]);
-</script>
+    <script>
+        const sfx = document.getElementById('master-sfx');
+        let audioCtx;
+
+        function warmUp() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            sfx.play().then(() => { sfx.pause(); sfx.currentTime = 0; }).catch(() => {});
+        }
+
+        window.addEventListener('message', (e) => {
+            if (e.data === 'play_beed') {
+                sfx.currentTime = 0;
+                sfx.play().catch(() => {});
+            }
+            if (e.data === 'celebrate') {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
+            }
+        });
+
+        function loadModule(name, btnEl) {
+            warmUp();
+            localStorage.setItem('active_tab', name);
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            if(btnEl) btnEl.classList.add('active'); 
+            else document.getElementById('btn-' + name).classList.add('active');
+            document.getElementById('module-container').src = name + ".html";
+        }
+
+        window.onload = () => {
+            const saved = localStorage.getItem('active_tab') || 'tasbih';
+            loadModule(saved);
+        };
+    </script>
 </body>
 </html>
