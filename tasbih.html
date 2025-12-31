@@ -19,16 +19,12 @@
         <div id="t-num">0</div>
     </div>
     <button onclick="event.stopPropagation(); reset();" style="margin-top:40px; background:none; border:1px solid rgba(194,178,128,0.1); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer;">RESET</button>
-
     <script>
-        // Load count from 'Vault'
         let count = parseInt(localStorage.getItem('t_cur')) || 0;
         let today = parseInt(localStorage.getItem('t_today')) || 0;
 
         function tap() {
-            // Tell the Parent Shell to play the sound
             window.parent.postMessage('play_beed', '*');
-            
             count++; today++;
             if(count >= 10) {
                 window.parent.postMessage('celebrate', '*');
@@ -36,9 +32,7 @@
             }
             save();
         }
-
         function reset() { count = 0; save(); }
-        
         function save() {
             document.getElementById('t-num').textContent = count;
             document.getElementById('t-today').textContent = today;
