@@ -1,81 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; -webkit-user-select: none; user-select: none; }
-        .tasbih-display { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; }
-        #t-num { font-size: 7rem; color: white; font-weight: 200; pointer-events: none; }
-        circle { transition: 0.1s; stroke-linecap: round; }
-        .daily-label { font-size:0.7rem; opacity:0.5; letter-spacing:2px; margin-bottom:10px; text-transform: uppercase; }
-        #status-hint { font-size: 0.5rem; margin-top: 15px; opacity: 0.3; letter-spacing: 1px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Sanctuary Infinity</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root { --vanta:#050508; --gold:#C2B280; }
+body { background:#000; margin:0; height:100vh; display:flex; justify-content:center; font-family:sans-serif; overflow:hidden; }
+#app-shell { width:100%; max-width:500px; height:100vh; background:var(--vanta); display:flex; flex-direction:column; }
+#module-container { flex:1; border:none; width:100%; height:100%; }
+.nav { height:85px; background:#08080a; border-top:1px solid rgba(194,178,128,0.1); display:flex; }
+.nav-btn { flex:1; display:flex; align-items:center; justify-content:center; color:var(--gold); opacity:.3; cursor:pointer; }
+.nav-btn.active { opacity:1; }
+.nav-label { font-size:.65rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+</style>
 </head>
-<body onclick="handleTap()">
-    <div class="daily-label">DAILY BEEDS: <span id="t-today" style="color:white">0</span></div>
-    
-    <div class="tasbih-display">
-        <svg style="position:absolute; width:100%; height:100%; transform:rotate(-90deg);" viewBox="0 0 260 260">
-            <circle fill="none" stroke="rgba(194, 178, 128, 0.1)" stroke-width="6" cx="130" cy="130" r="115"></circle>
-            <circle id="ring" fill="none" stroke="#C2B280" stroke-width="6" stroke-dasharray="722" stroke-dashoffset="722" cx="130" cy="130" r="115"></circle>
-        </svg>
-        <div id="t-num">0</div>
-    </div>
-    
-    <button onclick="event.stopPropagation(); resetCount();" style="margin-top:30px; background:none; border:1px solid rgba(194,178,128,0.2); color:#C2B280; padding:10px 20px; border-radius:10px; font-size:0.6rem; cursor:pointer; text-transform:uppercase;">Reset Cycle</button>
-    <div id="status-hint">TAP SCREEN OR PRESS SPACEBAR</div>
 
-    <script>
-        const localSfx = new Audio("https://cdn.freesound.org/previews/256/256113_3263901-lq.wav");
-        
-        let count = parseInt(localStorage.getItem('t_cur')) || 0;
-        let today = parseInt(localStorage.getItem('t_today')) || 0;
+<body>
 
-        function handleTap() {
-            // 1. Play local tap sound
-            if(localSfx) {
-                localSfx.currentTime = 0;
-                localSfx.play().catch(() => {});
-            }
+<div id="app-shell">
 
-            // 2. Send message to parent shell to play master SFX
-            window.parent.postMessage('play_beed', '*');
+<audio id="tap-sound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
+</audio>
 
-            // 3. Increment logic
-            count++;
-            today++;
+<iframe id="module-container"></iframe>
 
-            // 4. Celebration every 10 taps
-            if(count >= 10) {
-                window.parent.postMessage('celebrate', '*');
-                count = 0;
-            }
+<nav class="nav">
+  <div class="nav-btn" onclick="loadModule('journey',this)" id="btn-journey"><div class="nav-label">Journey</div></div>
+  <div class="nav-btn" onclick="loadModule('recite',this)" id="btn-recite"><div class="nav-label">Recite</div></div>
+  <div class="nav-btn" onclick="loadModule('tasbih',this)" id="btn-tasbih"><div class="nav-label">Beeds</div></div>
+  <div class="nav-btn" onclick="loadModule('salah',this)" id="btn-salah"><div class="nav-label">Salah</div></div>
+</nav>
 
-            save();
-        }
+</div>
 
-        window.addEventListener('keydown', (e) => {
-            if (e.code === "Space" || e.code === "Enter") {
-                e.preventDefault();
-                handleTap();
-            }
-        });
+<script>
+const tapSound = document.getElementById('tap-sound');
+let audioUnlocked = false;
 
-        function resetCount() {
-            count = 0;
-            save();
-        }
+function unlockAudioOnce() {
+    if (audioUnlocked) return;
+    tapSound.currentTime = 0;
+    tapSound.play().then(() => {
+        tapSound.pause();
+        tapSound.currentTime = 0;
+        audioUnlocked = true;
+    }).catch(()=>{});
+}
 
-        function save() {
-            document.getElementById('t-num').textContent = count;
-            document.getElementById('t-today').textContent = today;
-            const offset = 722 - (count / 10 * 722);
-            document.getElementById('ring').style.strokeDashoffset = offset;
+// 🔑 critical: unlock on FIRST real user touch
+document.addEventListener('touchstart', unlockAudioOnce, { once:true });
+document.addEventListener('click', unlockAudioOnce, { once:true });
 
-            localStorage.setItem('t_cur', count);
-            localStorage.setItem('t_today', today);
-        }
+window.addEventListener('message', e => {
+    if (e.data === 'play_beed') {
+        tapSound.currentTime = 0;
+        tapSound.play().catch(()=>{});
+    }
+    if (e.data === 'celebrate') {
+        confetti({ particleCount:150, spread:70, origin:{y:.7}, colors:['#C2B280','#FFF'] });
+    }
+});
 
-        save();
-    </script>
+function loadModule(name, btn) {
+    localStorage.setItem('active_tab', name);
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('module-container').src = name + ".html";
+}
+
+window.onload = () => {
+    const tab = localStorage.getItem('active_tab') || 'tasbih';
+    loadModule(tab, document.getElementById('btn-'+tab));
+};
+</script>
+
 </body>
 </html>
