@@ -9,18 +9,19 @@
         :root { --vanta: #050508; --gold: #C2B280; }
         body { background: #000; margin: 0; height: 100vh; display: flex; justify-content: center; font-family: sans-serif; overflow: hidden; }
         #app-shell { width: 100%; max-width: 500px; height: 100vh; background: var(--vanta); display: flex; flex-direction: column; position: relative; }
+        /* The 'allow' attribute here is the key to fixing the sound nightmare */
         #module-container { flex: 1; border: none; width: 100%; height: 100%; }
         .nav { height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); transition: 0.3s; }
+        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); }
         .nav-btn.active { opacity: 1; }
         .nav-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; letter-spacing: 1px; }
     </style>
 </head>
-<body onclick="warmUp()">
+<body onclick="initAudio()">
 
     <div id="app-shell">
-        <audio id="master-sfx" preload="auto">
-            <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
+        <audio id="master-click" preload="auto">
+            <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
         </audio>
 
         <iframe id="module-container" src="" allow="autoplay"></iframe>
@@ -34,19 +35,23 @@
     </div>
 
     <script>
-        const sfx = document.getElementById('master-sfx');
-        let audioCtx;
+        const clickSound = document.getElementById('master-click');
+        let audioEnabled = false;
 
-        function warmUp() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            sfx.play().then(() => { sfx.pause(); sfx.currentTime = 0; }).catch(() => {});
+        // One click anywhere on the screen 'authorizes' the app to make noise
+        function initAudio() {
+            if (audioEnabled) return;
+            clickSound.play().then(() => {
+                clickSound.pause();
+                clickSound.currentTime = 0;
+                audioEnabled = true;
+            }).catch(() => {});
         }
 
         window.addEventListener('message', (e) => {
             if (e.data === 'play_beed') {
-                sfx.currentTime = 0;
-                sfx.play().catch(() => {});
+                clickSound.currentTime = 0;
+                clickSound.play().catch(err => console.log("Waiting for user gesture..."));
             }
             if (e.data === 'celebrate') {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
@@ -54,7 +59,6 @@
         });
 
         function loadModule(name, btnEl) {
-            warmUp();
             localStorage.setItem('active_tab', name);
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active'); 
@@ -69,4 +73,3 @@
     </script>
 </body>
 </html>
-
