@@ -1,78 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sanctuary Infinity</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root { --vanta: #050508; --gold: #C2B280; }
-        body { background: #000; margin: 0; height: 100vh; display: flex; justify-content: center; font-family: sans-serif; overflow: hidden; }
-        #app-shell { width: 100%; max-width: 500px; height: 100vh; background: var(--vanta); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.9); }
-        #module-container { flex: 1; border: none; width: 100%; height: 100%; }
-        .nav { height: 85px; background: #08080a; border-top: 1px solid rgba(194,178,128,0.1); display: flex; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.3; cursor: pointer; color: var(--gold); transition: 0.3s; }
-        .nav-btn.active { opacity: 1; }
-        .nav-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-top: 6px; letter-spacing: 1px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Sanctuary Infinity</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root { --vanta:#050508; --gold:#C2B280; }
+body { background:#000; margin:0; height:100vh; display:flex; justify-content:center; font-family:sans-serif; overflow:hidden; }
+#app-shell { width:100%; max-width:500px; height:100vh; background:var(--vanta); display:flex; flex-direction:column; }
+#module-container { flex:1; border:none; width:100%; height:100%; }
+.nav { height:85px; background:#08080a; border-top:1px solid rgba(194,178,128,0.1); display:flex; }
+.nav-btn { flex:1; display:flex; align-items:center; justify-content:center; color:var(--gold); opacity:.3; cursor:pointer; }
+.nav-btn.active { opacity:1; }
+.nav-label { font-size:.65rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+</style>
 </head>
-<body onclick="unlockAudio()">
 
-    <div id="app-shell">
-        <audio id="master-sfx" preload="auto">
-            <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
-        </audio>
+<body>
 
-        <iframe id="module-container" src=""></iframe>
+<div id="app-shell">
 
-        <nav class="nav">
-            <div class="nav-btn" onclick="loadModule('journey', this)" id="btn-journey"><div class="nav-label">Journey</div></div>
-            <div class="nav-btn" onclick="loadModule('recite', this)" id="btn-recite"><div class="nav-label">Recite</div></div>
-            <div class="nav-btn" onclick="loadModule('tasbih', this)" id="btn-tasbih"><div class="nav-label">Beeds</div></div>
-            <div class="nav-btn" onclick="loadModule('salah', this)" id="btn-salah"><div class="nav-label">Salah</div></div>
-        </nav>
-    </div>
+<audio id="tap-sound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/foley/button_click.ogg" type="audio/ogg">
+</audio>
 
-    <script>
-        const sfx = document.getElementById('master-sfx');
-        let audioCtx;
+<iframe id="module-container"></iframe>
 
-        function unlockAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-            sfx.currentTime = 0;
-            sfx.play().then(() => { sfx.pause(); sfx.currentTime = 0; }).catch(() => {});
-        }
+<nav class="nav">
+  <div class="nav-btn" onclick="loadModule('journey',this)" id="btn-journey"><div class="nav-label">Journey</div></div>
+  <div class="nav-btn" onclick="loadModule('recite',this)" id="btn-recite"><div class="nav-label">Recite</div></div>
+  <div class="nav-btn" onclick="loadModule('tasbih',this)" id="btn-tasbih"><div class="nav-label">Beeds</div></div>
+  <div class="nav-btn" onclick="loadModule('salah',this)" id="btn-salah"><div class="nav-label">Salah</div></div>
+</nav>
 
-        window.addEventListener('message', (e) => {
-            if (e.data === 'play_beed') {
-                unlockAudio();  // ensure context is active
-                sfx.currentTime = 0;
-                sfx.play().catch(() => { console.log("Audio blocked until user interaction"); });
-            }
-            if (e.data === 'celebrate') {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#C2B280', '#FFFFFF'] });
-            }
-        });
+</div>
 
-        function loadModule(name, btnEl) {
-            unlockAudio();
-            localStorage.setItem('active_tab', name);
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            if(btnEl) btnEl.classList.add('active'); 
-            else {
-                const target = document.getElementById('btn-' + name);
-                if(target) target.classList.add('active');
-            }
-            document.getElementById('module-container').src = name + ".html";
-        }
+<script>
+const tapSound = document.getElementById('tap-sound');
+let audioUnlocked = false;
 
-        window.onload = () => {
-            const saved = localStorage.getItem('active_tab') || 'tasbih';
-            loadModule(saved);
-        };
-    </script>
+function unlockAudioOnce() {
+    if (audioUnlocked) return;
+    tapSound.currentTime = 0;
+    tapSound.play().then(() => {
+        tapSound.pause();
+        tapSound.currentTime = 0;
+        audioUnlocked = true;
+    }).catch(()=>{});
+}
+
+// 🔑 critical: unlock on FIRST real user touch
+document.addEventListener('touchstart', unlockAudioOnce, { once:true });
+document.addEventListener('click', unlockAudioOnce, { once:true });
+
+window.addEventListener('message', e => {
+    if (e.data === 'play_beed') {
+        tapSound.currentTime = 0;
+        tapSound.play().catch(()=>{});
+    }
+    if (e.data === 'celebrate') {
+        confetti({ particleCount:150, spread:70, origin:{y:.7}, colors:['#C2B280','#FFF'] });
+    }
+});
+
+function loadModule(name, btn) {
+    localStorage.setItem('active_tab', name);
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('module-container').src = name + ".html";
+}
+
+window.onload = () => {
+    const tab = localStorage.getItem('active_tab') || 'tasbih';
+    loadModule(tab, document.getElementById('btn-'+tab));
+};
+</script>
+
 </body>
 </html>
