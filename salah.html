@@ -1,27 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         :root { --gold: #C2B280; --bg: #050508; }
-        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .salah-list { width: 100%; max-width: 400px; margin-top: 20px; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; }
+        .header { font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; margin: 20px 0; text-transform: uppercase; opacity: 0.8; }
+        .salah-list { width: 100%; max-width: 400px; }
         .prayer-row { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: rgba(194,178,128,0.05); margin-bottom: 12px; 
-            padding: 20px; border-radius: 15px; border: 1px solid rgba(194,178,128,0.1);
-            cursor: pointer; transition: 0.3s;
+            background: rgba(194,178,128,0.03); margin-bottom: 12px; 
+            padding: 22px; border-radius: 18px; border: 1px solid rgba(194,178,128,0.08);
+            cursor: pointer; transition: all 0.3s ease;
         }
-        .prayer-row.checked { border-color: var(--gold); background: rgba(194,178,128,0.15); }
-        .prayer-name { font-weight: bold; letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem; }
-        .check-circle { width: 24px; height: 24px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .prayer-row:active { transform: scale(0.98); }
+        .prayer-row.checked { border-color: var(--gold); background: rgba(194,178,128,0.12); }
+        .prayer-name { font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem; }
+        .check-circle { width: 26px; height: 26px; border: 2px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .checked .check-circle { background: var(--gold); }
-        .checked .check-circle::after { content: '✓'; color: black; font-size: 0.8rem; font-weight: bold; }
+        .checked .check-circle::after { content: '✓'; color: black; font-size: 0.9rem; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div style="font-size: 0.7rem; color: var(--gold); letter-spacing: 3px; margin-top: 20px;">DAILY PRAYERS</div>
-    <div class="salah-list" id="salah-list">
-        </div>
+    <div class="header">Daily Prayers</div>
+    <div class="salah-list" id="salah-list"></div>
 
     <script>
         const prayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
@@ -40,10 +43,15 @@
         }
 
         function toggle(i) {
+            // Signal sound to Shell immediately
+            window.parent.postMessage('play_beed', '*');
+            
             status[i] = !status[i];
             localStorage.setItem('salah_status', JSON.stringify(status));
-            window.parent.postMessage('play_beed', '*'); // Play tap sound
-            if (status.every(p => p === true)) window.parent.postMessage('celebrate', '*');
+            
+            if (status.every(p => p === true)) {
+                window.parent.postMessage('celebrate', '*');
+            }
             render();
         }
         render();
