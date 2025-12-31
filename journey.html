@@ -2,80 +2,46 @@
 <html>
 <head>
     <style>
-        body { background: #050508; color: #C2B280; font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; align-items: center; margin: 0; }
-        .stats-grid { width: 100%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .stat-card { background: rgba(194, 178, 128, 0.05); border: 1px solid rgba(194, 178, 128, 0.1); border-radius: 20px; padding: 20px; text-align: center; }
-        .stat-val { display: block; font-size: 1.8rem; color: white; font-weight: 200; margin-bottom: 5px; }
-        .stat-lab { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
-
-        .dua-section { width: 100%; max-width: 400px; margin-top: 30px; background: rgba(194, 178, 128, 0.08); border-radius: 25px; padding: 25px; border: 1px solid rgba(194, 178, 128, 0.2); box-sizing: border-box; }
-        .day-indicator { font-size: 0.65rem; font-weight: 800; letter-spacing: 3px; color: #C2B280; margin-bottom: 15px; display: block; }
-        .dua-content { color: white; font-style: italic; line-height: 1.6; font-size: 1rem; }
-        
-        .refresh-hint { margin-top: 20px; font-size: 0.6rem; opacity: 0.3; font-style: italic; }
+        :root { --gold: #C2B280; --bg: #050508; }
+        body { background: var(--bg); color: white; font-family: sans-serif; padding: 30px; display: flex; flex-direction: column; align-items: center; }
+        .stat-card { 
+            background: linear-gradient(145deg, #0a0a0c, #121215); 
+            width: 100%; max-width: 400px; padding: 25px; 
+            border-radius: 20px; border: 1px solid rgba(194,178,128,0.1);
+            margin-bottom: 20px; text-align: center;
+        }
+        .stat-val { font-size: 2.5rem; color: var(--gold); font-weight: 200; margin: 10px 0; }
+        .stat-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; }
     </style>
 </head>
 <body>
-    <h2 style="letter-spacing:5px; text-transform:uppercase; font-size:1rem; margin-top:10px;">Your Progress</h2>
-
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span id="j-beeds" class="stat-val">0</span>
-            <span class="stat-lab">Total Beeds</span>
-        </div>
-        <div class="stat-card">
-            <span id="j-salah" class="stat-val">0/5</span>
-            <span class="stat-lab">Prayers Done</span>
-        </div>
+    <div style="font-size: 1.2rem; letter-spacing: 4px; margin-bottom: 30px; color: var(--gold);">YOUR JOURNEY</div>
+    
+    <div class="stat-card">
+        <div class="stat-label">Total Tasbih Taps</div>
+        <div id="total-tasbih" class="stat-val">0</div>
     </div>
 
-    <div class="dua-section">
-        <span id="j-day" class="day-indicator">DAY 1</span>
-        <div id="j-dua" class="dua-content">"O Allah, I ask You for knowledge that is of benefit, a good provision, and deeds that will be accepted."</div>
+    <div class="stat-card">
+        <div class="stat-label">Prayers Completed</div>
+        <div id="total-salah" class="stat-val">0/5</div>
     </div>
-
-    <div class="refresh-hint">Progress updates automatically as you engage with other modules.</div>
 
     <script>
-        const DUAS = [
-            "Knowledge is not what is memorized, but what benefits.",
-            "The best of you are those who learn the Quran and teach it.",
-            "O Allah, make the Quran the spring of my heart.",
-            "Seek knowledge from the cradle to the grave.",
-            "Patience is half of faith and gratitude is the other half.",
-            "A moment of reflection is better than a year of worship.",
-            "Your soul is your vehicle; keep it pure for the journey.",
-            "True wealth is the wealth of the soul.",
-            "Be like a flower that gives fragrance even to the hand that crushes it.",
-            "The heart that beats for Allah is always at peace.",
-            "Every trial is a path to a higher station.",
-            "Kindness is a mark of faith.",
-            "Verily, with hardship comes ease.",
-            "Modesty is a branch of faith.",
-            "The most beloved of deeds to Allah are those done consistently."
-        ];
+        function updateStats() {
+            // Pulling from the "Vault"
+            const tasbih = localStorage.getItem('t_today') || 0;
+            const salah = JSON.parse(localStorage.getItem('salah_status')) || [false, false, false, false, false];
+            const salahCount = salah.filter(p => p === true).length;
 
-        function syncJourney() {
-            // 1. Sync Beeds (Tasbih)
-            const beeds = localStorage.getItem('t_today') || 0;
-            document.getElementById('j-beeds').textContent = beeds;
-
-            // 2. Sync Salah
-            const salahData = JSON.parse(localStorage.getItem('salah_v2')) || {};
-            const doneCount = Object.values(salahData).filter(val => val === true).length;
-            document.getElementById('j-salah').textContent = `${doneCount}/5`;
-
-            // 3. Sync Daily Dua (15-day cycle)
-            const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
-            const dayIndex = dayOfYear % 15;
-            document.getElementById('j-day').textContent = `DAY ${dayIndex + 1} WISDOM`;
-            document.getElementById('j-dua').textContent = `"${DUAS[dayIndex]}"`;
+            document.getElementById('total-tasbih').textContent = tasbih;
+            document.getElementById('total-salah').textContent = `${salahCount}/5`;
         }
-
-        // Run sync on load
-        window.onload = syncJourney;
-        // Also sync if the user switches back to this tab without refreshing
-        window.onfocus = syncJourney;
+        
+        // Update on load
+        updateStats();
+        // Listen for storage changes in other tabs
+        window.addEventListener('storage', updateStats);
     </script>
 </body>
 </html>
